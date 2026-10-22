@@ -1,0 +1,10 @@
+{
+  "hello": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000001","method":"hello","params":{"clientName":"Remote","supportedVersion":1}},
+  "patch": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000002","sessionId":"SESSION","method":"settings.patch","params":{"expectedRevision":0,"patch":{"clock":{"idleMinutes":10}}}},
+  "stale": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000003","sessionId":"SESSION","method":"settings.patch","params":{"expectedRevision":0,"patch":{"clock":{"idleMinutes":30}}}},
+  "unknown": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000004","sessionId":"SESSION","method":"evaluate","params":{}},
+  "malformed": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000005","sessionId":"SESSION","method":"settings.patch","params":[]},
+  "unsupported": {"protocol":"color-dock","version":2,"id":"00000000-0000-4000-8000-000000000006","method":"hello","params":{"clientName":"Remote","supportedVersion":2}},
+  "expired": {"protocol":"color-dock","version":1,"id":"00000000-0000-4000-8000-000000000007","sessionId":"00000000-0000-4000-8000-ffffffffffff","method":"state.get","params":{}},
+  "errors": {"stale":"REVISION_CONFLICT","unknown":"UNSUPPORTED_METHOD","malformed":"INVALID_REQUEST","unsupported":"UNSUPPORTED_VERSION","expired":"SESSION_EXPIRED"}
+}

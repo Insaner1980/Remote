@@ -1,0 +1,7 @@
+.gradle/
+.kotlin/
+.sonar/
+**/build/
+local.properties
+*.jks
+*.keystore

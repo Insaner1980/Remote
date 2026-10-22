@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Remote</string>
+    <string name="connect_title">Connect your TV</string>
+    <string name="connect_explanation">Connect your phone and LG TV to the same Wi-Fi network.</string>
+    <string name="permission_explanation">Allow local network access to find and control your TV.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="tv_ip">TV IP address</string>
+    <string name="connect">Connect TV</string>
+    <string name="cancel">Cancel</string>
+    <string name="pairing">Allow the connection on your TV.</string>
+    <string name="connected">Connected</string>
+    <string name="invalid_address">Enter a local IP address, such as 192.168.1.10.</string>
+</resources>
