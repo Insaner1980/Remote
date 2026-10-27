@@ -1,6 +1,17 @@
 [versions]
 agp = "9.4.1"
 kotlin = "2.4.21"
+composeStabilityAnalyzer = "0.15.0"
+ktlintGradle = "14.2.0"
+ktlint = "1.8.0"
+detekt = "1.23.8"
+owaspDependencyCheck = "13.0.0"
+sonarqube = "7.5.0.8588"
+# Last release for Detekt 1.x; 0.5+ requires Detekt 2.0 alpha.
+# Compatibility: https://mrmans0n.github.io/compose-rules/detekt/
+#noinspection NewerVersionAvailable
+composeRulesDetekt = "0.4.28"
+composeRulesKtlint = "0.6.8"
 compose = "2026.09.00"
 activity = "1.13.0"
 lifecycle = "2.11.0"
@@ -13,6 +24,9 @@ testExt = "1.3.0"
 espresso = "3.7.0"
 
 [libraries]
+android-security-lints = { module = "com.android.security.lint:lint", version = "1.0.4" }
+compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRulesDetekt" }
+compose-rules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref = "composeRulesKtlint" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
@@ -36,3 +50,8 @@ espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref =
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "composeStabilityAnalyzer" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+owasp-dependency-check = { id = "org.owasp.dependencycheck", version.ref = "owaspDependencyCheck" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }

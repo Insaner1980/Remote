@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "projectId": "remote",
+  "exceptionsFile": "config/check-exceptions.json",
+  "modules": [
+    {
+      "id": "app",
+      "gradlePath": ":app",
+      "type": "android-application",
+      "variants": ["debug", "release"],
+      "sourceSets": ["main", "debug", "test", "androidTest", "sharedTest"],
+      "tasks": {
+        "build": [{ "path": ":app:assembleDebug", "availability": "derived" }],
+        "test": [{ "path": ":app:testDebugUnitTest", "availability": "derived" }],
+        "lint": [{ "path": ":app:lintDebug", "availability": "derived" }],
+        "ktlint": [{ "path": ":app:ktlintCheck", "availability": "derived" }],
+        "detekt": [{ "path": ":app:detekt", "availability": "derived" }],
+        "stability": [{ "path": ":app:stabilityCheck", "availability": "derived" }]
+      },
+      "dependencyConfigurations": ["debugRuntimeClasspath", "releaseRuntimeClasspath"],
+      "scopes": { "semgrep": [], "mobsf": [], "pmd": [], "osv": [], "owasp": [] }
+    }
+  ],
+  "includedBuilds": [],
+  "deviceTestTasks": [":app:connectedDebugAndroidTest"],
+  "checks": {
+    "fullLintTasks": [":app:lintDebug", ":app:lintRelease"],
+    "semgrepConfig": "config/semgrep/remote-security.yml",
+    "dependencyCheckTasks": [":app:dependencyCheckAnalyze"]
+  },
+  "phases": {
+    "build": { "required": true, "applicable": true, "timeoutMinutes": 20 },
+    "test": { "required": true, "applicable": true, "timeoutMinutes": 20 },
+    "lint": { "required": true, "applicable": true, "timeoutMinutes": 20 },
+    "ktlint": { "required": true, "applicable": true, "timeoutMinutes": 20 },
+    "detekt": { "required": true, "applicable": true, "timeoutMinutes": 20 },
+    "stability": { "required": true, "applicable": true, "timeoutMinutes": 20 }
+  },
+  "tools": [{ "id": "gradle-wrapper", "required": true }],
+  "externalServices": [],
+  "reports": { "directory": "reports", "compatibilityFiles": [] },
+  "exceptions": { "registry": "config/check-exceptions.json" }
+}

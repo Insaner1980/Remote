@@ -1,7 +1,15 @@
 package com.emmah.colordock.remote.ui
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.espresso.Espresso
 import com.emmah.colordock.remote.MainActivity
 import org.junit.Rule
@@ -11,7 +19,9 @@ class ThemeSettingsTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     private fun settings() {
-        compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty()
+        }
         compose.onNodeWithContentDescription("Settings").performScrollTo().performClick()
         compose.onNodeWithText("App theme").assertIsDisplayed()
     }

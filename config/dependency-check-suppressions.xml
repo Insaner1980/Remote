@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress until="2027-04-27Z">
+        <notes><![CDATA[
+Reviewed 2026-10-27: Dependency-Check 13.0.0 incorrectly assigns
+cpe:2.3:a:github:github:0.15.0:*:*:*:*:*:*:* to Compose Stability Analyzer Runtime.
+The Maven POM identifies an Android Compose instrumentation library, not GitHub
+Enterprise Server. These four CVEs concern GitHub Enterprise's public-key model,
+private repository names, and GitHub Pages parsers, none of which this AAR provides.
+Only the reviewed package version and CVEs are excluded; other findings remain active.
+Package: https://github.com/skydoves/compose-stability-analyzer
+Advisories: https://docs.github.com/en/enterprise-server@2.21/admin/release-notes
+https://github.blog/news-insights/public-key-security-vulnerability-and-mitigation/
+Evidence: reports/runs/20261027T114233537-3423fdee/dependency-check-report.json
+Owner: Remote maintainers. Re-review on dependency or scanner updates, or by expiry.
+        ]]></notes>
+        <packageUrl>pkg:maven/com.github.skydoves/compose-stability-runtime-android@0.15.0</packageUrl>
+        <cve>CVE-2012-2055</cve>
+        <cve>CVE-2020-10517</cve>
+        <cve>CVE-2020-10518</cve>
+        <cve>CVE-2020-10519</cve>
+    </suppress>
+</suppressions>

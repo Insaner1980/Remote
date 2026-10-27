@@ -1,0 +1,26 @@
+diff --git a/dist/api-client/validators.cjs b/dist/api-client/validators.cjs
+index 1bcf83ab1d2cb63bbc9264263a22fb80751a937d..b9df9c8afbf8cc69bea2ac8ffaf17e5c612eb25c 100644
+--- a/dist/api-client/validators.cjs
++++ b/dist/api-client/validators.cjs
+@@ -4,7 +4,7 @@ let zod = require("zod");
+ //#region src/api-client/validators.ts
+ const InjectionRuleValidator = zod.z.object({
+ 	domain: zod.z.string(),
+-	headers: zod.z.record(zod.z.string()).optional(),
++	headers: zod.z.record(zod.z.string(), zod.z.string()).optional(),
+ 	headerNames: zod.z.array(zod.z.string()).optional()
+ });
+ const NetworkPolicyValidator = zod.z.union([
+diff --git a/dist/api-client/validators.js b/dist/api-client/validators.js
+index a98b8031dbea5d6027b1f5fac6be0d0845752d21..358f231d01d0405807305b109e4ea79f8bb83da9 100644
+--- a/dist/api-client/validators.js
++++ b/dist/api-client/validators.js
+@@ -3,7 +3,7 @@ import { z } from "zod";
+ //#region src/api-client/validators.ts
+ const InjectionRuleValidator = z.object({
+ 	domain: z.string(),
+-	headers: z.record(z.string()).optional(),
++	headers: z.record(z.string(), z.string()).optional(),
+ 	headerNames: z.array(z.string()).optional()
+ });
+ const NetworkPolicyValidator = z.union([
