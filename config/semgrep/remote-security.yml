@@ -1,0 +1,33 @@
+rules:
+  - id: remote-android-backup-enabled
+    languages: [xml]
+    severity: ERROR
+    message: Review backup rules before allowing remote pairing credentials and connection data in Android backups.
+    paths:
+      include:
+        - /app/src/main/AndroidManifest.xml
+        - /app/src/release/AndroidManifest.xml
+    pattern: |
+      <application ... android:allowBackup="true" ...>
+
+  - id: remote-android-debuggable-enabled
+    languages: [xml]
+    severity: ERROR
+    message: Debugging must not be enabled in the main or release manifest.
+    paths:
+      include:
+        - /app/src/main/AndroidManifest.xml
+        - /app/src/release/AndroidManifest.xml
+    pattern: |
+      <application ... android:debuggable="true" ...>
+
+  - id: remote-android-cleartext-review
+    languages: [xml]
+    severity: WARNING
+    message: Review global cleartext access. Local TV protocols may require it; verify that internet traffic and credentials remain protected.
+    paths:
+      include:
+        - /app/src/main/AndroidManifest.xml
+        - /app/src/release/AndroidManifest.xml
+    pattern: |
+      <application ... android:usesCleartextTraffic="true" ...>

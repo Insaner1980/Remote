@@ -1,0 +1,2 @@
+# Keep line endings aligned with the exact multiline selector in config/check-exceptions.json.
+app/src/main/java/com/emmah/colordock/remote/tv/TvDiscovery.kt text eol=lf

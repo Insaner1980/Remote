@@ -11,4 +11,18 @@
     <string name="pairing">Allow the connection on your TV.</string>
     <string name="connected">Connected</string>
     <string name="invalid_address">Enter a local IP address, such as 192.168.1.10.</string>
+    <string name="tv_apps">TV apps</string>
+    <string name="all_tv_apps">All apps</string>
+    <string name="open_tv_app">Open %1$s on TV</string>
+    <string name="tv_apps_refresh">Refresh</string>
+    <string name="tv_apps_retry">Retry</string>
+    <string name="tv_apps_close">Close</string>
+    <string name="tv_apps_loading">Loading TV apps&#8230;</string>
+    <string name="tv_apps_empty">No launchable apps were returned by this TV.</string>
+    <string name="tv_apps_load_failed">TV apps could not be loaded. Try again.</string>
+    <string name="tv_apps_refresh_failed">TV apps could not be refreshed. Showing the previous list.</string>
+    <string name="tv_app_opening">Opening %1$s&#8230;</string>
+    <string name="tv_app_open_failed">Could not open %1$s. Try again or refresh TV apps.</string>
+    <string name="tv_app_removed">This app is no longer available in the current TV app list.</string>
+    <string name="tv_apps_reconnect">Reconnect to load TV apps.</string>
 </resources>

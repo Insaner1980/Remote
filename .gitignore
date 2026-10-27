@@ -1,6 +1,7 @@
 .gradle/
 .kotlin/
 .sonar/
+reports/
 **/build/
 local.properties
 *.jks

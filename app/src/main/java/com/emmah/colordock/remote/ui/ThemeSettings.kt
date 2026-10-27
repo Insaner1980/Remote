@@ -1,11 +1,22 @@
 package com.emmah.colordock.remote.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,15 +30,22 @@ import com.emmah.colordock.remote.R
 @Composable
 internal fun SettingsButton(onClick: () -> Unit) {
     IconButton(onClick, Modifier.size(48.dp)) {
-        DockIcon(R.drawable.ic_settings, "Settings", tint = MaterialTheme.colorScheme.onBackground)
+        DockIcon(R.drawable.ic_settings, label = "Settings", tint = MaterialTheme.colorScheme.onBackground)
     }
 }
 
 @Composable
-fun ThemeSettings(theme: AppTheme, onSelect: (AppTheme) -> Unit, onDismiss: () -> Unit, error: String? = null) {
+fun ThemeSettings(
+    theme: AppTheme,
+    onSelect: (AppTheme) -> Unit,
+    onDismiss: () -> Unit,
+    error: String? = null,
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Settings") },
+        title = {
+            Text("Settings")
+        },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("App theme", style = MaterialTheme.typography.titleMedium)
@@ -35,8 +53,12 @@ fun ThemeSettings(theme: AppTheme, onSelect: (AppTheme) -> Unit, onDismiss: () -
                 Column(Modifier.selectableGroup()) {
                     AppTheme.entries.forEach { option ->
                         Row(
-                            Modifier.fillMaxWidth().heightIn(min = 64.dp)
-                                .selectable(theme == option, role = Role.RadioButton, onClick = { onSelect(option) })
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 64.dp)
+                                .selectable(theme == option, role = Role.RadioButton, onClick = {
+                                    onSelect(option)
+                                })
                                 .padding(vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -46,9 +68,21 @@ fun ThemeSettings(theme: AppTheme, onSelect: (AppTheme) -> Unit, onDismiss: () -
                         }
                     }
                 }
-                error?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Polite }, color = MaterialTheme.colorScheme.error) }
+                error?.let {
+                    Text(
+                        it,
+                        Modifier.semantics {
+                            liveRegion = LiveRegionMode.Polite
+                        },
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
             }
         },
-        confirmButton = { TextButton(onDismiss) { Text("Done") } },
+        confirmButton = {
+            TextButton(onDismiss) {
+                Text("Done")
+            }
+        },
     )
 }

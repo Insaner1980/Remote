@@ -8,7 +8,9 @@ import org.junit.Test
 
 class ThemeTest {
     @Test fun storedChoicesRoundTripAndMissingOrUnknownValuesKeepDarkDefault() {
-        AppTheme.entries.forEach { assertEquals(it, AppTheme.fromStored(it.name)) }
+        AppTheme.entries.forEach {
+            assertEquals(it, AppTheme.fromStored(it.name))
+        }
         assertEquals(AppTheme.SoftDark, AppTheme.fromStored(null))
         assertEquals(AppTheme.SoftDark, AppTheme.fromStored("unknown"))
     }
@@ -31,7 +33,10 @@ class ThemeTest {
         }
     }
 
-    private fun contrast(first: Color, second: Color): Float {
+    private fun contrast(
+        first: Color,
+        second: Color,
+    ): Float {
         val a = first.luminance()
         val b = second.luminance()
         return (maxOf(a, b) + .05f) / (minOf(a, b) + .05f)

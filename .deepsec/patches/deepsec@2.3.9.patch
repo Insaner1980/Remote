@@ -1,0 +1,39 @@
+diff --git a/dist/cli.mjs b/dist/cli.mjs
+index 6245781287e188a088b157764e3b450923c4d1bf..6f499e9ebb6045f66c7a666e795646367fe6a1b3 100644
+--- a/dist/cli.mjs
++++ b/dist/cli.mjs
+@@ -69024,6 +69024,17 @@ function resolveCodexPaths() {
+   }
+ }
+ var CODEX_ENV_ALLOWLIST = /* @__PURE__ */ new Set([
++  ...(process.platform === "win32" ? [
++    "SYSTEMROOT",
++    "WINDIR",
++    "COMSPEC",
++    "PATHEXT",
++    "USERPROFILE",
++    "HOMEDRIVE",
++    "HOMEPATH",
++    "APPDATA",
++    "LOCALAPPDATA"
++  ] : []),
+   // Shell + locale
+   "PATH",
+   "HOME",
+@@ -69064,7 +69075,7 @@ function buildCodexEnv(extras) {
+   const env3 = {};
+   for (const [k2, v2] of Object.entries(process.env)) {
+     if (typeof v2 !== "string") continue;
+-    if (CODEX_ENV_ALLOWLIST.has(k2) || CODEX_ENV_ALLOWLIST_PREFIXES.some((p2) => k2.startsWith(p2))) {
++    if (CODEX_ENV_ALLOWLIST.has(process.platform === "win32" ? k2.toUpperCase() : k2) || CODEX_ENV_ALLOWLIST_PREFIXES.some((p2) => k2.startsWith(p2))) {
+       env3[k2] = v2;
+     }
+   }
+@@ -69106,6 +69117,7 @@ function buildCodexInvocation() {
+     if (!process.env.RUST_LOG) extras.RUST_LOG = "info";
+   }
+   const pluginLockdown = {
++    ...(process.platform === "win32" ? { windows: { sandbox: "mxc" } } : {}),
+     features: {
+       plugins: false,
+       remote_plugin: false

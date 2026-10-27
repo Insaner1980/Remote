@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "exceptions": [
+    {
+      "id": "remote-mobsf-gradle-target-sdk",
+      "tool": "mobsfscan",
+      "rule": "android_task_hijacking2",
+      "scope": "app/src/main/AndroidManifest.xml MainActivity with Gradle targetSdk 37",
+      "reason": "mobsfscan 0.4.5 reads source manifests without Gradle merging and defaults a missing targetSdkVersion to 26. This app declares minSdk and targetSdk 37 in app/build.gradle.kts; the merged debug and release manifests must retain those values. Preserve the launcher activity's existing task behavior. Re-review if SDK or variant configuration changes.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-26",
+      "expires": "2027-10-26",
+      "tracking": "reports/runs/20261026T184239562-0c8b4803/mobsfscan.json#android_task_hijacking2",
+      "sourcePath": "app/build.gradle.kts",
+      "selector": "targetSdk = 37",
+      "findingPath": "app/src/main/AndroidManifest.xml",
+      "findingSelectors": [
+        "Activity exported, targetSdk<29 and launchMode != singleInstance or taskAffinity is not empty"
+      ]
+    },
+    {
+      "id": "remote-mobsf-local-tv-discovery-http",
+      "tool": "mobsfscan",
+      "rule": "android_manifest_usescleartext",
+      "scope": "app/src/main/AndroidManifest.xml cleartext support for local SSDP description fetches",
+      "reason": "Compatibility exception, not a false positive: TvDiscovery fetches HTTP device descriptions from dynamically discovered private IP literals. parsePacket requires the expected LG service and the advertising private host, rejects user-info/fragments, and the discovery client disables proxies and redirects and bounds response size/time. These requests carry no pairing credentials; metadata remains unauthenticated. TV control and icons require the paired WSS/HTTPS origin, and weather search uses HTTPS without redirects. Disabling cleartext globally would break existing discovery; static domain entries cannot enumerate users' dynamic TV addresses. Re-review on network-client or endpoint-policy changes.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-26",
+      "expires": "2027-10-26",
+      "tracking": "reports/runs/20261026T184239562-0c8b4803/mobsfscan.json#android_manifest_usescleartext",
+      "sourcePath": "app/src/main/java/com/emmah/colordock/remote/tv/TvDiscovery.kt",
+      "selector": "val client =\n            OkHttpClient\n                .Builder()\n                .socketFactory(\n                    network.socketFactory,\n                ).proxy(Proxy.NO_PROXY)\n                .followRedirects(false)\n                .followSslRedirects(false)\n                .build()",
+      "findingPath": "app/src/main/AndroidManifest.xml",
+      "findingSelectors": [
+        "android:usesCleartextTraffic=true"
+      ]
+    },
+    {
+      "id": "remote-discovery-rejected-uri-fixture",
+      "tool": "trufflehog",
+      "rule": "URI",
+      "scope": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "reason": "Synthetic user-info URI in a negative discovery test. The assertion requires parsePacket to reject it; it is not a real credential. Re-reviewed on 2026-10-27 after formatting moved the unchanged fixture onto its own line. Match only the reviewed complete source line, never verified findings.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-26",
+      "expires": "2027-10-26",
+      "tracking": "reports/runs/20261027T122413397-fe4b461f/trufflehog.jsonl#7250334584c24ad1",
+      "sourcePath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "selector": "discoveryAcceptsOnlyExpectedServiceAtAdvertisingPrivateHost",
+      "findingPath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "exceptionKind": "reviewed-non-secret-lines",
+      "reviewedLineSha256": [
+        "285c8f8d3878450f2bb9a8a18585b13802184c4ef474e2e793c7b2aba5cafc16"
+      ]
+    },
+    {
+      "id": "remote-discovery-rejected-uri-history-fixture",
+      "tool": "trufflehog",
+      "rule": "URI",
+      "scope": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt at bf75ada13c05d75d2a4847f708fbeb34b84c1453:10",
+      "reason": "The initial commit contains the same synthetic user-info URI rejection test reviewed in the worktree. Match only this commit, path, line and complete source-line digest; this is not a real credential.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-26",
+      "expires": "2027-10-26",
+      "tracking": "reports/runs/20261026T161820148-86fbf695/trufflehog-history.jsonl#09eeb41027968c58",
+      "sourcePath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "selector": "discoveryAcceptsOnlyExpectedServiceAtAdvertisingPrivateHost",
+      "findingPath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "exceptionKind": "reviewed-non-secret-history-line",
+      "reviewedCommit": "bf75ada13c05d75d2a4847f708fbeb34b84c1453",
+      "reviewedLine": 10,
+      "reviewedLineSha256": [
+        "40743df1080f8fa85db2ac2009335c45a9597a23db1c713cc45bae39bf99e172"
+      ]
+    }
+  ]
+}
