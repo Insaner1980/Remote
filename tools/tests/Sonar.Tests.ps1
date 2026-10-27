@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('remote-sonar-' + [guid]::NewGuid().ToString('N'))
 $originalToken = $env:SONAR_TOKEN
+$originalHome = $env:ANDROID_CHECK_HOME
 $pwsh = (Get-Command pwsh -CommandType Application | Select-Object -First 1).Source
 
 function Assert-True([bool]$Condition, [string]$Message) {
@@ -15,8 +16,14 @@ function Invoke-Fixture([int]$ExpectedExit, [string[]]$ScriptArgs) {
 }
 
 try {
+    $runtime = & (Join-Path $PSScriptRoot '../ResolveAndroidCheck.ps1') 'tools/CheckRuntime.psm1'
     New-Item -ItemType Directory -Path (Join-Path $tempRoot 'tools') | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../sonar.ps1') -Destination (Join-Path $tempRoot 'tools/sonar.ps1')
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot '../ResolveAndroidCheck.ps1') -Destination (Join-Path $tempRoot 'tools/ResolveAndroidCheck.ps1')
+    $env:ANDROID_CHECK_HOME = Join-Path $tempRoot 'Android check installation'
+    $runtimeTools = Join-Path $env:ANDROID_CHECK_HOME 'tools'
+    New-Item -ItemType Directory -Path $runtimeTools -Force | Out-Null
+    Copy-Item -LiteralPath $runtime -Destination (Join-Path $runtimeTools 'CheckRuntime.psm1')
     $gradle = Join-Path $tempRoot 'gradlew.bat'
     Set-Content -LiteralPath $gradle -Value @('@echo off', 'echo invoked>invoked.txt', 'echo %SONAR_TOKEN%', 'exit /b 0')
     $env:SONAR_TOKEN = 'sonar-fixture-redaction-value'
@@ -28,6 +35,11 @@ try {
     Invoke-Fixture 2 @('-AllowExternalUpload') | Out-Null
     Assert-True (-not (Test-Path (Join-Path $tempRoot 'invoked.txt'))) 'Missing token must not start Gradle.'
     $env:SONAR_TOKEN = 'sonar-fixture-redaction-value'
+    $env:ANDROID_CHECK_HOME = Join-Path $tempRoot 'missing installation'
+    $output = Invoke-Fixture 2 @('-AllowExternalUpload')
+    Assert-True ($output -match 'Set ANDROID_CHECK_HOME') 'Missing runtime must explain installation configuration.'
+    Assert-True (-not (Test-Path (Join-Path $tempRoot 'invoked.txt'))) 'Missing runtime must not start Gradle.'
+    $env:ANDROID_CHECK_HOME = Join-Path $tempRoot 'Android check installation'
     $output = Invoke-Fixture 0 @('-AllowExternalUpload')
     $report = Get-Content -Raw -LiteralPath (Join-Path $tempRoot 'reports/sonar.txt')
     Assert-True ($output -notmatch $env:SONAR_TOKEN -and $report -notmatch $env:SONAR_TOKEN) 'Token must be redacted from console and report.'
@@ -43,6 +55,7 @@ try {
     Write-Output 'Sonar wrapper tests passed.'
 } finally {
     $env:SONAR_TOKEN = $originalToken
+    $env:ANDROID_CHECK_HOME = $originalHome
     if (Test-Path -LiteralPath $tempRoot) {
         $resolved = (Resolve-Path -LiteralPath $tempRoot).Path
         $tempParent = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar

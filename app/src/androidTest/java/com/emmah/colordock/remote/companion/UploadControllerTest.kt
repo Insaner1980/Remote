@@ -447,6 +447,7 @@ class UploadControllerTest {
                         )
                         assertEquals(image.uploadId, pending.read()?.first)
                     }
+                    assertEquals(0, transport.count("upload.cancel"))
                     assertEquals(0, transport.count("upload.chunk"))
                     assertEquals(0, transport.count("upload.commit"))
                 }
@@ -544,6 +545,7 @@ class UploadControllerTest {
                     )
                     assertEquals(image.uploadId, pending.read()?.first)
                     assertEquals(1, transport.count("upload.commit"))
+                    assertEquals(0, transport.count("upload.cancel"))
                 }
             }
             harness {
@@ -585,6 +587,10 @@ class UploadControllerTest {
                     assertEquals(1, transport.count("upload.commit"))
                     assertEquals(1, transport.count("upload.status"))
                     assertEquals(image.uploadId, pending.read()?.first)
+                    assertEquals(
+                        if (status.opt("status") == "committed") 0 else 1,
+                        transport.count("upload.cancel"),
+                    )
                     assertEquals(
                         image.uploadId,
                         transport.requests

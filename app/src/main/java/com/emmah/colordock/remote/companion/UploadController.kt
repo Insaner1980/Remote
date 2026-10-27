@@ -96,6 +96,7 @@ class UploadController(
             began = true
             val begin = required(call(DockMethod.UploadBegin, meta))
             if (begin.opt("status") == "committed") {
+                committed = true
                 complete(wallpaperId(begin, "wallpaperId"))
                 return
             }
@@ -173,10 +174,12 @@ class UploadController(
             val params = JSONObject().put("uploadId", image.uploadId)
             val result = call(DockMethod.UploadCommit, params)
             return if (result is DockResult.Success) {
+                committed = true
                 wallpaperId(result.value, "id")
             } else {
                 val status = required(call(DockMethod.UploadStatus, params))
                 if (status.opt("status") != "committed") required(result)
+                committed = true
                 wallpaperId(status, "wallpaperId")
             }
         }

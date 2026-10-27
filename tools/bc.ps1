@@ -2,9 +2,10 @@
 
 $ProjectCheckCommand = "build-check"
 $ProjectRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
-$ProjectCheckEntryPoint = "C:\Dev\Android-check\tools\InvokeProjectCheck.ps1"
-if (-not (Test-Path -LiteralPath $ProjectCheckEntryPoint -PathType Leaf)) {
-    Write-Error "ERROR/2: Android-check entry point is missing: $ProjectCheckEntryPoint"
+try {
+    $ProjectCheckEntryPoint = & (Join-Path $PSScriptRoot 'ResolveAndroidCheck.ps1') 'tools/InvokeProjectCheck.ps1'
+} catch {
+    Write-Error "ERROR/2: $($_.Exception.Message)" -ErrorAction Continue
     exit 2
 }
 $global:LASTEXITCODE = 2

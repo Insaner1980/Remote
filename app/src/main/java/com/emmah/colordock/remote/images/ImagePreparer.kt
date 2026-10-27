@@ -17,6 +17,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.security.MessageDigest
@@ -47,6 +48,7 @@ class ImagePreparationException(
 ) : IOException(message, cause)
 
 private const val SOURCE_BUFFER_BYTES = 16384
+private const val SOURCE_UNAVAILABLE = "This picture is no longer accessible. Select it again."
 private const val MAX_SOURCE_BYTES = 50L * 1024 * 1024
 private const val MAX_SOURCE_PIXELS = 100_000_000L
 private const val IMAGE_WIDTH = 1920.0
@@ -147,10 +149,18 @@ class ImagePreparer(
         uri: Uri,
         source: File,
     ) {
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            copyImageSource(input, source)
-        } ?: throw ImagePreparationException("This picture is no longer accessible. Select it again.")
+        val input = openSource(uri) ?: throw ImagePreparationException(SOURCE_UNAVAILABLE)
+        input.use { copyImageSource(it, source) }
     }
+
+    private fun openSource(uri: Uri): InputStream? =
+        try {
+            context.contentResolver.openInputStream(uri)
+        } catch (error: FileNotFoundException) {
+            throw ImagePreparationException(SOURCE_UNAVAILABLE, error)
+        } catch (error: SecurityException) {
+            throw ImagePreparationException(SOURCE_UNAVAILABLE, error)
+        }
 
     private suspend fun copyImageSource(
         input: InputStream,

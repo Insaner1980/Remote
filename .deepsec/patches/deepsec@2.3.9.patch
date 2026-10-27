@@ -1,5 +1,5 @@
 diff --git a/dist/cli.mjs b/dist/cli.mjs
-index 6245781287e188a088b157764e3b450923c4d1bf..6f499e9ebb6045f66c7a666e795646367fe6a1b3 100644
+index 6245781287e188a088b157764e3b450923c4d1bf..c4edf0d57fc3b6a8c8a28f6399a9f20094ce84ab 100644
 --- a/dist/cli.mjs
 +++ b/dist/cli.mjs
 @@ -69024,6 +69024,17 @@ function resolveCodexPaths() {
@@ -29,11 +29,22 @@ index 6245781287e188a088b157764e3b450923c4d1bf..6f499e9ebb6045f66c7a666e79564636
        env3[k2] = v2;
      }
    }
-@@ -69106,6 +69117,7 @@ function buildCodexInvocation() {
+@@ -69088,6 +69099,10 @@ function buildGatewayProviderConfig(baseUrl) {
+   return providerConfig;
+ }
+ function buildCodexInvocation() {
++  const windowsSandbox = process.env.DEEPSEC_WINDOWS_SANDBOX ?? "mxc";
++  if (process.platform === "win32" && !["mxc", "elevated", "unelevated"].includes(windowsSandbox)) {
++    throw new Error("DEEPSEC_WINDOWS_SANDBOX must be mxc, elevated, or unelevated.");
++  }
+   const haveApiToken = !!(process.env.OPENAI_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+   const subscriptionHome = haveApiToken ? null : findCodexSubscriptionAuth();
+   const codexHome = makeCodexHome();
+@@ -69106,6 +69121,7 @@ function buildCodexInvocation() {
      if (!process.env.RUST_LOG) extras.RUST_LOG = "info";
    }
    const pluginLockdown = {
-+    ...(process.platform === "win32" ? { windows: { sandbox: "mxc" } } : {}),
++    ...(process.platform === "win32" ? { windows: { sandbox: windowsSandbox } } : {}),
      features: {
        plugins: false,
        remote_plugin: false

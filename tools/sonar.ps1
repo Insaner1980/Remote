@@ -43,7 +43,8 @@ try {
     Set-Content -LiteralPath $reportPath -Encoding utf8 -Value @(
         'sonar', "Root: $projectRoot", 'Project: Insaner1980_Remote', "Started: $(Get-Date -Format o)"
     )
-    Import-Module 'C:\Dev\Android-check\tools\CheckRuntime.psm1' -Force -ErrorAction Stop
+    $runtime = & (Join-Path $PSScriptRoot 'ResolveAndroidCheck.ps1') 'tools/CheckRuntime.psm1'
+    Import-Module $runtime -Force -ErrorAction Stop
     $result = Invoke-ManagedProcess -Executable (Join-Path $projectRoot 'gradlew.bat') `
         -Arguments $gradleArguments -WorkingDirectory $projectRoot -TimeoutSeconds $GradleTimeoutSeconds
     foreach ($stream in @($result.StandardOutput, $result.StandardError)) {

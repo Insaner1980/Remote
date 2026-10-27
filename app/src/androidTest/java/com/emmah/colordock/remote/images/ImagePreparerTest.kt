@@ -20,6 +20,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.UUID
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
@@ -27,6 +28,27 @@ import kotlin.coroutines.CoroutineContext
 
 class ImagePreparerTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+    @Test fun missingSourceRequestsReselectionAndLeavesNoTemporaryFiles() =
+        runBlocking {
+            val root = File(context.cacheDir, "missing-source-${UUID.randomUUID()}").apply { check(mkdir()) }
+            val isolated =
+                object : ContextWrapper(context) {
+                    override fun getCacheDir() = root
+                }
+            try {
+                try {
+                    ImagePreparer(isolated).prepare(Uri.fromFile(File(root, "missing.png")), "Missing fixture")
+                    fail("Expected an inaccessible source error")
+                } catch (error: ImagePreparationException) {
+                    assertEquals("This picture is no longer accessible. Select it again.", error.message)
+                    assertTrue(error.cause is FileNotFoundException)
+                }
+                assertTrue(File(root, "uploads").listFiles().orEmpty().isEmpty())
+            } finally {
+                root.deleteRecursively()
+            }
+        }
 
     @Test fun cancellationDuringCompletedIoHandoffDeletesUnclaimedOutputs() {
         val root =
@@ -151,9 +173,8 @@ class ImagePreparerTest {
                 try {
                     ImagePreparer(context).prepare(Uri.fromFile(source), "Corrupt fixture")
                     fail("Expected a readable image error")
-                } catch (
-                    _: ImagePreparationException,
-                ) {
+                } catch (error: ImagePreparationException) {
+                    assertEquals("This picture is corrupt or its format is not supported.", error.message)
                 }
                 assertArrayEquals(bytes, source.readBytes())
             } finally {

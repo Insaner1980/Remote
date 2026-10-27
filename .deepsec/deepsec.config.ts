@@ -1,6 +1,21 @@
-import { defineConfig } from "deepsec/config";
+import { defineConfig, regexMatcher } from "deepsec/config";
 
 export default defineConfig({
+  plugins: [{
+    name: "remote-certificate-trust",
+    matchers: [{
+      slug: "remote-certificate-trust",
+      description: "Review the TV certificate trust boundary, including first-use and pinned certificates.",
+      noiseTier: "normal",
+      filePatterns: ["app/src/main/java/com/emmah/colordock/remote/tv/TvCertificateTrust.kt"],
+      examples: ["override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {"],
+      match(content) {
+        return regexMatcher("remote-certificate-trust", [
+          { regex: /\bfun\s+checkServerTrusted\s*\(/g, label: "TV certificate trust validation" }
+        ], content);
+      }
+    }]
+  }],
   projects: [
     {
       id: "remote",

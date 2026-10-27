@@ -305,7 +305,7 @@ class WallpaperViewModelTest {
             val model = wallpaper()
             model.select(listOf(Uri.fromFile(source), Uri.fromFile(File(directory, "missing.png"))))
             val prepared = model.ui.first { !it.preparing && it.prepared.isNotEmpty() }
-            assertTrue(prepared.error!!.startsWith("Picture 2:"))
+            assertEquals("Picture 2: This picture is no longer accessible. Select it again.", prepared.error)
             val image = prepared.prepared.single()
             assertTrue(image.image.isFile)
             model.preparedFit("unrelated", "contain")

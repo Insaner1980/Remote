@@ -1,6 +1,6 @@
 # Streaming app shortcuts validation
 
-Date: 2026-10-26. Branch: `codex/streaming-app-plan`. Changes are local and uncommitted. The remote default branch was checked before editing and remained `codex/initial-import`.
+Implementation validation date: 2026-10-26. Branch: `codex/streaming-app-plan`. The changes were committed and submitted in [PR #1](https://github.com/Insaner1980/Remote/pull/1) on 2026-10-27. The remote default branch was checked before editing and remained `codex/initial-import`. Unless dated separately, the results below describe the original implementation run.
 
 ## Implemented behavior
 
@@ -18,7 +18,7 @@ The normal remote layout has 56 dp rockers around Mute, Numbers, Live TV and All
 | --- | --- |
 | Complete `testDebugUnitTest` | 68 tests passed, zero failures/errors/skips. Includes 8 catalog parser, 11 controller, 4 endpoint-policy, and existing repeat/session/certificate/companion tests. |
 | `assembleDebug`, `assembleDebugAndroidTest` | Passed with the existing toolchain. |
-| `lintDebug` | Passed, zero errors and 7 warnings. Two TypographyEllipsis warnings concern the plan's literal `Loading TV apps...` and `Opening %1$s...` copy; five warnings concern unchanged code. No checks were disabled. |
+| `lintDebug` | The original 2026-10-26 run passed with zero errors and 7 warnings. The two TypographyEllipsis findings were subsequently fixed using ellipsis resources; this historical count does not describe the PR head. No checks were disabled. |
 | Warm light instrumentation | 47 tests passed: 12 `TvAppsScreenTest`, 8 existing `RemoteScreenTest`, 14 `DesignCaptureTest`, 7 `AppIconCacheTest`, 6 `TvAppsTransportTest`. |
 | Soft dark instrumentation | The same 47 tests passed, zero failures. The capture class itself renders both themes, while the screen test classes use the selected theme argument. |
 | Final cache write-failure regression | After extending the existing failure test to force atomic replacement to fail after creating/writing a temporary file, rebuilt the test APK and reran all 7 cache tests: passed. Production code was unchanged. |
@@ -40,7 +40,7 @@ From the repository root:
 
 ```powershell
 ./gradlew.bat :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug --no-daemon
-$adb = 'C:/Users/EmmaH/AppData/Local/Android/Sdk/platform-tools/adb.exe'
+$adb = (Get-Command adb -CommandType Application).Source
 $device = 'emulator-5580' # Select a disposable emulator explicitly.
 & $adb -s $device install -r app/build/outputs/apk/debug/app-debug.apk
 & $adb -s $device install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
@@ -66,4 +66,14 @@ Self-review covered the feature diff against the preserved starting files and th
 - Spoken TalkBack traversal, announcements and accessibility-focus restoration are **unverified**. Automated semantics/input-focus assertions and screenshots do not replace listening to TalkBack.
 - Original-image provenance is recorded, but brand-asset redistribution terms have not been established. Release/signing/distribution validation was outside this implementation.
 
-No commits, pushes or pull requests were made. The sibling `C:/Dev/LG WebOS` project was read only for protocol evidence and original artwork. The temporary emulator and its owned console helper were stopped after testing; no task-owned server or watcher remains. All Gradle commands used `--no-daemon` and finished. The configured Git whitespace check passed.
+No commits or pushes were made during the original implementation run; the changes were later submitted in PR #1 as noted above. The sibling `C:/Dev/LG WebOS` project was read only for protocol evidence and original artwork. The temporary emulator and its owned console helper were stopped after testing; no task-owned server or watcher remained after that run. All Gradle commands used `--no-daemon` and finished. The configured Git whitespace check passed.
+
+## PR #1 review follow-up, 2026-10-27
+
+Codex reported no findings for `bc3a313`. The ten CodeRabbit inline comments were checked against the implementation. Confirmed TV commits now suppress cancellation even when the wallpaper ID is malformed; the pending journal remains available for recovery. Missing or inaccessible picture sources request reselection instead of reporting corrupt image data. The reconnect collector reuses its existing non-recoverable error set.
+
+The check launchers resolve `ANDROID_CHECK_HOME`, defaulting to an `Android-check` checkout beside this repository, and validate the required entry point or runtime module. Deepsec now ignores `.env.local` and explicitly selects `TvCertificateTrust.kt` for review. Its Windows sandbox defaults to `mxc`; operators can set `DEEPSEC_WINDOWS_SANDBOX` to `mxc`, `elevated`, or `unelevated` for their supported environment. Invalid selections fail before starting Codex. The patch lock hash was updated without changing dependency versions.
+
+The Sonar task now explicitly describes JVM coverage plus any existing device coverage. It does not start connected-device tests. A local report-generation check exposed pre-existing device execution data that does not match current `RemoteScreenKt` classes; that merged report is not evidence of current device coverage. No SonarCloud upload or AI scan processing was performed. CodeRabbit's general docstring-coverage advisory was not used to expand this correction into repository-wide documentation changes.
+
+Validation: the five targeted regression cases first failed against the old implementation. After correction, all 79 JVM tests and 36 selected instrumentation tests passed on the disposable API 37.1 emulator (`UploadControllerTest`, `ImagePreparerTest`, `WallpaperViewModelTest`, and the three companion screen cases at 320 dp, 200% font, and their combination). Debug and test APK builds, lint (no issues), ktlint, Detekt and stability checks passed. All 16 launcher relocation/missing-installation cases, the Sonar wrapper suite, seven Deepsec tests, and a focused scan selecting the certificate-trust file passed. The Windows sandbox selection was verified with isolated configuration tests, not live AI sessions on each backend. Local evidence is in `reports/pr1-*.log` and the usual Gradle reports. Physical-TV behavior and spoken TalkBack were not retested.

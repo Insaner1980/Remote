@@ -10,7 +10,7 @@
 
 **Spec:** The user's revised request of 2026-10-26 and the consolidated requirements in Sections 1–5 of this document. The earlier suggestion of voice commands is explicitly superseded. This is one self-contained implementation plan; no separate design document is required.
 
-**Status:** Implemented locally on 2026-10-26, with 68 passing JVM tests, successful debug builds/lint, and 47 passing instrumentation tests in each theme. Physical-TV compatibility, saved-pairing permission, real launches/Back behavior and spoken TalkBack remain unverified. See [validation and limitations](../../validation/streaming-app-shortcuts.md). No commit, push or PR.
+**Status:** Implemented on 2026-10-26, with 68 passing JVM tests, successful debug builds/lint, and 47 passing instrumentation tests in each theme. Committed and submitted for review in [PR #1](https://github.com/Insaner1980/Remote/pull/1) on 2026-10-27. Physical-TV compatibility, saved-pairing permission, real launches/Back behavior and spoken TalkBack remain unverified. See [validation and limitations](../../validation/streaming-app-shortcuts.md).
 
 ## Global Constraints
 
@@ -594,4 +594,4 @@ No matches is the expected result for newly introduced separator/speech content.
 - Current facts, historical TV evidence, design decisions, and unverified runtime behavior are separated.
 - The five review-focus risks each have a task and test requirement.
 - No full application implementation is embedded in the plan; code blocks define interfaces and verification commands only.
-- Implementation starts only on a later implementation request. The current deliverable is this Markdown plan.
+- Implementation was completed against this plan; see the validation report for results and remaining limits.

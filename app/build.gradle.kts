@@ -49,7 +49,7 @@ jacoco { toolVersion = "0.8.15" }
 
 tasks.register<JacocoReport>("sonarCoverageReport") {
     group = "verification"
-    description = "Merges JVM and Android device coverage for SonarCloud."
+    description = "Reports JVM coverage plus existing Android device coverage; does not run device tests."
     val unitCoverage = tasks.named<JacocoReportTask>("createDebugUnitTestCoverageReport")
     dependsOn(unitCoverage)
     jacocoClasspath = unitCoverage.get().jacocoClasspath
@@ -61,6 +61,9 @@ tasks.register<JacocoReport>("sonarCoverageReport") {
             include("**/*.ec")
         },
     )
+    doFirst {
+        logger.lifecycle("Sonar: JVM coverage plus existing device data. Run device tests separately to refresh it.")
+    }
     reports {
         xml.required.set(true)
         xml.outputLocation.set(layout.buildDirectory.file("reports/coverage/sonar/report.xml"))

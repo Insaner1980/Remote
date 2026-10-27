@@ -188,29 +188,10 @@ class RemoteViewModel internal constructor(
                     repeats.cancel()
                     mutableChannels.value = emptyList()
                 }
-                if (it.connection == TvConnectionState.PermissionRequired ||
-                    it.error in
-                    setOf(
-                        TvErrorCode.IdentityChanged,
-                        TvErrorCode.PairingRequired,
-                        TvErrorCode.StorageUnavailable,
-                        TvErrorCode.PermissionRequired,
-                    )
-                ) {
-
-                    automaticAllowed =
-                        false
+                if (it.connection == TvConnectionState.PermissionRequired || it.error in nonRecoverableErrors) {
+                    automaticAllowed = false
                 }
-                if (it.connection == TvConnectionState.Failed &&
-                    it.error !in
-                    setOf(
-                        TvErrorCode.IdentityChanged,
-                        TvErrorCode.PairingRequired,
-                        TvErrorCode.StorageUnavailable,
-                        TvErrorCode.PermissionRequired,
-                    )
-                ) {
-
+                if (it.connection == TvConnectionState.Failed && it.error !in nonRecoverableErrors) {
                     recover()
                 }
             }

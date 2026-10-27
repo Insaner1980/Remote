@@ -18,7 +18,7 @@ overrides:
 
 patchedDependencies:
   '@vercel/sandbox@1.10.2': b2eadf81a33831783a8bb94b2ac3cf0cade66d3baeb79d310dcd040d161864b5
-  deepsec@2.3.9: d5a9ef3fa527c44e27ced86f7a223c0a431e14b7ccea4edb5904ab808270ed0d
+  deepsec@2.3.9: 5b97526cb0cc3fbf6c3a179ccf334d0bf12588f3e75007c6a855c1219fd18891
 
 importers:
 
@@ -26,7 +26,7 @@ importers:
     dependencies:
       deepsec:
         specifier: 2.3.9
-        version: 2.3.9(patch_hash=d5a9ef3fa527c44e27ced86f7a223c0a431e14b7ccea4edb5904ab808270ed0d)(@anthropic-ai/sdk@0.135.0(zod@4.6.7))(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(ws@8.22.0)(zod@4.6.7)
+        version: 2.3.9(patch_hash=5b97526cb0cc3fbf6c3a179ccf334d0bf12588f3e75007c6a855c1219fd18891)(@anthropic-ai/sdk@0.135.0(zod@4.6.7))(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(ws@8.22.0)(zod@4.6.7)
 
 packages:
 
@@ -2050,7 +2050,7 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  deepsec@2.3.9(patch_hash=d5a9ef3fa527c44e27ced86f7a223c0a431e14b7ccea4edb5904ab808270ed0d)(@anthropic-ai/sdk@0.135.0(zod@4.6.7))(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(ws@8.22.0)(zod@4.6.7):
+  deepsec@2.3.9(patch_hash=5b97526cb0cc3fbf6c3a179ccf334d0bf12588f3e75007c6a855c1219fd18891)(@anthropic-ai/sdk@0.135.0(zod@4.6.7))(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(ws@8.22.0)(zod@4.6.7):
     dependencies:
       '@anthropic-ai/claude-agent-sdk': 0.3.283(@anthropic-ai/sdk@0.135.0(zod@4.6.7))(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(zod@4.6.7)
       '@earendil-works/pi-coding-agent': 0.81.1(@modelcontextprotocol/sdk@1.32.2(zod@4.6.7))(ws@8.22.0)(zod@4.6.7)
