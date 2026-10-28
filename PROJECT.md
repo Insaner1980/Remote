@@ -539,7 +539,7 @@ Versiot ovat **repossa ilmoitettuja**, eivät tämän dokumentointityön aikana 
 | Teknologia | Ilmoitettu versio / asetus | Käyttö |
 | --- | --- | --- |
 | Gradle wrapper | 9.8.2, bin-jakelu | Wrapperiin kirjattu SHA-256, URL-validointi, 10 s verkkotimeout ja retries 0 |
-| Android Gradle Plugin | 9.4.1 | `com.android.application` |
+| Android Gradle Plugin | 9.5.0 | `com.android.application` |
 | Kotlin Compose compiler plugin | 2.4.21 | `org.jetbrains.kotlin.plugin.compose`; erillistä `org.jetbrains.kotlin.android`-pluginia ei ilmoiteta |
 | Java | source/target 17, `jvmToolchain(17)` | Lähde-/tavukoodiasetus ja Kotlin-toolchain; Gradle-daemonin tosiasiallista JVM-versiota ei mitattu |
 | Android SDK | compile/min/target 37 | Ei alempien API-tasojen varianttia |
@@ -559,7 +559,23 @@ Tuotantokoodi käyttää Androidin `org.json`-luokkia suoraan; Retrofit/Moshi/ko
 
 `buildFeatures.compose = true`; `unitTests.isReturnDefaultValues = false`. Ei product flavor -määrityksiä, sovelluksen omia feature flag -kenttiä, generated-resources-skriptiä, NDK-koodia tai monimoduulirakennetta. Tuotanto/debug/test-lähdejoukot erottavat diagnostiikan ja testivarat. Build-tiedosto ei määrittele omia buildTypes-muutoksia, allekirjoituskonfiguraatioita tai release-shrink-asetuksia.
 
-[gradle.properties](gradle.properties): `org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8`, rinnakkaisuus pois, enintään kaksi workeria, AndroidX päällä ja Kotlin official code style. Repositories ovat Google ja Maven Central; plugin-resoluutiossa lisäksi Gradle Plugin Portal. Projektikohtaiset repositoryt on kielletty `FAIL_ON_PROJECT_REPOS`-asetuksella. Dependency lock- tai verification-metadata-tiedostoa ei löytynyt; wrapperin checksum on erillinen suoja.
+[gradle.properties](gradle.properties): `org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8`, rinnakkaisuus pois, enintään kaksi workeria, AndroidX päällä ja Kotlin official code style. Repositories ovat Google ja Maven Central; plugin-resoluutiossa lisäksi Gradle Plugin Portal. Projektikohtaiset repositoryt on kielletty `FAIL_ON_PROJECT_REPOS`-asetuksella.
+
+**Tarkistettu 28.10.2026:** Gradlen riippuvuuksien tarkistussummat ovat tiedostossa [gradle/verification-metadata.xml](gradle/verification-metadata.xml); wrapperin checksum on erillinen suoja. AAPT2-version `9.5.0-16666295` metadata kattaa Windows-, Linux- ja macOS-artefaktit. Linux- ja macOS-artefaktit ladattiin Google Mavenista ja niiden lasketut SHA-256-tarkistussummat vastasivat Googlen julkaisemia `.sha256`-tiedostoja. Tämä ei yksin varmista kokonaista Linux- tai macOS-käännöstä tiukalla riippuvuusvarmennuksella. [verification-metadata.dryrun.xml](gradle/verification-metadata.dryrun.xml) on säilytetty generointitulos, ei Gradlen käyttämä varmennuskonfiguraatio.
+
+Projektin PowerShell 7 -tarkistuskäynnistimet ovat [tools/](tools/). [ResolveAndroidCheck.ps1](tools/ResolveAndroidCheck.ps1) etsii yhteisen Android-check-asennuksen `ANDROID_CHECK_HOME`-muuttujasta tai sisarhakemistosta `../Android-check`. [config/android-check.json](config/android-check.json) määrittelee Remote-projektin build-, JVM-testi-, lint-, ktlint-, Detekt- ja vakaustarkistukset sekä raportointiasetukset. DeepSec-työtilan [.deepsec/package.json](.deepsec/package.json) edellyttää Node.js-versiota vähintään 22.19.0 lukittujen riippuvuuksien vuoksi; TypeScript-asetustiedoston tuonti testeissä käyttää Noden sisäänrakennettua tyyppien poistoa.
+
+Sonar-ajo suorittaa JVM-testit ja muodostaa kattavuuden vain niiden tuloksista. `src/sharedTest/java` sisältää JVM:ssä Robolectricilla ja erikseen Androidissa ajettavat yhteiset skenaariot. Robolectric 4.17 käyttää API 37:ää ja Adoptium Java 25 -testiprosessia; sovelluksen Java/Kotlin-kohdeversio säilyy 17:nä. JVM-testien muistissa toimiva Keystore-testitoteutus käyttää oikeaa AES/GCM-salausta, mutta ei todista Androidin laitteistopohjaisen Keystoren toimintaa. JVM:n sovittimet korjaavat Windowsin tiedostokahvojen ja tiedoston korvaamisen sekä Robolectricin kuvankaappauksen säikeistyksen erot. Fyysisen TV:n portit ja laitekohtaiset testit säilyvät `src/androidTest`-lähdejoukossa. Sonar ei käynnistä emulaattoria tai laitetestejä eikä lue aiemmin kerättyä laitekattavuutta.
+
+Varmistus 2026-10-28: 217 JVM-testiä läpäisi ilman ohituksia; ktlint, Detekt, debug-lint ja jaettujen testien Android-käännös läpäisivät. SonarCloudin kokonaiskattavuus oli 80,9 %, uuden koodin kattavuus 81,5 % ja Quality Gate `OK` (analyysi `7a66461d-1d79-4d65-a840-69e21d3a9700`). Kattavuus muodostettiin kokonaan JVM-ajosta, myös 320 dp:n, 200 %:n fontin ja niiden yhdistelmän UI-skenaarioissa.
+
+**CodeQL-korjaus 28.10.2026:** [CodeQL-työnkulku](.github/workflows/codeql.yml) säilyttää Java/Kotlin-analyysin `autobuild`-tilassa ja ottaa JavaScript/TypeScript-analyysiin projektijuuren lisäksi `.deepsec`-hakemiston. CodeQL 2.27.3 ohittaa piilotetut JavaScript-hakemistot oletuksena; siksi 27.10. automaattinen uuden kielen käyttöönotto epäonnistui, vaikka Java/Kotlin-analyysi onnistui. Työnkulku käyttää GitHubissa toimineita action-versioita commit-tunnisteisiin lukittuina ja ajaa analyysit oletushaaran pusheista, siihen kohdistuvista PR:istä, viikoittain ja käsin käynnistettäessä.
+
+GitHubin default setup poistettiin käytöstä 28.10.2026, jotta oma advanced setup -työnkulku voi lähettää tulokset. PR #2:n ensimmäisellä ajolla molempien kielten analyysit valmistuivat, mutta GitHub hylkäsi SARIF-tulokset samanaikaisen default setupin vuoksi. Työnkulku toimii PR-haarassa; oletushaaran push-ajot ja viikoittaiset ajot tulevat käyttöön, kun käyttäjä yhdistää PR:n oletushaaraan `codex/initial-import`. Vanhan commitin epäonnistunut käyttöönottoajo säilyy historiassa.
+
+Paikallinen CodeQL-varmistus 28.10.2026: actionlint 1.7.12 hyväksyi työnkulun. CodeQL 2.27.3:n JavaScript-analyysi toistettiin Linuxissa versionhallinnan `.deepsec`-tiedostoista: oletusasetuksen tietokannan luonti epäonnistui virhekoodilla 32, mutta työnkulusta poimittu `paths`-asetus loi tietokannan ja suoritti oletuskyselyt onnistuneesti. Analyysi kattoi kaikki neljä JavaScript/TypeScript-tiedostoa. Uutta Java/Kotlin- tai GitHub Actions -ajoa ei tässä varmennuksessa tehty.
+
+GitHub-varmistus 28.10.2026: [PR #2:n CodeQL-ajon toinen yritys](https://github.com/Insaner1980/Remote/actions/runs/40752786168/attempts/2) läpäisi sekä Java/Kotlin- että JavaScript/TypeScript-analyysin commitille `56f534c`; GitHub hyväksyi molempien SARIF-tulokset ilman löydöksiä. CodeQL:n Java-autobuild poistaa itse Gradlen riippuvuusvarmennuksen käytöstä, joten tämä ajo ei todista tiukkaa Linux-varmennusta. AAPT2-metatietojen korjauksen jälkeen paikallinen `gradlew.bat --no-daemon --offline --dependency-verification=strict help` läpäisi; tämä tarkisti Gradle-konfiguraation, ei kokonaista käännöstä.
 
 <a id="l-kielet-ja-muotoilu"></a>
 ## L. Kielet ja muotoilu
@@ -617,15 +633,15 @@ Inventaario sisältää **8 JVM-testitiedostoa / 27 `@Test`-metodia** ja **13 in
 
 | Tiedosto | Testejä | Todellinen kohde ja ehdot |
 | --- | --- | --- |
-| [ConnectionScreenTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/ConnectionScreenTest.kt) | 5 | 400/320 dp, 100/200 % fontti, tyhjä osoite, kentän callback, denied-settings-painike; ei Androidin oikeaa lupadialogia |
-| [RemoteScreenTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/RemoteScreenTest.kt) | 7 | Suuntien ei-päällekkäiset alueet, rocker-targetit, fonttikoot, touch/click-erottelu, mute/guide, power/Back, duplicate-kanavanumerot |
-| [CompanionScreensTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/CompanionScreensTest.kt) | 11 | Päänäkymien reachability, switch-semantiikka, built-in-suodatus, shuffle-dialogi, eksplisiittinen launch, ellipsis sekä rajattu shelf-callback |
-| [ThemeSettingsTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/ThemeSettingsTest.kt) | 2 | Oikea MainActivity, teemavalintojen säilyminen Activity recreationissa, asetukset jokaiselta välilehdeltä ja Back; ei prosessikuoleman todistus |
-| [LauncherTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/LauncherTest.kt) | 1 | Sovellusnimi, adaptive icon, launcher-komponentti ja Settings Activity recreationin jälkeen |
+| [ConnectionScreenTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/ui/ConnectionScreenTest.kt) | 5 | 400/320 dp, 100/200 % fontti, tyhjä osoite, kentän callback, denied-settings-painike; ei Androidin oikeaa lupadialogia |
+| [RemoteScreenTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/ui/RemoteScreenTest.kt) | 7 | Suuntien ei-päällekkäiset alueet, rocker-targetit, fonttikoot, touch/click-erottelu, mute/guide, power/Back, duplicate-kanavanumerot |
+| [CompanionScreensTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/ui/CompanionScreensTest.kt) | 11 | Päänäkymien reachability, switch-semantiikka, built-in-suodatus, shuffle-dialogi, eksplisiittinen launch, ellipsis sekä rajattu shelf-callback |
+| [ThemeSettingsTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/ui/ThemeSettingsTest.kt) | 2 | Oikea MainActivity, teemavalintojen säilyminen Activity recreationissa, asetukset jokaiselta välilehdeltä ja Back; ei prosessikuoleman todistus |
+| [LauncherTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/ui/LauncherTest.kt) | 1 | Sovellusnimi, adaptive icon, launcher-komponentti ja Settings Activity recreationin jälkeen |
 | [IconRenderingTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/IconRenderingTest.kt) | 1 | 23 nimetyn Material Symbols -ikonin näkyvät pikselit 48×48-bitmapissa; `ic_settings` ei kuulu testilistaan |
 | [DesignCaptureTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/ui/DesignCaptureTest.kt) | 6 | Kolme pääpintaa molemmissa teemoissa fixture-datalla; pikselin taustaväri, navigaation yläpuolelle mahtuminen ja screenshot-tallennus |
-| [ImagePreparerTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/images/ImagePreparerTest.kt) | 3 | Alfa, ei upscalingia, koko/hash, GPS-latitudin puuttuminen, EXIF-orientaatio ja korruptin alkuperäisen säilyminen |
-| [UploadControllerTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/companion/UploadControllerTest.kt) | 4 | Fake companion, identtisen chunkin timeout-retry, epäselvän commitin status, väärä ack/journal, peruutus ja bounded cancel |
+| [ImagePreparerTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/images/ImagePreparerTest.kt) | 3 | Alfa, ei upscalingia, koko/hash, GPS-latitudin puuttuminen, EXIF-orientaatio ja korruptin alkuperäisen säilyminen |
+| [UploadControllerTest.kt](app/src/sharedTest/java/com/emmah/colordock/remote/companion/UploadControllerTest.kt) | 4 | Fake companion, identtisen chunkin timeout-retry, epäselvän commitin status, väärä ack/journal, peruutus ja bounded cancel |
 | [TvCredentialStoreTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/tv/TvCredentialStoreTest.kt) | 1 | Oikea Keystore/tiedosto/DataStore, fixture-salaisuuden puuttuminen selvätekstinä, luku ja forget; skip olemassa olevan parituksen suojaamiseksi |
 | [DeviceGateTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/tv/DeviceGateTest.kt) | 2 | `tvAddress`-argumentilla fyysinen TLS/paritus ja read-only-probe sekä erillinen app-channel ping |
 | [NetworkGateTest.kt](app/src/androidTest/java/com/emmah/colordock/remote/tv/NetworkGateTest.kt) | 1 | `tvAddress`-argumentilla valitun LAN-reitin TCP-portti 3001; aktiivisen Wi-Fi-reitin säilymisen tarkistus |
@@ -648,7 +664,9 @@ Fyysiset portit eivät ole sama asia kuin tuotanto-E2E:
 
 ### Puuttuva tai rajallinen kattavuus
 
-Ei suoraa testistöä `WallpaperViewModel`in sivutukselle, preparation/batch-vaihdolle, thumbnail-cachelle, `LocationSearch`in HTTP- ja peruutuskäyttäytymiselle, `DockViewModel`in epäonnistuneille mutaatioille, koko `RemoteViewModel`in reconnect/permission/lifecycle-ketjulle, Keystore-korruptiolle tai todelliselle prosessikuolemalle. Ei tuotannon koko picker → JPEG → v1 companion → TV-tallennus → uudelleenavaus -polun testiä. Ei coverage-pluginia tai kattavuusprosenttia, CI-workflowta, lint-baselinea tai projektikohtaista laadunporttiskriptiä repositoriossa.
+22.10.2026 snapshotissa ei ollut suoraa testistöä `WallpaperViewModel`in sivutukselle, preparation/batch-vaihdolle, thumbnail-cachelle, `LocationSearch`in HTTP- ja peruutuskäyttäytymiselle, `DockViewModel`in epäonnistuneille mutaatioille, koko `RemoteViewModel`in reconnect/permission/lifecycle-ketjulle, Keystore-korruptiolle tai todelliselle prosessikuolemalle. Nykyisiä testejä ja kattavuusasetuksia ei pidä päätellä tästä historiallisesta luettelosta. Projektikohtainen laadunportti on sittemmin lisätty: katso osan K 28.10.2026 päivitys. Tuotannon koko picker → JPEG → v1 companion → TV-tallennus → uudelleenavaus -polkua ei ole tässä tarkastuksessa varmennettu.
+
+**28.10.2026 korjaus:** `ThumbnailCache` luo käyttöjärjestelmän poistaman välimuistihakemiston uudelleen ennen tallennusta. `WallpaperViewModel` peruu palautumisessa `receiving`-tilaisen siirron ennen paikallisen palautumistiedon poistoa; perumisen epäonnistuessa tieto säilyy uutta yritystä varten. TV-palvelimen lähdekoodista ja protokollamäärittelystä vahvistettu `missing` tarkoittaa, ettei siirtotunnukselle löydy tallennettua kuvaa eikä nykyisen istunnon keskeneräistä siirtoa. Tällöin palautumistieto poistetaan ilman perumispyyntöä ja käyttäjää pyydetään valitsemaan kuva uudelleen. Aidosti tuntematon tila säilyttää palautumistiedon. Näiden regressiotestit ovat tiedostoissa `ThumbnailCacheTest.kt` ja `WallpaperViewModelTest.kt`. `TvAppsTransportTest` ohitetaan fyysisellä laitteella JUnit-oletuksen avulla ennen jaetun paritustilan käsittelyä.
 
 <a id="o-kehitys-kaantaminen-ja-julkaisu"></a>
 ## O. Kehitys, kääntäminen ja julkaisu
@@ -687,7 +705,7 @@ Alla olevat komennot vastaavat sovelluspluginin debug/release- ja testilähdejou
 .\gradlew.bat :app:bundleRelease --no-daemon
 ```
 
-POSIX-ympäristössä wrapper on `./gradlew`. Repossa ei ole sen lisäksi kehityksen shell-/PowerShell-helperiä tai erillistä resource generation -vaihetta. JVM-raportin tavanomainen plugin-output on `app/build/reports/tests/testDebugUnitTest/index.html`; käännöksen todelliset output-polut ja tulokset pitää tarkistaa kyseisen ajon tuotoksista, ei pelkän tämän ohjeen perusteella.
+POSIX-ympäristössä wrapper on `./gradlew`; huomioi osan K AAPT2-varmennuksen alustarajoite. PowerShell-tarkistuskäynnistimet ja niiden yhteisen Android-check-asennuksen vaatimus on kuvattu osassa K. Erillistä resource generation -vaihetta ei ole. JVM-raportin tavanomainen plugin-output on `app/build/reports/tests/testDebugUnitTest/index.html`; käännöksen todelliset output-polut ja tulokset pitää tarkistaa kyseisen ajon tuotoksista, ei pelkän tämän ohjeen perusteella.
 
 Laiteajot vaativat API 37+ -Androidin ja testirunnerin. TV-portit tarvitsevat lisäksi nimenomaisesti valitun testiverkon, TV:n, oikean paikallisverkkoluvan, TV:n paritushyväksynnän ja soveltuvan käynnissä olevan TV-sovelluksen. `tvAddress` on runner-argumentti, ei ympäristömuuttuja eikä tuotantobuildin asetus. Esimerkkitapa asettaa se ilman osoitteen tallentamista dokumenttiin:
 

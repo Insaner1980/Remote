@@ -127,6 +127,9 @@ class ThumbnailCache(
         hash: String,
         data: ByteArray,
     ): File {
+        if (!directory.isDirectory && !directory.mkdirs()) {
+            throw IOException("The picture preview directory could not be created.")
+        }
         val file = File(directory, "$prefix-$hash.jpg")
         val temporary = File.createTempFile("$prefix-", ".pending", directory)
         try {

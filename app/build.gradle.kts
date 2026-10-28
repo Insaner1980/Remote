@@ -35,7 +35,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    testOptions { unitTests.isReturnDefaultValues = false }
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = false
+            // AGP's Compose Preview tasks require resources even during task discovery.
+            isIncludeAndroidResources = true
+        }
+    }
     testCoverage { jacocoVersion = "0.8.15" }
     sourceSets {
         getByName("test").kotlin.directories.add("src/sharedTest/java")
@@ -47,22 +53,33 @@ kotlin { jvmToolchain(17) }
 
 jacoco { toolVersion = "0.8.15" }
 
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(25))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+        },
+    )
+    maxHeapSize = "2g"
+    // Robolectric accesses Java's file descriptor bridge.
+    jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--enable-native-access=ALL-UNNAMED")
+    extensions.configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
 tasks.register<JacocoReport>("sonarCoverageReport") {
     group = "verification"
-    description = "Reports JVM coverage plus existing Android device coverage; does not run device tests."
+    description = "Reports JVM test coverage only; does not use or run device tests."
     val unitCoverage = tasks.named<JacocoReportTask>("createDebugUnitTestCoverageReport")
     dependsOn(unitCoverage)
     jacocoClasspath = unitCoverage.get().jacocoClasspath
     classDirectories.from(unitCoverage.map { it.classFileCollection })
     sourceDirectories.from(files("src/main/java", "src/debug/java"))
-    executionData.from(
-        unitCoverage.map { it.coverageFiles.asFileTree },
-        fileTree(layout.buildDirectory.dir("outputs/code_coverage/debugAndroidTest/connected")) {
-            include("**/*.ec")
-        },
-    )
+    executionData.from(unitCoverage.map { it.coverageFiles.asFileTree })
     doFirst {
-        logger.lifecycle("Sonar: JVM coverage plus existing device data. Run device tests separately to refresh it.")
+        logger.lifecycle("Sonar: JVM test coverage only; no emulator, device tests or saved device coverage.")
     }
     reports {
         xml.required.set(true)
@@ -152,6 +169,7 @@ dependencies {
         add("ktlint", "ch.qos.logback:logback-classic:1.6.6")
         add("ktlint", "ch.qos.logback:logback-core:1.6.6")
         // Lint resolves its own copy of AGP's transitive tools.
+        add("androidLintTool", "com.google.guava:guava:33.7.2-jre")
         add("androidLintTool", "org.apache.commons:commons-lang3:3.21.0")
         add("androidLintTool", "org.apache.httpcomponents:httpclient:4.5.14")
         add("androidLintTool", "org.bouncycastle:bcpkix-jdk18on:1.86")
@@ -172,6 +190,11 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockwebserver)
     testImplementation(libs.okhttp.tls)
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test)
+    testImplementation(libs.test.ext)
+    testImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test)
     androidTestImplementation(libs.test.runner)

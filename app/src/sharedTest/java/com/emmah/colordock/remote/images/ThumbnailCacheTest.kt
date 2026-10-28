@@ -3,6 +3,7 @@ package com.emmah.colordock.remote.images
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.util.Base64
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.companion.CompanionClient
 import com.emmah.colordock.remote.companion.DockResult
@@ -28,11 +29,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 import java.util.UUID
 
+@RunWith(AndroidJUnit4::class)
 class ThumbnailCacheTest {
     private class Transport(
         private val scope: CoroutineScope,
@@ -329,6 +332,28 @@ class ThumbnailCacheTest {
                         it.length()
                     } <= 20L * 1024 * 1024,
                 )
+            }
+        }
+
+    @Test fun evictedCacheDirectoryIsRecreatedBeforeSaving() =
+        runBlocking {
+            fixture(true) { cache, directory, image, hash, _ ->
+                assertTrue(directory.delete())
+                val item = WallpaperMetadata("user:fixture", "Fixture", "cover", null, null, hash)
+                assertArrayEquals(image.readBytes(), cache.get("TV-A", item).readBytes())
+                assertTrue(directory.isDirectory)
+            }
+        }
+
+    @Test fun blockedCacheDirectoryFailsAndCanBeRetried() =
+        runBlocking {
+            fixture(true) { cache, directory, image, hash, _ ->
+                assertTrue(directory.delete())
+                directory.writeText("block directory creation")
+                val item = WallpaperMetadata("user:fixture", "Fixture", "cover", null, null, hash)
+                assertTrue(runCatching { cache.get("TV-A", item) }.exceptionOrNull() is IOException)
+                assertTrue(directory.delete())
+                assertArrayEquals(image.readBytes(), cache.get("TV-A", item).readBytes())
             }
         }
 

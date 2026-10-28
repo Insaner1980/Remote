@@ -2,13 +2,16 @@ package com.emmah.colordock.remote.ui
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 
+@RunWith(AndroidJUnit4::class)
 class PictureTest {
     @Test fun decoderBoundsWideImagesAndRejectsInvalidOrExcessiveHeaders() {
         val file =

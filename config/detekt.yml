@@ -2,6 +2,15 @@ naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
 
+# Shared scenarios keep the same test-only exemptions as test/ and androidTest/.
+complexity:
+  TooManyFunctions:
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/sharedTest/**']
+
+style:
+  MagicNumber:
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts', '**/sharedTest/**']
+
 # Defaults from compose-rules 0.4.28; opt-in rules retain their upstream defaults.
 Compose:
   ComposableAnnotationNaming:

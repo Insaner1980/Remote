@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emmah.colordock.remote.companion.DockMethod
 import com.emmah.colordock.remote.companion.DockPatch
 import com.emmah.colordock.remote.companion.DockResult
@@ -17,8 +18,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 
+@RunWith(AndroidJUnit4::class)
 class WallpaperViewModelTest {
     private fun ViewModelDockFixture.picture(): File {
         val file = File(directory, "upload.png")
@@ -329,6 +332,110 @@ class WallpaperViewModelTest {
             )
             assertFalse(image.image.exists())
             assertFalse(image.thumbnail.exists())
+        }
+
+    @Test fun receivingUploadIsCancelledBeforeClearingPendingRecord() =
+        dockScenario {
+            val pending = PendingUploadStore(application)
+            val id = "00000000-0000-4000-8000-000000000123"
+            pending.save(id, "Interrupted picture")
+            val respond = response
+            response = { method, params ->
+                if (method == "upload.cancel") assertTrue(File(directory, "pending-upload.json").isFile)
+                respond(method, params)
+            }
+            val model = wallpaper()
+            model.join()
+            assertEquals(
+                "The previous upload did not finish. Select the picture again.",
+                model.ui.first { it.outcome != null }.outcome,
+            )
+            val uploadRequests = requests.filter { it.getString("method").startsWith("upload.") }
+            assertEquals(listOf("upload.status", "upload.cancel"), uploadRequests.map { it.getString("method") })
+            assertEquals(id, uploadRequests.last().getJSONObject("params").getString("uploadId"))
+            assertNull(pending.read())
+        }
+
+    @Test fun failedRecoveryCancellationPreservesPendingRecordForRetry() =
+        dockScenario {
+            val pending = PendingUploadStore(application)
+            val id = "00000000-0000-4000-8000-000000000123"
+            pending.save(id, "Interrupted picture")
+            response = { method, _ ->
+                when (method) {
+                    "upload.status" -> {
+                        JSONObject().put("status", "receiving")
+                    }
+
+                    "upload.cancel" -> {
+                        failure = "UPLOAD_BUSY"
+                        JSONObject()
+                    }
+
+                    else -> {
+                        ViewModelDockFixture.page(listOf("user:one"))
+                    }
+                }
+            }
+            val model = wallpaper()
+            model.join()
+            val result = model.ui.first { it.error != null || it.outcome != null }
+            assertNotNull(result.error)
+            assertNull(result.outcome)
+            assertEquals(id, pending.read()?.first)
+            failure = null
+            response = { method, _ ->
+                if (method == "upload.status") {
+                    JSONObject().put("status", "receiving")
+                } else {
+                    ViewModelDockFixture.page(listOf("user:one"))
+                }
+            }
+            model.join()
+            model.ui.first { it.outcome != null }
+            assertNull(pending.read())
+        }
+
+    private fun ViewModelDockFixture.respondWithUploadStatus(status: String) {
+        response = { method, _ ->
+            if (method == "upload.status") {
+                JSONObject().put("status", status)
+            } else {
+                ViewModelDockFixture.page(listOf("user:one"))
+            }
+        }
+    }
+
+    @Test fun missingUploadClearsPendingRecordWithoutCancellation() =
+        dockScenario {
+            val pending = PendingUploadStore(application)
+            val id = "00000000-0000-4000-8000-000000000123"
+            pending.save(id, "Expired picture")
+            respondWithUploadStatus("missing")
+            val model = wallpaper()
+            model.join()
+            val result = model.ui.first { it.outcome != null || it.error != null }
+            assertEquals("The previous upload did not finish. Select the picture again.", result.outcome)
+            assertNull(result.error)
+            assertNull(pending.read())
+            val uploadRequests = requests.filter { it.getString("method").startsWith("upload.") }
+            assertEquals(listOf("upload.status"), uploadRequests.map { it.getString("method") })
+            assertEquals(id, uploadRequests.single().getJSONObject("params").getString("uploadId"))
+        }
+
+    @Test fun unknownUploadStatusPreservesPendingRecord() =
+        dockScenario {
+            val pending = PendingUploadStore(application)
+            val id = "00000000-0000-4000-8000-000000000123"
+            pending.save(id, "Unknown picture")
+            respondWithUploadStatus("unknown-future-status")
+            val model = wallpaper()
+            model.join()
+            val result = model.ui.first { it.outcome != null || it.error != null }
+            assertNotNull(result.error)
+            assertNull(result.outcome)
+            assertEquals(id to "Unknown picture", pending.read())
+            assertFalse(requests.any { it.getString("method") == "upload.cancel" })
         }
 
     @Test fun previousUploadRecoveryChecksStatusBeforeClearingPendingRecord() =

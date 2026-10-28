@@ -72,6 +72,46 @@
       "reviewedLineSha256": [
         "40743df1080f8fa85db2ac2009335c45a9597a23db1c713cc45bae39bf99e172"
       ]
+    },
+    {
+      "id": "remote-discovery-rejected-uri-formatted-history-fixture",
+      "tool": "trufflehog",
+      "rule": "URI",
+      "scope": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt at bc3a313e72376403dc968694395adb48ff9f0c9b:30",
+      "reason": "The formatted historical rejection test contains the same reviewed synthetic user-info URI as the worktree and initial commit. TruffleHog 3.96.0 reports its PLAIN-decoded finding at source line 30. Match only this commit, path, line and complete source-line digest; never suppress verified findings.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-28",
+      "expires": "2027-10-28",
+      "tracking": "reports/runs/20261028T164025858-793aa00b/trufflehog-history.jsonl#d9d85dd5632eaf6e",
+      "sourcePath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "selector": "discoveryAcceptsOnlyExpectedServiceAtAdvertisingPrivateHost",
+      "findingPath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "exceptionKind": "reviewed-non-secret-history-line",
+      "reviewedCommit": "bc3a313e72376403dc968694395adb48ff9f0c9b",
+      "reviewedLine": 30,
+      "reviewedLineSha256": [
+        "285c8f8d3878450f2bb9a8a18585b13802184c4ef474e2e793c7b2aba5cafc16"
+      ]
+    },
+    {
+      "id": "remote-discovery-rejected-uri-html-history-fixture",
+      "tool": "trufflehog",
+      "rule": "URI",
+      "scope": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt at bc3a313e72376403dc968694395adb48ff9f0c9b, HTML-decoded finding reported at line 25",
+      "reason": "TruffleHog 3.96.0 also reports an HTML-decoded duplicate of the synthetic URI on source line 30 at decoded line 25. Local comparison confirmed that its raw URI is identical to the PLAIN finding. The digest below authenticates committed source line 25 (the assertNotNull assertion), not the URI line. The exact immutable commit and path bind the reviewed file, and reported line 25 binds this duplicate; never suppress verified findings.",
+      "owner": "Remote maintainers",
+      "added": "2026-10-28",
+      "expires": "2027-10-28",
+      "tracking": "reports/runs/20261028T164025858-793aa00b/trufflehog-history.jsonl#bcf2595f9b971866",
+      "sourcePath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "selector": "discoveryAcceptsOnlyExpectedServiceAtAdvertisingPrivateHost",
+      "findingPath": "app/src/test/java/com/emmah/colordock/remote/tv/TvDiscoveryTest.kt",
+      "exceptionKind": "reviewed-non-secret-history-line",
+      "reviewedCommit": "bc3a313e72376403dc968694395adb48ff9f0c9b",
+      "reviewedLine": 25,
+      "reviewedLineSha256": [
+        "e9ab6ddb86921719ef670969232e14321450db93d9ef4ebf570d1750e95d8063"
+      ]
     }
   ]
 }

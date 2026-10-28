@@ -182,8 +182,19 @@ class WallpaperViewModel internal constructor(
         val status = dock.call(DockMethod.UploadStatus, JSONObject().put("uploadId", id), session)
         if (status is DockResult.Success && current() && session == dock.sessionGeneration) {
             val message = recoveryMessage(status.value, name) ?: return
-            pending.clear(id)
-            if (current()) mutableUi.value = ui.value.copy(outcome = message)
+            val cancelled =
+                if (status.value.opt("status") == "receiving") {
+                    dock.call(DockMethod.UploadCancel, JSONObject().put("uploadId", id), session)
+                } else {
+                    null
+                }
+            if (!current() || session != dock.sessionGeneration) return
+            if (cancelled is DockResult.Failure) {
+                mutableUi.value = ui.value.copy(error = cancelled.message)
+            } else {
+                pending.clear(id)
+                if (current()) mutableUi.value = ui.value.copy(outcome = message)
+            }
         }
     }
 
@@ -201,7 +212,7 @@ class WallpaperViewModel internal constructor(
                 }
             }
 
-            "receiving" -> {
+            "receiving", "missing" -> {
                 "The previous upload did not finish. Select the picture again."
             }
 

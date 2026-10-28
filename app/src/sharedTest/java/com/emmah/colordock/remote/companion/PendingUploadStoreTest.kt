@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.companion
 
 import android.content.ContextWrapper
 import android.util.AtomicFile
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -10,11 +11,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.UUID
 
+@RunWith(AndroidJUnit4::class)
 class PendingUploadStoreTest {
     private suspend fun fixture(action: suspend (PendingUploadStore, File) -> Unit) {
         val target = InstrumentationRegistry.getInstrumentation().targetContext

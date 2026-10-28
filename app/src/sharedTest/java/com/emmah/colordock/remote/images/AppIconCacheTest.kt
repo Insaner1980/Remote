@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.tv.TvApp
 import com.emmah.colordock.remote.tv.TvResult
@@ -20,10 +21,12 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 
+@RunWith(AndroidJUnit4::class)
 class AppIconCacheTest {
     private val app = TvApp("service", "Service", "https://192.168.1.10:3001/resources/icon.png")
 
