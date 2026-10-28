@@ -569,6 +569,12 @@ Sonar-ajo suorittaa JVM-testit ja muodostaa kattavuuden vain niiden tuloksista. 
 
 Varmistus 2026-10-28: 217 JVM-testiä läpäisi ilman ohituksia; ktlint, Detekt, debug-lint ja jaettujen testien Android-käännös läpäisivät. SonarCloudin kokonaiskattavuus oli 80,9 %, uuden koodin kattavuus 81,5 % ja Quality Gate `OK` (analyysi `7a66461d-1d79-4d65-a840-69e21d3a9700`). Kattavuus muodostettiin kokonaan JVM-ajosta, myös 320 dp:n, 200 %:n fontin ja niiden yhdistelmän UI-skenaarioissa.
 
+**CodeQL-korjaus 28.10.2026:** [CodeQL-työnkulku](.github/workflows/codeql.yml) säilyttää Java/Kotlin-analyysin `autobuild`-tilassa ja ottaa JavaScript/TypeScript-analyysiin projektijuuren lisäksi `.deepsec`-hakemiston. CodeQL 2.27.3 ohittaa piilotetut JavaScript-hakemistot oletuksena; siksi 27.10. automaattinen uuden kielen käyttöönotto epäonnistui, vaikka Java/Kotlin-analyysi onnistui. Työnkulku käyttää GitHubissa toimineita action-versioita commit-tunnisteisiin lukittuina ja ajaa analyysit oletushaaran pusheista, siihen kohdistuvista PR:istä, viikoittain ja käsin käynnistettäessä.
+
+Käyttöönotto on kesken, kunnes työnkulku on yhdistetty oletushaaraan `codex/initial-import` ja GitHubin CodeQL on vaihdettu default setupista advanced setupiin. Säilytä nykyinen default setup käytössä yhdistämiseen asti. Vaihdon jälkeen käynnistä CodeQL-työnkulku ja varmista molempien kielten analyysit sekä tulosten lataus; paikallinen tarkistus ei todista GitHub-ajon onnistumista. Vanhan commitin epäonnistunut käyttöönottoajo säilyy historiassa.
+
+Paikallinen CodeQL-varmistus 28.10.2026: actionlint 1.7.12 hyväksyi työnkulun. CodeQL 2.27.3:n JavaScript-analyysi toistettiin Linuxissa versionhallinnan `.deepsec`-tiedostoista: oletusasetuksen tietokannan luonti epäonnistui virhekoodilla 32, mutta työnkulusta poimittu `paths`-asetus loi tietokannan ja suoritti oletuskyselyt onnistuneesti. Analyysi kattoi kaikki neljä JavaScript/TypeScript-tiedostoa. Uutta Java/Kotlin- tai GitHub Actions -ajoa ei tässä varmennuksessa tehty.
+
 <a id="l-kielet-ja-muotoilu"></a>
 ## L. Kielet ja muotoilu
 
