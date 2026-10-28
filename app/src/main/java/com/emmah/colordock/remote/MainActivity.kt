@@ -192,8 +192,8 @@ class MainActivity : ComponentActivity() {
                         dockState,
                         wallpaperUi,
                         thumbnails,
-                        model,
-                        wallpapers,
+                        { model },
+                        { wallpapers },
                         {
                             picker.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
@@ -205,14 +205,14 @@ class MainActivity : ComponentActivity() {
                 }
 
                 tab == RemoteTab.Dock -> {
-                    DockRoute(dockState, dockUi, thumbnails, model, dock, openSettings, screenModifier)
+                    DockRoute(dockState, dockUi, thumbnails, { model }, { dock }, openSettings, screenModifier)
                 }
 
                 state.connection == TvConnectionState.Ready -> {
                     RemoteRoute(
                         state,
                         channels,
-                        model,
+                        { model },
                         tvApps,
                         appIcons,
                         { connectionSheet = true },

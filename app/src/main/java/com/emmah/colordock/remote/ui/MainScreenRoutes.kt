@@ -67,12 +67,14 @@ internal fun WallpaperRoute(
     dockState: DockState,
     wallpaperUi: WallpaperUiState,
     thumbnails: Map<String, File>,
-    model: RemoteViewModel,
-    wallpapers: WallpaperViewModel,
+    modelProvider: () -> RemoteViewModel,
+    wallpapersProvider: () -> WallpaperViewModel,
     onAdd: () -> Unit,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val model = modelProvider()
+    val wallpapers = wallpapersProvider()
     WallpaperScreen(
         dockState,
         wallpaperUi,
@@ -105,11 +107,13 @@ internal fun DockRoute(
     dockState: DockState,
     dockUi: DockUiState,
     thumbnails: Map<String, File>,
-    model: RemoteViewModel,
-    dock: DockViewModel,
+    modelProvider: () -> RemoteViewModel,
+    dockProvider: () -> DockViewModel,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val model = modelProvider()
+    val dock = dockProvider()
     DockScreen(
         dockState,
         dockUi,
@@ -133,13 +137,14 @@ internal fun DockRoute(
 internal fun RemoteRoute(
     state: TvState,
     channels: List<TvChannel>,
-    model: RemoteViewModel,
+    modelProvider: () -> RemoteViewModel,
     tvApps: TvAppsUiState,
     appIcons: Map<String, File>,
     onConnection: () -> Unit,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val model = modelProvider()
     RemoteScreen(
         state,
         channels,

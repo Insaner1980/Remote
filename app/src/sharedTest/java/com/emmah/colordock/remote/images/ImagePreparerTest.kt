@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.media.ExifInterface
 import android.net.Uri
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -19,6 +20,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.UUID
@@ -26,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
+@RunWith(AndroidJUnit4::class)
 class ImagePreparerTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 
@@ -42,7 +45,7 @@ class ImagePreparerTest {
                     fail("Expected an inaccessible source error")
                 } catch (error: ImagePreparationException) {
                     assertEquals("This picture is no longer accessible. Select it again.", error.message)
-                    assertTrue(error.cause is FileNotFoundException)
+                    assertTrue(generateSequence(error.cause) { it.cause }.any { it is FileNotFoundException })
                 }
                 assertTrue(File(root, "uploads").listFiles().orEmpty().isEmpty())
             } finally {

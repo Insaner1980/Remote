@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.images.AppIconCache
 import com.emmah.colordock.remote.ui.RemoteViewModel
@@ -43,9 +44,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.IOException
 
+@RunWith(AndroidJUnit4::class)
 class TvAppsTransportTest {
     private val target = requireNotNull(TvTarget.parse("192.168.1.10"))
     private val icon = "https://192.168.1.10:3001/resources/logo.png"
@@ -361,9 +365,10 @@ class TvAppsTransportTest {
     }
 
     private fun testContext(): Context {
-        check(Build.FINGERPRINT.contains("generic") || Build.MODEL.contains("sdk")) {
-            "Use a disposable emulator"
-        }
+        assumeTrue(
+            "Use an isolated JVM or disposable emulator",
+            Build.FINGERPRINT == "robolectric" || Build.FINGERPRINT.contains("generic") || Build.MODEL.contains("sdk"),
+        )
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.uiAutomation.grantRuntimePermission(
             instrumentation.targetContext.packageName,

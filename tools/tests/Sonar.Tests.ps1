@@ -25,7 +25,7 @@ try {
     New-Item -ItemType Directory -Path $runtimeTools -Force | Out-Null
     Copy-Item -LiteralPath $runtime -Destination (Join-Path $runtimeTools 'CheckRuntime.psm1')
     $gradle = Join-Path $tempRoot 'gradlew.bat'
-    Set-Content -LiteralPath $gradle -Value @('@echo off', 'echo invoked>invoked.txt', 'echo %SONAR_TOKEN%', 'exit /b 0')
+    Set-Content -LiteralPath $gradle -Value @('@echo off', 'echo invoked>invoked.txt', 'echo %*>arguments.txt', 'echo %SONAR_TOKEN%', 'exit /b 0')
     $env:SONAR_TOKEN = 'sonar-fixture-redaction-value'
     $plan = Invoke-Fixture 0 @('-PlanOnly')
     Assert-True ($plan.Contains($tempRoot)) 'Plan must resolve the root from its script location.'
@@ -41,6 +41,9 @@ try {
     Assert-True (-not (Test-Path (Join-Path $tempRoot 'invoked.txt'))) 'Missing runtime must not start Gradle.'
     $env:ANDROID_CHECK_HOME = Join-Path $tempRoot 'Android check installation'
     $output = Invoke-Fixture 0 @('-AllowExternalUpload')
+    $arguments = Get-Content -Raw -LiteralPath (Join-Path $tempRoot 'arguments.txt')
+    Assert-True ($arguments -match '\bsonar\b' -and $arguments -match '-Dsonar\.qualitygate\.wait=true') 'Analysis must wait for the quality gate.'
+    Assert-True ($arguments -notmatch 'connected|AndroidTest|emulator') 'Sonar must not request device or emulator tests.'
     $report = Get-Content -Raw -LiteralPath (Join-Path $tempRoot 'reports/sonar.txt')
     Assert-True ($output -notmatch $env:SONAR_TOKEN -and $report -notmatch $env:SONAR_TOKEN) 'Token must be redacted from console and report.'
     Assert-True ($report -match '\[REDACTED_SECRET\]') 'Fixture token was not captured for redaction testing.'

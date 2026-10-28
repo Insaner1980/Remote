@@ -3,6 +3,7 @@ package com.emmah.colordock.remote.tv
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.CompletableDeferred
 import okhttp3.Protocol
@@ -16,11 +17,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.IOException
 import java.security.cert.CertificateException
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 
+@RunWith(AndroidJUnit4::class)
 class LgConnectionListenerTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
 

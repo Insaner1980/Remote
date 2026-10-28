@@ -124,7 +124,14 @@ fun DockScreen(
             DockUnavailable(state, onOpen, onJoin)
             return@Column
         }
-        DockClockSettings(snapshot, ui.saving, thumbnail, clock, onClock, onPatch)
+        DockClockSettings(
+            snapshot,
+            ui.saving,
+            thumbnail,
+            clock.format(DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)),
+            onClock,
+            onPatch,
+        )
         DockWeatherSettings(snapshot, ui.saving, onPatch) { page = "location" }
         DockAppSettings(ui) { page = "shelf" }
     }
@@ -206,7 +213,7 @@ private fun ColumnScope.DockClockSettings(
     snapshot: DockSnapshot,
     saving: Boolean,
     thumbnail: ImageFile?,
-    clock: LocalTime,
+    clock: String,
     onClock: () -> Unit,
     onPatch: (DockPatch) -> Unit,
 ) {
@@ -225,7 +232,7 @@ private fun ColumnScope.DockClockSettings(
             contentColor = OrchidWhite,
         ) {
             Text(
-                clock.format(DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)),
+                clock,
                 Modifier.padding(8.dp),
                 style = MaterialTheme.typography.displayMedium,
             )

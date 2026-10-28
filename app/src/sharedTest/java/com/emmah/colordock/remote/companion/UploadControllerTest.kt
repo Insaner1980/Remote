@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.companion
 
 import android.content.ContextWrapper
 import android.util.Base64
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.images.ImagePreparer
 import com.emmah.colordock.remote.images.PreparedImage
@@ -30,9 +31,11 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 import java.io.File
 import java.util.UUID
 
+@RunWith(AndroidJUnit4::class)
 class UploadControllerTest {
     private class Transport(
         private val scope: CoroutineScope,

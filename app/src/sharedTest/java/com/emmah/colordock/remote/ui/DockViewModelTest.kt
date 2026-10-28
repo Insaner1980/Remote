@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emmah.colordock.remote.companion.DockConnectionState
 import com.emmah.colordock.remote.companion.DockPatch
 import com.emmah.colordock.remote.companion.DockTestFixtures
@@ -17,7 +18,9 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class DockViewModelTest {
     private fun ViewModelDockFixture.model(body: () -> String = { "{}" }): DockViewModel {
         val client =

@@ -241,14 +241,14 @@ private fun com.emmah.colordock.remote.ui.DockAppSettings(ui: com.emmah.colordoc
     - onShelf: STABLE (function type)
 
 @Composable
-private fun com.emmah.colordock.remote.ui.DockClockSettings(snapshot: com.emmah.colordock.remote.companion.DockSnapshot, saving: kotlin.Boolean, thumbnail: com.emmah.colordock.remote.ui.ImageFile?, clock: java.time.LocalTime, onClock: kotlin.Function0<kotlin.Unit>, onPatch: kotlin.Function1<com.emmah.colordock.remote.companion.DockPatch, kotlin.Unit>): kotlin.Unit
+private fun com.emmah.colordock.remote.ui.DockClockSettings(snapshot: com.emmah.colordock.remote.companion.DockSnapshot, saving: kotlin.Boolean, thumbnail: com.emmah.colordock.remote.ui.ImageFile?, clock: kotlin.String, onClock: kotlin.Function0<kotlin.Unit>, onPatch: kotlin.Function1<com.emmah.colordock.remote.companion.DockPatch, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - snapshot: RUNTIME (requires runtime check)
     - saving: STABLE (primitive type)
     - thumbnail: STABLE (class with no mutable properties)
-    - clock: UNSTABLE (Java class; stability cannot be inferred)
+    - clock: STABLE (String is immutable)
     - onClock: STABLE (function type)
     - onPatch: STABLE (function type)
 
@@ -275,15 +275,15 @@ private fun com.emmah.colordock.remote.ui.DockLocationScreen(ui: com.emmah.color
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.emmah.colordock.remote.ui.DockRoute(dockState: com.emmah.colordock.remote.companion.DockState, dockUi: com.emmah.colordock.remote.ui.DockUiState, thumbnails: kotlin.collections.Map<kotlin.String, java.io.File>, model: com.emmah.colordock.remote.ui.RemoteViewModel, dock: com.emmah.colordock.remote.ui.DockViewModel, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+internal fun com.emmah.colordock.remote.ui.DockRoute(dockState: com.emmah.colordock.remote.companion.DockState, dockUi: com.emmah.colordock.remote.ui.DockUiState, thumbnails: kotlin.collections.Map<kotlin.String, java.io.File>, modelProvider: kotlin.Function0<com.emmah.colordock.remote.ui.RemoteViewModel>, dockProvider: kotlin.Function0<com.emmah.colordock.remote.ui.DockViewModel>, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - dockState: RUNTIME (requires runtime check)
     - dockUi: RUNTIME (requires runtime check)
     - thumbnails: RUNTIME (requires runtime check)
-    - model: UNSTABLE (has mutable properties or unstable members)
-    - dock: UNSTABLE (has mutable properties or unstable members)
+    - modelProvider: STABLE (function type)
+    - dockProvider: STABLE (function type)
     - openSettings: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -450,13 +450,13 @@ private fun com.emmah.colordock.remote.ui.RemotePowerDialog(onDismiss: kotlin.Fu
     - onCommand: STABLE (function type)
 
 @Composable
-internal fun com.emmah.colordock.remote.ui.RemoteRoute(state: com.emmah.colordock.remote.tv.TvState, channels: kotlin.collections.List<com.emmah.colordock.remote.tv.TvChannel>, model: com.emmah.colordock.remote.ui.RemoteViewModel, tvApps: com.emmah.colordock.remote.ui.TvAppsUiState, appIcons: kotlin.collections.Map<kotlin.String, java.io.File>, onConnection: kotlin.Function0<kotlin.Unit>, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+internal fun com.emmah.colordock.remote.ui.RemoteRoute(state: com.emmah.colordock.remote.tv.TvState, channels: kotlin.collections.List<com.emmah.colordock.remote.tv.TvChannel>, modelProvider: kotlin.Function0<com.emmah.colordock.remote.ui.RemoteViewModel>, tvApps: com.emmah.colordock.remote.ui.TvAppsUiState, appIcons: kotlin.collections.Map<kotlin.String, java.io.File>, onConnection: kotlin.Function0<kotlin.Unit>, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
     - channels: RUNTIME (requires runtime check)
-    - model: UNSTABLE (has mutable properties or unstable members)
+    - modelProvider: STABLE (function type)
     - tvApps: RUNTIME (requires runtime check)
     - appIcons: RUNTIME (requires runtime check)
     - onConnection: STABLE (function type)
@@ -766,15 +766,15 @@ private fun com.emmah.colordock.remote.ui.WallpaperGridCard(image: com.emmah.col
     - onDetail: STABLE (function type)
 
 @Composable
-internal fun com.emmah.colordock.remote.ui.WallpaperRoute(dockState: com.emmah.colordock.remote.companion.DockState, wallpaperUi: com.emmah.colordock.remote.ui.WallpaperUiState, thumbnails: kotlin.collections.Map<kotlin.String, java.io.File>, model: com.emmah.colordock.remote.ui.RemoteViewModel, wallpapers: com.emmah.colordock.remote.ui.WallpaperViewModel, onAdd: kotlin.Function0<kotlin.Unit>, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+internal fun com.emmah.colordock.remote.ui.WallpaperRoute(dockState: com.emmah.colordock.remote.companion.DockState, wallpaperUi: com.emmah.colordock.remote.ui.WallpaperUiState, thumbnails: kotlin.collections.Map<kotlin.String, java.io.File>, modelProvider: kotlin.Function0<com.emmah.colordock.remote.ui.RemoteViewModel>, wallpapersProvider: kotlin.Function0<com.emmah.colordock.remote.ui.WallpaperViewModel>, onAdd: kotlin.Function0<kotlin.Unit>, openSettings: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - dockState: RUNTIME (requires runtime check)
     - wallpaperUi: RUNTIME (requires runtime check)
     - thumbnails: RUNTIME (requires runtime check)
-    - model: UNSTABLE (has mutable properties or unstable members)
-    - wallpapers: UNSTABLE (has mutable properties or unstable members)
+    - modelProvider: STABLE (function type)
+    - wallpapersProvider: STABLE (function type)
     - onAdd: STABLE (function type)
     - openSettings: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)

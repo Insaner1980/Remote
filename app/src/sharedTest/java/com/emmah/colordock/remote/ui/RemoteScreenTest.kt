@@ -1,6 +1,5 @@
 package com.emmah.colordock.remote.ui
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
@@ -21,8 +20,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.tv.TvChannel
 import com.emmah.colordock.remote.tv.TvCommand
 import com.emmah.colordock.remote.tv.TvConnectionState
@@ -164,7 +163,7 @@ class RemoteScreenTest {
         compose.runOnIdle {
             assertTrue(sent.isEmpty())
         }
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        pressBack()
         compose.onNodeWithText("Turn off the TV?").assertDoesNotExist()
         compose.runOnIdle {
             assertTrue(sent.isEmpty())

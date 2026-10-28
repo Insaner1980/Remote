@@ -20,7 +20,7 @@ if ($PlanOnly) {
         '  - server: https://sonarcloud.io',
         '  - local working tree -> SonarCloud project main branch',
         '  - debug build, JVM tests and coverage report',
-        '  - includes existing Android test coverage data without running device tests',
+        '  - JVM tests only (including Robolectric); no emulator, device tests or saved device coverage',
         "  - Gradle: $($gradleArguments -join ' ')",
         '  - uploads source and analysis metadata; waits for the quality gate',
         '  - report: reports/sonar.txt',

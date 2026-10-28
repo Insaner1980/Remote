@@ -6,6 +6,7 @@ buildscript {
             classpath("com.fasterxml.jackson.core:jackson-databind:2.22.4")
             classpath("org.jsoup:jsoup:1.23.2")
             // Keep AGP's transitive build tools on patched releases.
+            classpath("com.google.guava:guava:33.7.2-jre")
             classpath("org.apache.commons:commons-lang3:3.21.0")
             classpath("org.bitbucket.b_c:jose4j:0.9.7")
             classpath("org.bouncycastle:bcpkix-jdk18on:1.86")

@@ -1,6 +1,5 @@
 package com.emmah.colordock.remote.ui
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
@@ -31,6 +30,8 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.pressBack
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.tv.TvApp
 import com.emmah.colordock.remote.tv.TvCommand
@@ -40,7 +41,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class TvAppsScreenTest {
     @get:Rule val compose = createComposeRule()
     private val apps =
@@ -174,7 +177,7 @@ class TvAppsScreenTest {
         compose.runOnIdle {
             assertTrue(releases > before)
         }
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        pressBack()
         compose.onNodeWithTag("tv-app-sheet").assertDoesNotExist()
         compose.onNodeWithText("All apps").assertIsFocused()
         compose.runOnIdle {
