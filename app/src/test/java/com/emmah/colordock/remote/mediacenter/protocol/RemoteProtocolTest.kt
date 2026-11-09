@@ -285,4 +285,57 @@ class RemoteProtocolTest {
             RemoteJson.parseReply(MethodName.PAIRING_BEGIN, missing.toString())
         }
     }
+
+    @Test
+    fun staleConfirmationPreservesRequiredReplacementPreview() {
+        val fixtures = bundle().getJSONObject("fixtures")
+        val fixture = fixtures.getJSONObject("confirmationStale")
+        val reply = RemoteJson.parseReply(MethodName.CONFIRMATIONS_GET, fixture.toString())
+        val encoded = JSONObject(RemoteJson.encodeReply(reply))
+        assertEquals(canonical(fixture), canonical(encoded))
+        val failure = reply as McReply.Failure
+        assertThrows(IllegalArgumentException::class.java) {
+            RemoteJson.encodeReply(failure.copy(error = failure.error.copy(replacementPreview = null)))
+        }
+        assertEquals(
+            "confirmation-fresh-2",
+            encoded.getJSONObject("error").getJSONObject("replacementPreview").getString("confirmationId"),
+        )
+        assertEquals(reply, RemoteJson.parseReply(MethodName.CONFIRMATIONS_GET, encoded.toString()))
+        val invalid = fixtures.getJSONArray("invalidReplies")
+        for (i in 0 until invalid.length()) {
+            assertThrows(IllegalArgumentException::class.java) {
+                RemoteJson.parseReply(
+                    MethodName.CONFIRMATIONS_GET,
+                    invalid.getJSONObject(i).getJSONObject("reply").toString(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun operationCancellationAcceptsExactlyOneIdentity() {
+        val fixtures = bundle().getJSONObject("fixtures")
+        val forms = fixtures.getJSONArray("operationCancellationForms")
+        for (i in 0 until forms.length()) {
+            val request = RemoteJson.parseRequest(forms.getJSONObject(i).toString())
+            assertEquals(request, RemoteJson.parseRequest(RemoteJson.encodeRequest(request)))
+        }
+        for (params in listOf(JSONObject(), JSONObject().put("requestId", "r").put("operationId", "o"))) {
+            val request =
+                JSONObject()
+                    .put(
+                        "v",
+                        1,
+                    ).put(
+                        "id",
+                        "r",
+                    ).put(
+                        "method",
+                        "operations.cancel",
+                    ).put("params", params)
+                    .put("expected", JSONObject().put("serverEpoch", "e"))
+            assertThrows(IllegalArgumentException::class.java) { RemoteJson.parseRequest(request.toString()) }
+        }
+    }
 }

@@ -1,8 +1,8 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "0e974d4ad8558fe93195cafcbdfa9de981c4eb7e6d46c3fa08039a5adca8c79a",
-    "fixturesSha256": "85ff8e5db384913bd56e436dfd99353147cd831abea1d11be8dbfb6082e03b67",
+    "schemaSha256": "cda193d4651bf0818479aacb37279f9971ba2e86ed259a3d09fc61af57917fac",
+    "fixturesSha256": "4763f4e7352e434068e9c24515d5c20680c1240a338ee1f2091564c57db80087",
     "requestMethods": 88
   },
   "schema": {
@@ -4354,12 +4354,35 @@
       "OperationsCancelParams": {
         "type": "object",
         "properties": {
+          "requestId": {
+            "$ref": "#/$defs/Id"
+          },
           "operationId": {
             "$ref": "#/$defs/Id"
           }
         },
-        "required": [
-          "operationId"
+        "required": [],
+        "oneOf": [
+          {
+            "required": [
+              "requestId"
+            ],
+            "not": {
+              "required": [
+                "operationId"
+              ]
+            }
+          },
+          {
+            "required": [
+              "operationId"
+            ],
+            "not": {
+              "required": [
+                "requestId"
+              ]
+            }
+          }
         ]
       },
       "ConfirmationsGetParams": {
@@ -5522,6 +5545,9 @@
           },
           "refresh": {
             "$ref": "#/$defs/Topics"
+          },
+          "replacementPreview": {
+            "$ref": "#/$defs/ConfirmationPreview"
           }
         },
         "required": [
@@ -5529,7 +5555,27 @@
           "message",
           "retryable",
           "refresh"
-        ]
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "code": {
+                  "const": "confirmation_stale"
+                }
+              },
+              "required": [
+                "code"
+              ]
+            },
+            "then": {
+              "required": [
+                "replacementPreview"
+              ]
+            }
+          }
+        ],
+        "x-validation": "confirmation_stale_preview"
       },
       "Tracks": {
         "type": "array",
@@ -7720,7 +7766,8 @@
           "serverEpoch"
         ],
         "delivery": "durable",
-        "result": "CancellationAck"
+        "result": "CancellationAck",
+        "rule": "lookup"
       },
       {
         "name": "confirmations.get",
@@ -16079,6 +16126,27 @@
         "expected": {
           "serverEpoch": "opaque-1"
         }
+      },
+      {
+        "v": 1,
+        "id": "request-79",
+        "method": "operations.cancel",
+        "params": {},
+        "expected": {
+          "serverEpoch": "opaque-1"
+        }
+      },
+      {
+        "v": 1,
+        "id": "request-79",
+        "method": "operations.cancel",
+        "params": {
+          "requestId": "submitted-request-1",
+          "operationId": "operation-1"
+        },
+        "expected": {
+          "serverEpoch": "opaque-1"
+        }
       }
     ],
     "playlistEdits": [
@@ -16331,6 +16399,90 @@
         "result": {
           "status": "already_issued",
           "operationId": "operation-1"
+        }
+      }
+    ],
+    "confirmationStale": {
+      "v": 1,
+      "id": "request-1",
+      "ok": false,
+      "error": {
+        "code": "confirmation_stale",
+        "message": "The affected items changed. Review the new confirmation.",
+        "retryable": false,
+        "refresh": [
+          "activity"
+        ],
+        "replacementPreview": {
+          "confirmationId": "confirmation-fresh-2",
+          "ownerDeviceId": "opaque-1",
+          "action": "replace_activity",
+          "affectedLabels": [],
+          "expected": {
+            "serverEpoch": "epoch-1",
+            "queueRevision": "2"
+          },
+          "expiresInMs": 60000,
+          "confirmMethod": "activity.confirm"
+        }
+      }
+    },
+    "invalidReplies": [
+      {
+        "method": "confirmations.get",
+        "reply": {
+          "v": 1,
+          "id": "request-1",
+          "ok": false,
+          "error": {
+            "code": "confirmation_stale",
+            "message": "The affected items changed. Review the new confirmation.",
+            "retryable": false,
+            "refresh": [
+              "activity"
+            ]
+          }
+        }
+      },
+      {
+        "method": "confirmations.get",
+        "reply": {
+          "v": 1,
+          "id": "request-1",
+          "ok": false,
+          "error": {
+            "code": "confirmation_stale",
+            "message": "The affected items changed. Review the new confirmation.",
+            "retryable": false,
+            "refresh": [
+              "activity"
+            ],
+            "replacementPreview": null
+          }
+        }
+      }
+    ],
+    "operationCancellationForms": [
+      {
+        "v": 1,
+        "id": "request-79",
+        "method": "operations.cancel",
+        "params": {
+          "operationId": "opaque-1"
+        },
+        "expected": {
+          "serverEpoch": "opaque-1"
+        }
+      },
+      {
+        "v": 1,
+        "id": "request-79",
+        "method": "operations.cancel",
+        "params": {
+          "requestId": "submitted-request-1"
+        },
+        "expected": {
+          "serverEpoch": "opaque-1"
         }
       }
     ]

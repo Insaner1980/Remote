@@ -1899,6 +1899,7 @@ object RemoteJson {
 
             is RemoteCommand.OperationsCancel -> {
                 check(expected?.serverEpoch != null)
+                check((command.params.requestId != null) != (command.params.operationId != null))
             }
 
             is RemoteCommand.ConfirmationsGet -> {
@@ -3398,13 +3399,25 @@ object RemoteJson {
     private fun readOperationsCancelParams(value: Any): OperationsCancelParams {
         val source = obj(value)
         return OperationsCancelParams(
-            operationId = readId(source.get("operationId")),
+            requestId =
+                if (source.isNull("requestId")) {
+                    null
+                } else {
+                    readId(source.get("requestId"))
+                },
+            operationId =
+                if (source.isNull("operationId")) {
+                    null
+                } else {
+                    readId(source.get("operationId"))
+                },
         )
     }
 
     private fun writeOperationsCancelParams(value: OperationsCancelParams): Any {
         val result = JSONObject()
-        result.put("operationId", writeId(value.operationId))
+        value.requestId?.let { result.put("requestId", writeId(it)) }
+        value.operationId?.let { result.put("operationId", writeId(it)) }
         return result
     }
 
@@ -4377,20 +4390,31 @@ object RemoteJson {
 
     private fun readErrorPayload(value: Any): ErrorPayload {
         val source = obj(value)
-        return ErrorPayload(
-            code = readWireErrorCode(source.get("code")),
-            message = readDisplayText(source.get("message")),
-            retryable = readBool(source.get("retryable")),
-            refresh = readTopics(source.get("refresh")),
-        )
+        val result =
+            ErrorPayload(
+                code = readWireErrorCode(source.get("code")),
+                message = readDisplayText(source.get("message")),
+                retryable = readBool(source.get("retryable")),
+                refresh = readTopics(source.get("refresh")),
+                replacementPreview =
+                    if (source.isNull("replacementPreview")) {
+                        null
+                    } else {
+                        readConfirmationPreview(source.get("replacementPreview"))
+                    },
+            )
+        check(result.code != WireErrorCode.CONFIRMATION_STALE || result.replacementPreview != null)
+        return result
     }
 
     private fun writeErrorPayload(value: ErrorPayload): Any {
+        check(value.code != WireErrorCode.CONFIRMATION_STALE || value.replacementPreview != null)
         val result = JSONObject()
         result.put("code", writeWireErrorCode(value.code))
         result.put("message", writeDisplayText(value.message))
         result.put("retryable", writeBool(value.retryable))
         result.put("refresh", writeTopics(value.refresh))
+        value.replacementPreview?.let { result.put("replacementPreview", writeConfirmationPreview(it)) }
         return result
     }
 

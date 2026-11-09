@@ -609,7 +609,8 @@ data class OperationsGetParams(
 }
 
 data class OperationsCancelParams(
-    val operationId: String,
+    val requestId: String? = null,
+    val operationId: String? = null,
 ) {
     override fun toString(): String = "OperationsCancelParams([redacted])"
 }
@@ -1223,6 +1224,7 @@ data class ErrorPayload(
     val message: String,
     val retryable: Boolean,
     val refresh: Topics,
+    val replacementPreview: ConfirmationPreview? = null,
 ) {
     override fun toString(): String = "ErrorPayload([redacted])"
 }
