@@ -5143,6 +5143,43 @@ object RemoteJson {
             }
         }
 
+    private fun readManualChallengeMode(value: Any): ManualChallengeMode =
+        ManualChallengeMode.entries.firstOrNull { it.wire == string(value) } ?: unsupported()
+
+    private fun writeManualChallengeMode(value: ManualChallengeMode): Any = value.wire
+
+    private fun readManualChallengeRequest(value: Any): ManualChallengeRequest {
+        val source = obj(value)
+        return ManualChallengeRequest(
+            v = readVersion(source.get("v")),
+            mode = readManualChallengeMode(source.get("mode")),
+        )
+    }
+
+    private fun writeManualChallengeRequest(value: ManualChallengeRequest): Any {
+        val result = JSONObject()
+        result.put("v", writeVersion(value.v))
+        result.put("mode", writeManualChallengeMode(value.mode))
+        return result
+    }
+
+    private fun readManualChallengeResponse(value: Any): ManualChallengeResponse {
+        val source = obj(value)
+        return ManualChallengeResponse(
+            v = readVersion(source.get("v")),
+            serverDeviceId = readId(source.get("serverDeviceId")),
+            attemptId = readId(source.get("attemptId")),
+        )
+    }
+
+    private fun writeManualChallengeResponse(value: ManualChallengeResponse): Any {
+        val result = JSONObject()
+        result.put("v", writeVersion(value.v))
+        result.put("serverDeviceId", writeId(value.serverDeviceId))
+        result.put("attemptId", writeId(value.attemptId))
+        return result
+    }
+
     fun parsePairingCandidate(input: String): PairingCandidate = safely { readPairingCandidate(document(input, 65536)) }
 
     fun encodePairingCandidate(value: PairingCandidate): String = writePairingCandidate(value).toString()
@@ -5168,4 +5205,20 @@ object RemoteJson {
         safely { readPairedMediacenter(document(input, 65536)) }
 
     fun encodePairedMediacenter(value: PairedMediacenter): String = writePairedMediacenter(value).toString()
+
+    fun parseManualChallengeRequest(input: String): ManualChallengeRequest =
+        safely {
+            readManualChallengeRequest(document(input, 65536))
+        }
+
+    fun encodeManualChallengeRequest(value: ManualChallengeRequest): String =
+        writeManualChallengeRequest(value).toString()
+
+    fun parseManualChallengeResponse(input: String): ManualChallengeResponse =
+        safely {
+            readManualChallengeResponse(document(input, 65536))
+        }
+
+    fun encodeManualChallengeResponse(value: ManualChallengeResponse): String =
+        writeManualChallengeResponse(value).toString()
 }

@@ -259,6 +259,19 @@ class RemoteProtocolTest {
             manualRequest,
             RemoteJson.parseManualPairRequest(RemoteJson.encodeManualPairRequest(manualRequest)),
         )
+        val challenge = RemoteJson.parseManualChallengeRequest(f.getJSONObject("manualChallengeRequest").toString())
+        assertEquals(
+            challenge,
+            RemoteJson.parseManualChallengeRequest(RemoteJson.encodeManualChallengeRequest(challenge)),
+        )
+        val challengeResponse =
+            RemoteJson.parseManualChallengeResponse(
+                f.getJSONObject("manualChallengeResponse").toString(),
+            )
+        assertEquals(
+            challengeResponse,
+            RemoteJson.parseManualChallengeResponse(RemoteJson.encodeManualChallengeResponse(challengeResponse)),
+        )
         val paired = RemoteJson.parsePairedMediacenter(f.getJSONObject("pairedMediacenter").toString())
         assertEquals(paired, RemoteJson.parsePairedMediacenter(RemoteJson.encodePairedMediacenter(paired)))
         org.junit.Assert.assertFalse(candidate.toString().contains("A".repeat(43)))

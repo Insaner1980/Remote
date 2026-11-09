@@ -1,8 +1,8 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "cda193d4651bf0818479aacb37279f9971ba2e86ed259a3d09fc61af57917fac",
-    "fixturesSha256": "4763f4e7352e434068e9c24515d5c20680c1240a338ee1f2091564c57db80087",
+    "schemaSha256": "71963eb5d1f9fbbf8849d977fc3099ab4bc3179b1ed2821f2d520cea0e00109e",
+    "fixturesSha256": "f2f0418b2171a594cce929bafb0915793a4e189fa9834f3109548263542e9a81",
     "requestMethods": 88
   },
   "schema": {
@@ -6878,6 +6878,48 @@
               "operationId"
             ]
           }
+        ]
+      },
+      "ManualChallengeMode": {
+        "type": "string",
+        "enum": [
+          "manual_challenge"
+        ]
+      },
+      "ManualChallengeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "$ref": "#/$defs/Version"
+          },
+          "mode": {
+            "$ref": "#/$defs/ManualChallengeMode"
+          }
+        },
+        "required": [
+          "v",
+          "mode"
+        ]
+      },
+      "ManualChallengeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "v": {
+            "$ref": "#/$defs/Version"
+          },
+          "serverDeviceId": {
+            "$ref": "#/$defs/Id"
+          },
+          "attemptId": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "required": [
+          "v",
+          "serverDeviceId",
+          "attemptId"
         ]
       }
     },
@@ -16485,6 +16527,15 @@
           "serverEpoch": "opaque-1"
         }
       }
-    ]
+    ],
+    "manualChallengeRequest": {
+      "v": 1,
+      "mode": "manual_challenge"
+    },
+    "manualChallengeResponse": {
+      "v": 1,
+      "serverDeviceId": "server-1",
+      "attemptId": "attempt-1"
+    }
   }
 }

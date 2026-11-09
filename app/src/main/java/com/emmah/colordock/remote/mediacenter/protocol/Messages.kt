@@ -1651,6 +1651,27 @@ sealed interface PairingPreparation {
     ) : PairingPreparation
 }
 
+enum class ManualChallengeMode(
+    val wire: String,
+) {
+    MANUAL_CHALLENGE("manual_challenge"),
+}
+
+data class ManualChallengeRequest(
+    val v: Int,
+    val mode: ManualChallengeMode,
+) {
+    override fun toString(): String = "ManualChallengeRequest([redacted])"
+}
+
+data class ManualChallengeResponse(
+    val v: Int,
+    val serverDeviceId: String,
+    val attemptId: String,
+) {
+    override fun toString(): String = "ManualChallengeResponse([redacted])"
+}
+
 enum class Delivery { READ, DURABLE, TRANSIENT }
 
 sealed interface RemoteCommand {
