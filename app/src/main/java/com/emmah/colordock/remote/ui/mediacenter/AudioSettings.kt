@@ -35,6 +35,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.OutputsTopic
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
 import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -59,6 +60,22 @@ internal class AudioSettingsController(
     private var requestId: String? = null
     private var operationId: String? = null
     private var observedOutcome: OperationStatus? = null
+    val confirmationStatus =
+        ConfirmationStatusReconciler(
+            send,
+            { epoch to state.value.preview.takeUnless { state.value.busy } },
+            { id ->
+                mutable.update { current ->
+                    if (current.preview?.confirmationId ==
+                        id
+                    ) {
+                        current.copy(preview = null, message = outputStatus(current.outputs))
+                    } else {
+                        current
+                    }
+                }
+            },
+        )
 
     fun observe(
         currentEpoch: String?,
@@ -85,6 +102,7 @@ internal class AudioSettingsController(
                     },
             )
         }
+        if (operations.isNotEmpty()) confirmationStatus.refresh()
         val operation =
             operations.firstOrNull {
                 (operationId != null && it.operationId == operationId) ||
@@ -159,6 +177,7 @@ internal class AudioSettingsController(
     }
 
     fun receive(reply: McReply) {
+        if (confirmationStatus.receive(reply)) return
         if (reply.id != requestId) return
         requestId = null
         mutable.update { it.copy(busy = false) }
@@ -287,6 +306,12 @@ fun MediacenterSoundSettings(
         }
     }
     LaunchedEffect(repository) { repository.replies.collect(controller::receive) }
+    LaunchedEffect(controller, state.preview?.confirmationId) {
+        while (state.preview != null) {
+            delay(STATUS_INTERVAL_MS)
+            controller.confirmationStatus.refresh()
+        }
+    }
     SoundOptions(
         state,
         SoundActions(

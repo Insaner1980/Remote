@@ -140,4 +140,31 @@ class AudioSettingsComposeTest {
         compose.onNodeWithText("Audio output unavailable").assertIsDisplayed()
         compose.onNodeWithText("Audio output unavailable. Retry or choose a sound output.").assertIsDisplayed()
     }
+
+    @Test fun desktopResolutionClosesTheRenderedServerSheet() {
+        val sent = mutableListOf<McRequest>()
+        val controller = AudioSettingsController { sent.add(it) }
+        controller.observe("epoch", nativeAudioProjection("active"))
+        controller.choose("hdmi")
+        controller.receive(
+            McReply.Success(
+                sent.last().id,
+                RemoteResult.AudioPrepare(ActivityPreparation.ConfirmationRequired(audioConfirmation("shared"))),
+            ),
+        )
+        compose.setContent {
+            RemoteTheme {
+                val state by controller.state.collectAsState()
+                SoundOptions(state, SoundActions({}, {}, {}, {}, {}, {}))
+            }
+        }
+        compose.onNodeWithText("Sound").performClick()
+        compose.onNodeWithText("Change sound output?").assertIsDisplayed()
+        compose.runOnIdle {
+            controller.confirmationStatus.refresh()
+            controller.receive(audioFailure(sent.last().id, WireErrorCode.NOT_FOUND))
+        }
+        compose.onNodeWithText("Change sound output?").assertDoesNotExist()
+        compose.onNodeWithText("TV").assertIsDisplayed()
+    }
 }

@@ -233,4 +233,48 @@ class AudioSettingsTest {
             assertEquals(name, message, controller.state.value.message)
         }
     }
+
+    @Test
+    fun desktopResolutionReconcilesTheSameServerConfirmationWithoutReplayingMutation() {
+        val sent = mutableListOf<McRequest>()
+        val controller = AudioSettingsController { sent.add(it) }
+        controller.observe("epoch", outputs)
+        controller.choose("hdmi")
+        val preview =
+            ConfirmationPreview(
+                "shared-confirmation",
+                "phone",
+                ActionKind.CHANGE_AUDIO,
+                listOf("TV"),
+                Expected(serverEpoch = "epoch"),
+                60000,
+                confirmMethod = ConfirmMethod.AUDIO_CONFIRM,
+            )
+        controller.receive(
+            McReply.Success(
+                sent.single().id,
+                RemoteResult.AudioPrepare(ActivityPreparation.ConfirmationRequired(preview)),
+            ),
+        )
+        controller.observe(
+            "epoch",
+            outputs,
+            listOf(
+                OperationState(
+                    "desktop-operation",
+                    "desktop-request",
+                    OperationStatus.SUCCEEDED,
+                    cancellationRequested = false,
+                ),
+            ),
+        )
+        assertTrue(sent.last().command is RemoteCommand.ConfirmationsGet)
+        val status = sent.last()
+        assertEquals("shared-confirmation", (status.command as RemoteCommand.ConfirmationsGet).params.confirmationId)
+        controller.receive(audioFailure(status.id, WireErrorCode.NOT_FOUND))
+        assertEquals(null, controller.state.value.preview)
+        assertFalse(controller.confirm())
+        assertEquals(1, sent.count { it.command is RemoteCommand.AudioPrepare })
+        assertEquals(0, sent.count { it.command is RemoteCommand.AudioConfirm })
+    }
 }
