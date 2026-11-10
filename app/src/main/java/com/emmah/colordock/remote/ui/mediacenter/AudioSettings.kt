@@ -25,6 +25,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationPreview
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
 import com.emmah.colordock.remote.mediacenter.protocol.Delivery
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
+import com.emmah.colordock.remote.mediacenter.protocol.ErrorPayload
 import com.emmah.colordock.remote.mediacenter.protocol.Expected
 import com.emmah.colordock.remote.mediacenter.protocol.McReply
 import com.emmah.colordock.remote.mediacenter.protocol.McRequest
@@ -165,7 +166,7 @@ internal class AudioSettingsController(
             is McReply.Failure -> {
                 mutable.update {
                     it.copy(
-                        preview = reply.error.replacementPreview ?: it.preview,
+                        preview = failurePreview(it.preview, reply.error),
                         message =
                             if (reply.error.code ==
                                 WireErrorCode.AUDIO_OUTPUT_UNAVAILABLE
@@ -239,20 +240,36 @@ internal class AudioSettingsController(
     }
 }
 
+private fun failurePreview(
+    current: ConfirmationPreview?,
+    error: ErrorPayload,
+): ConfirmationPreview? =
+    error.replacementPreview ?: current.takeUnless {
+        error.code == WireErrorCode.CONFIRMATION_EXPIRED || error.code == WireErrorCode.NOT_FOUND
+    }
+
 private fun outputStatus(value: OutputsTopic?): String =
     when {
-        value == null -> "Connect to Mediacenter to choose a sound output."
+        value == null -> {
+            "Connect to Mediacenter to choose a sound output."
+        }
+
+        value.unavailable -> {
+            "Audio output unavailable"
+        }
 
         value.requestedOutputId != null && value.effectiveOutputId == null &&
-            value.outputs.any {
-                it.id == value.requestedOutputId && it.available
-            } -> "Sound preference saved; no playback stream has been confirmed."
+            value.outputs.any { it.id == value.requestedOutputId && it.available } -> {
+            "Sound preference saved; no playback stream has been confirmed."
+        }
 
-        value.unavailable -> "Audio output unavailable"
+        value.effectiveOutputId == null -> {
+            "No playback stream has been confirmed."
+        }
 
-        value.effectiveOutputId == null -> "No playback stream has been confirmed."
-
-        else -> "Sound output confirmed by Mediacenter."
+        else -> {
+            "Sound output confirmed by Mediacenter."
+        }
     }
 
 @Composable

@@ -13,6 +13,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.mediacenter.protocol.OutputsTopic
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
+import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -171,5 +172,65 @@ class AudioSettingsTest {
         )
         assertEquals(preview, controller.state.value.preview)
         assertTrue(controller.confirm())
+    }
+
+    @Test
+    fun terminalConfirmationFailuresReleaseSheetAndAllowAnotherPreparation() {
+        for (code in listOf(WireErrorCode.CONFIRMATION_EXPIRED, WireErrorCode.NOT_FOUND)) {
+            for (cancel in listOf(false, true)) {
+                val sent = mutableListOf<McRequest>()
+                val controller = AudioSettingsController { sent.add(it) }
+                controller.observe("epoch", nativeAudioProjection("active"))
+                controller.choose("hdmi")
+                controller.receive(
+                    McReply.Success(
+                        sent.last().id,
+                        RemoteResult.AudioPrepare(ActivityPreparation.ConfirmationRequired(audioConfirmation())),
+                    ),
+                )
+                assertTrue(if (cancel) controller.cancel() else controller.confirm())
+                controller.receive(audioFailure(sent.last().id, code))
+                assertEquals("Terminal $code must release the sheet", null, controller.state.value.preview)
+                assertTrue(controller.choose("hdmi"))
+                assertTrue(sent.last().command is RemoteCommand.AudioPrepare)
+            }
+        }
+    }
+
+    @Test
+    fun genuinelyStaleReplacementAndRetryableFailuresKeepTheAppropriateServerSheet() {
+        val sent = mutableListOf<McRequest>()
+        val controller = AudioSettingsController { sent.add(it) }
+        controller.observe("epoch", nativeAudioProjection("active"))
+        controller.choose("hdmi")
+        controller.receive(
+            McReply.Success(
+                sent.last().id,
+                RemoteResult.AudioPrepare(ActivityPreparation.ConfirmationRequired(audioConfirmation())),
+            ),
+        )
+        controller.confirm()
+        val replacement = audioConfirmation("replacement")
+        controller.receive(audioFailure(sent.last().id, WireErrorCode.CONFIRMATION_STALE, replacement))
+        assertEquals(replacement, controller.state.value.preview)
+        controller.confirm()
+        assertEquals("replacement", (sent.last().command as RemoteCommand.AudioConfirm).params.confirmationId)
+        controller.receive(audioFailure(sent.last().id, WireErrorCode.UNAVAILABLE))
+        assertEquals(replacement, controller.state.value.preview)
+    }
+
+    @Test
+    fun realNativeIdlePreferenceAndLostSinkStatesHaveDistinctMessages() {
+        val controller = AudioSettingsController { true }
+        for ((name, message) in listOf(
+            "idle" to "No playback stream has been confirmed.",
+            "preference" to "Sound preference saved; no playback stream has been confirmed.",
+            "lost" to "Audio output unavailable",
+            "lostAfterClear" to "Audio output unavailable",
+            "returnedWithoutStream" to "Audio output unavailable",
+        )) {
+            controller.observe("epoch", nativeAudioProjection(name))
+            assertEquals(name, message, controller.state.value.message)
+        }
     }
 }
