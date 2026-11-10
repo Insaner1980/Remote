@@ -2492,6 +2492,12 @@ object RemoteJson {
                 } else {
                     readPageLimit(source.get("limit"))
                 },
+            query =
+                if (source.isNull("query")) {
+                    null
+                } else {
+                    readQuery(source.get("query"))
+                },
         )
     }
 
@@ -2499,6 +2505,7 @@ object RemoteJson {
         val result = JSONObject()
         value.cursor?.let { result.put("cursor", writeCursor(it)) }
         value.limit?.let { result.put("limit", writePageLimit(it)) }
+        value.query?.let { result.put("query", writeQuery(it)) }
         return result
     }
 

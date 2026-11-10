@@ -37,6 +37,8 @@ interface MediacenterNetwork {
 }
 
 /** Every socket belongs to the selected Network. No proxy, redirect, public DNS, or retry fallback. */
+private const val THUMBNAIL_MAX_BYTES = 512 * 1024
+
 class MediacenterTransport private constructor(
     val endpoint: MediacenterEndpoint,
     val network: MediacenterNetwork,
@@ -138,6 +140,64 @@ class MediacenterTransport private constructor(
                                     val source = it.body.source()
                                     if (source.request(PAIR_BYTES + 1L)) throw IOException("Invalid pairing response")
                                     source.readUtf8()
+                                }
+                            }
+                        if (continuation.isActive) result.fold(continuation::resume, continuation::resumeWithException)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun thumbnail(
+        id: String,
+        credential: String,
+    ): ByteArray {
+        require(id.matches(Regex("[a-fA-F0-9]{64}")))
+        require(credential.matches(Regex("[A-Za-z0-9_-]{43}")))
+        val request =
+            Request
+                .Builder()
+                .url(
+                    url("/remote/v1/thumbnails/$id"),
+                ).header("Authorization", "Bearer $credential")
+                .build()
+        return suspendCancellableCoroutine { continuation ->
+            val call = client.newCall(request)
+            continuation.invokeOnCancellation { call.cancel() }
+            call.enqueue(
+                object : Callback {
+                    override fun onFailure(
+                        call: Call,
+                        e: IOException,
+                    ) {
+                        if (continuation.isActive) continuation.resumeWithException(e)
+                    }
+
+                    override fun onResponse(
+                        call: Call,
+                        response: Response,
+                    ) {
+                        val result =
+                            runCatching {
+                                response.use {
+                                    if (!it.isSuccessful ||
+                                        it.body.contentType()?.let { type ->
+                                            type.type != "image" ||
+                                                type.subtype != "png"
+                                        } !=
+                                        false
+                                    ) {
+                                        throw IOException("Preview unavailable")
+                                    }
+                                    val source = it.body.source()
+                                    if (source.request(
+                                            THUMBNAIL_MAX_BYTES + 1L,
+                                        )
+                                    ) {
+                                        throw IOException("Preview is too large")
+                                    }
+                                    source.readByteArray()
                                 }
                             }
                         if (continuation.isActive) result.fold(continuation::resume, continuation::resumeWithException)

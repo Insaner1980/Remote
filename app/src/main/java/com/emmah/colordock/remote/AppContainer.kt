@@ -23,6 +23,10 @@ class AppContainer(
             MediacenterClient(),
             scope,
             FilePendingCommandStore(File(context.noBackupFilesDir, "mediacenter.pending")),
+            thumbnails =
+                com.emmah.colordock.remote.mediacenter.MediacenterThumbnails(
+                    File(context.cacheDir, "mediacenter-thumbnails"),
+                ),
         )
     val tv = LgTvClient(context)
     val dock = CompanionClient(tv, scope)

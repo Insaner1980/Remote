@@ -1,8 +1,8 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "d658222be2962dc3859c001c154d7f7626946bee14d47972c36bab2ed195266e",
-    "fixturesSha256": "604ba401d3094a5aa239f18ee289b5d2297b36224b3d5be397d3d9ab6bb4ac35",
+    "schemaSha256": "bfd145ef3eac74d3ca23e1ca26234ef4384a4f466d5759c2efef3f68eec7e2ae",
+    "fixturesSha256": "99cdfc991d516842e71420798394016737ded7c92a6111b64b37463a96b86b4b",
     "requestMethods": 88
   },
   "schema": {
@@ -3552,6 +3552,9 @@
           },
           "limit": {
             "$ref": "#/$defs/PageLimit"
+          },
+          "query": {
+            "$ref": "#/$defs/Query"
           }
         },
         "required": []
@@ -13447,7 +13450,9 @@
         "v": 1,
         "id": "request-22",
         "method": "playlists.list",
-        "params": {}
+        "params": {
+          "query": "Road"
+        }
       },
       {
         "v": 1,

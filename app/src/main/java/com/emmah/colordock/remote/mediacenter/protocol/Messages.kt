@@ -245,6 +245,7 @@ data class QueueRepeatParams(
 data class PlaylistsListParams(
     val cursor: String? = null,
     val limit: Int? = null,
+    val query: String? = null,
 ) {
     override fun toString(): String = "PlaylistsListParams([redacted])"
 }

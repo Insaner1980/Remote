@@ -3,7 +3,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -19,6 +19,7 @@ import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterRepository
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityPreparation
 import com.emmah.colordock.remote.mediacenter.protocol.AudioConfirmParams
+import com.emmah.colordock.remote.mediacenter.protocol.AudioOutputs
 import com.emmah.colordock.remote.mediacenter.protocol.AudioPrepareParams
 import com.emmah.colordock.remote.mediacenter.protocol.AudioTestParams
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationPreview
@@ -340,6 +341,7 @@ internal fun SoundOptions(
     state: AudioSettingsState,
     actions: SoundActions,
     modifier: Modifier = Modifier,
+    showConfirmation: Boolean = true,
 ) {
     var open by remember { mutableStateOf(false) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -372,20 +374,17 @@ internal fun SoundOptions(
             }
         }
     }
-    state.preview?.let { preview ->
-        AlertDialog(onDismissRequest = { actions.cancel() }, title = { Text("Change sound output?") }, text = {
-            Column { preview.affectedLabels.forEach { Text(it) } }
-        }, confirmButton = {
-            TextButton(onClick = {
-                actions.confirm()
-            }, enabled = state.outputs != null && !state.busy) {
-                Text("Confirm")
-            }
-        }, dismissButton = {
-            TextButton(
-                onClick = { actions.cancel() },
-                enabled = state.outputs != null && !state.busy,
-            ) { Text("Cancel") }
-        })
+    if (showConfirmation) {
+        state.preview?.let { preview ->
+            ConfirmationSheet(
+                preview,
+                state.outputs == null || state.busy,
+                ConfirmationActions(
+                    actions.confirm,
+                    actions.cancel,
+                ),
+                title = "Change sound output?",
+            )
+        }
     }
 }

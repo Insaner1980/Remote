@@ -103,18 +103,21 @@ internal class MediacenterRequests(
             }
         } else if (tracked.delivery == Delivery.DURABLE) {
             val result = root.optJSONObject("result")
+            val acceptedOperation =
+                result?.optString("operationId")?.takeIf { it.isNotEmpty() }
+                    ?: result?.optJSONObject("operation")?.optString("operationId")?.takeIf { it.isNotEmpty() }
             when {
-                reply is McReply.Failure -> recovery.finish(target, id, OperationStatus.FAILED)
+                reply is McReply.Failure -> {
+                    recovery.finish(target, id, OperationStatus.FAILED)
+                }
 
-                result?.optString(
-                    "status",
-                ) == "accepted" &&
-                    result.has(
-                        "operationId",
-                    )
-                -> recovery.accepted(target, id, result.getString("operationId"))
+                result?.optString("status") == "accepted" && acceptedOperation != null -> {
+                    recovery.accepted(target, id, acceptedOperation)
+                }
 
-                else -> recovery.finish(target, id, OperationStatus.SUCCEEDED)
+                else -> {
+                    recovery.finish(target, id, OperationStatus.SUCCEEDED)
+                }
             }
         }
         received.tryEmit(reply)

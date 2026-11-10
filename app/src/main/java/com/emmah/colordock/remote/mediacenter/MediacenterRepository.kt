@@ -16,6 +16,7 @@ class MediacenterRepository(
     control: MediacenterControl,
     scope: CoroutineScope,
     journal: PendingCommandStore,
+    private val thumbnails: MediacenterThumbnails? = null,
     jitter: () -> Double = { Random.nextDouble() },
 ) : MediacenterControl {
     private val lock = Any()
@@ -49,12 +50,14 @@ class MediacenterRepository(
         value: StoredMediacenter,
         network: MediacenterNetwork,
     ) = synchronized(lock) {
+        thumbnails?.select(value, network)
         selectedPairing.value = value.paired
         connection.connect(value, network)
     }
 
     override fun disconnect() =
         synchronized(lock) {
+            thumbnails?.retire()
             connection.disconnect()
             selectedPairing.value = null
         }
@@ -69,8 +72,20 @@ class MediacenterRepository(
         synchronized(lock) {
             val server = serverId ?: selectedPairing.value?.serverDeviceId
             disconnect()
+            thumbnails?.forget()
             server == null || requests.forget(server)
         }
+
+    suspend fun thumbnail(id: String): ByteArray? {
+        val owner =
+            synchronized(lock) {
+                selectedPairing.value.takeIf { state.value == MediacenterConnectionState.Connected }
+            } ?: return null
+        val bytes = thumbnails?.load(id)
+        return synchronized(lock) {
+            bytes.takeIf { selectedPairing.value === owner && state.value == MediacenterConnectionState.Connected }
+        }
+    }
 
     override fun send(request: McRequest): Boolean =
         synchronized(lock) {
