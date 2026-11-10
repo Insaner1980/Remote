@@ -60,8 +60,12 @@ import com.emmah.colordock.remote.ui.WallpaperRoute
 import com.emmah.colordock.remote.ui.WallpaperScreen
 import com.emmah.colordock.remote.ui.WallpaperViewModel
 import com.emmah.colordock.remote.ui.asImageFile
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterEntry
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterSetupDialog
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterViewModel
 
 class MainActivity : ComponentActivity() {
+    private val mediacenter: MediacenterViewModel by viewModels()
     private val appearance: ThemeViewModel by viewModels()
     private val model: RemoteViewModel by viewModels()
     private val wallpapers: WallpaperViewModel by viewModels()
@@ -182,71 +186,73 @@ class MainActivity : ComponentActivity() {
                     state
                 }
             }
-        RemoteAppShell(tab, { next ->
-            model.release()
-            tab = next
-        }) { screenModifier ->
-            when {
-                tab == RemoteTab.Wallpapers -> {
-                    WallpaperRoute(
-                        dockState,
-                        wallpaperUi,
-                        thumbnails,
-                        { model },
-                        { wallpapers },
-                        {
-                            picker.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                            )
-                        },
-                        openSettings,
-                        screenModifier,
-                    )
-                }
+        MediacenterTarget({ model }) { targetModifier ->
+            RemoteAppShell(tab, { next ->
+                model.release()
+                tab = next
+            }, modifier = targetModifier) { screenModifier ->
+                when {
+                    tab == RemoteTab.Wallpapers -> {
+                        WallpaperRoute(
+                            dockState,
+                            wallpaperUi,
+                            thumbnails,
+                            { model },
+                            { wallpapers },
+                            {
+                                picker.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                )
+                            },
+                            openSettings,
+                            screenModifier,
+                        )
+                    }
 
-                tab == RemoteTab.Dock -> {
-                    DockRoute(dockState, dockUi, thumbnails, { model }, { dock }, openSettings, screenModifier)
-                }
+                    tab == RemoteTab.Dock -> {
+                        DockRoute(dockState, dockUi, thumbnails, { model }, { dock }, openSettings, screenModifier)
+                    }
 
-                state.connection == TvConnectionState.Ready -> {
-                    RemoteRoute(
-                        state,
-                        channels,
-                        { model },
-                        tvApps,
-                        appIcons,
-                        { connectionSheet = true },
-                        openSettings,
-                        screenModifier,
-                    )
-                }
+                    state.connection == TvConnectionState.Ready -> {
+                        RemoteRoute(
+                            state,
+                            channels,
+                            { model },
+                            tvApps,
+                            appIcons,
+                            { connectionSheet = true },
+                            openSettings,
+                            screenModifier,
+                        )
+                    }
 
-                else -> {
-                    ConnectionRoute(
-                        state,
-                        displayedState,
-                        needsPermissionSettings,
-                        savedAddress,
-                        searching,
-                        discovered,
-                        forgetTv,
-                        { address ->
-                            invalidAddress = TvTarget.parse(address) == null
-                            if (!invalidAddress) connectWithPermission(address)
-                        },
-                        model::disconnect,
-                        {
-                            startActivity(
-                                Intent(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    "package:$packageName".toUri(),
-                                ),
-                            )
-                        },
-                        ::findWithPermission,
-                        openSettings,
-                        screenModifier,
-                    )
+                    else -> {
+                        ConnectionRoute(
+                            state,
+                            displayedState,
+                            needsPermissionSettings,
+                            savedAddress,
+                            searching,
+                            discovered,
+                            forgetTv,
+                            { address ->
+                                invalidAddress = TvTarget.parse(address) == null
+                                if (!invalidAddress) connectWithPermission(address)
+                            },
+                            model::disconnect,
+                            {
+                                startActivity(
+                                    Intent(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        "package:$packageName".toUri(),
+                                    ),
+                                )
+                            },
+                            ::findWithPermission,
+                            openSettings,
+                            screenModifier,
+                        )
+                    }
                 }
             }
         }
@@ -388,6 +394,7 @@ class MainActivity : ComponentActivity() {
             wallpapers.background()
             model.background()
         }
+        mediacenter.disconnect()
         super.onStop()
     }
 
@@ -412,3 +419,20 @@ private const val SPLASH_ICON_DURATION_MS = 250L
 private const val SPLASH_FADE_DURATION_MS = 200L
 private const val SPLASH_TITLE_DELAY_MS = 40L
 private const val SPLASH_EXIT_DELAY_MS = 300L
+
+@Composable
+private fun MediacenterTarget(
+    tvModel: () -> RemoteViewModel,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    Column(modifier) {
+        MediacenterEntry(onOpen = {
+            tvModel().release()
+            open = true
+        })
+        content(Modifier.weight(1f))
+    }
+    if (open) MediacenterSetupDialog(onDismiss = { open = false })
+}

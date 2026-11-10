@@ -184,6 +184,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.coroutines.android)
     implementation(libs.okhttp)
+    implementation(libs.mlkit.barcode)
     implementation(libs.datastore)
     testImplementation(libs.junit)
     testImplementation(libs.json)

@@ -24,6 +24,8 @@ testRunner = "1.7.0"
 testExt = "1.3.0"
 espresso = "3.7.0"
 
+mlkitBarcode = "17.3.0"
+
 [libraries]
 android-security-lints = { module = "com.android.security.lint:lint", version = "1.0.4" }
 compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRulesDetekt" }
@@ -48,6 +50,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
 test-ext = { module = "androidx.test.ext:junit", version.ref = "testExt" }
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+
+mlkit-barcode = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkitBarcode" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
