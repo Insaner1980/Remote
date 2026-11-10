@@ -363,6 +363,127 @@ class RequestRecoveryTest {
             )
         }
 
+    @Test fun cachedRunningSnapshotCannotRegressSucceededLookupOnUnrelatedEvent() =
+        runTest {
+            val control = RecoveryControl()
+            val journal =
+                MemoryPending().apply {
+                    records =
+                        listOf(
+                            PendingCommand(
+                                "server",
+                                "next-request",
+                                "epoch",
+                                "op",
+                                OperationStatus.RUNNING,
+                                pairedDeviceId = "phone",
+                            ),
+                        )
+                }
+            val repository = MediacenterRepository(control, backgroundScope, journal)
+            repository.connect(recoverySaved(), RecoveryRoute())
+            runCurrent()
+            control.state.value = MediacenterConnectionState.Connected
+            control.emit(RecoveryFixture.hello())
+            val native =
+                JSONObject(RecoveryFixture.snapshot()).apply {
+                    getJSONObject("operations").put(
+                        "items",
+                        org.json.JSONArray().put(
+                            reviewOperation("running"),
+                        ),
+                    )
+                }
+            control.emit(native.toString())
+            runCurrent()
+            val lookup = control.sent.single { it.command is RemoteCommand.OperationsGet }
+            control.emit(operationReply(lookup.id, "next-request", "succeeded"))
+            runCurrent()
+            assertEquals(
+                OperationStatus.SUCCEEDED,
+                repository.pending.value
+                    .single()
+                    .status,
+            )
+            control.emit(RecoveryFixture.event("1", "1"))
+            runCurrent()
+            val terminal = repository.pending.value.single()
+            assertEquals(OperationStatus.SUCCEEDED, terminal.status)
+            assertTrue(terminal.resolved)
+            assertEquals(OperationStatus.SUCCEEDED, journal.records.single().status)
+            advanceTimeBy(2500)
+            runCurrent()
+            assertEquals(1, control.sent.count { it.command is RemoteCommand.OperationsGet })
+            assertFalse(control.sent.any { it.command.delivery != Delivery.READ })
+        }
+
+    @Test fun delayedAcceptanceCannotReplaceTerminalOperationEventOrRestartItsRecovery() =
+        runTest {
+            val control = RecoveryControl()
+            val journal = MemoryPending()
+            val repository = MediacenterRepository(control, backgroundScope, journal)
+            repository.connect(recoverySaved(), RecoveryRoute())
+            runCurrent()
+            control.native()
+            runCurrent()
+            assertTrue(
+                repository.send(
+                    McRequest(
+                        "next-request",
+                        RemoteCommand.QueueNext(Empty),
+                        Expected(serverEpoch = "epoch", sessionId = "session", queueRevision = "0"),
+                    ),
+                ),
+            )
+            val event =
+                JSONObject()
+                    .put("topic", "operations")
+                    .put("serverEpoch", "epoch")
+                    .put("sequence", "1")
+                    .put(
+                        "data",
+                        JSONObject().put("revision", "1").put(
+                            "items",
+                            org.json.JSONArray().put(
+                                reviewOperation("succeeded"),
+                            ),
+                        ),
+                    )
+            control.emit(event.toString())
+            runCurrent()
+            assertEquals(
+                OperationStatus.SUCCEEDED,
+                repository.pending.value
+                    .single()
+                    .status,
+            )
+            control.emit("""{"v":1,"id":"next-request","ok":true,"result":{"status":"accepted","operationId":"op"}}""")
+            runCurrent()
+            assertEquals(
+                OperationStatus.SUCCEEDED,
+                repository.pending.value
+                    .single()
+                    .status,
+            )
+            assertTrue(
+                repository.pending.value
+                    .single()
+                    .resolved,
+            )
+            assertEquals(OperationStatus.SUCCEEDED, journal.records.single().status)
+            advanceTimeBy(2500)
+            runCurrent()
+            assertEquals(1, control.sent.count { it.command is RemoteCommand.QueueNext })
+            assertFalse(control.sent.any { it.command is RemoteCommand.OperationsGet })
+        }
+
+    private fun reviewOperation(status: String): JSONObject =
+        JSONObject()
+            .put("operationId", "op")
+            .put("requestId", "next-request")
+            .put("status", status)
+            .put("cancellationRequested", false)
+
     private fun operationReply(
         id: String,
         request: String,

@@ -78,7 +78,8 @@ internal class PendingRecovery(
     ) {
         publish(
             mutable.value.map { command ->
-                if (command.belongsTo(pairing) && command.requestId == requestId) {
+                val canAccept = !command.resolved && command.status != OperationStatus.RUNNING
+                if (command.belongsTo(pairing) && command.requestId == requestId && canAccept) {
                     command.copy(operationId = operationId, status = OperationStatus.ACCEPTED)
                 } else {
                     command
@@ -95,12 +96,20 @@ internal class PendingRecovery(
             mutable.value.map { command ->
                 if (command.belongsTo(pairing) && command.requestId == operation.requestId) {
                     require(command.operationId == null || command.operationId == operation.operationId)
-                    command.copy(
-                        operationId = operation.operationId,
-                        status = operation.status,
-                        resolved = operation.status !in setOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING),
-                        cancellationRequested = operation.cancellationRequested,
-                    )
+                    val nonterminal = operation.status in setOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING)
+                    val stale =
+                        (command.resolved && nonterminal) ||
+                            (command.status == OperationStatus.RUNNING && operation.status == OperationStatus.ACCEPTED)
+                    if (stale) {
+                        command
+                    } else {
+                        command.copy(
+                            operationId = operation.operationId,
+                            status = operation.status,
+                            resolved = !nonterminal,
+                            cancellationRequested = operation.cancellationRequested,
+                        )
+                    }
                 } else {
                     command
                 }

@@ -209,6 +209,7 @@ internal class MediacenterConnection(
             if (mutableState.value == MediacenterConnectionState.Connected) {
                 mutableState.value = MediacenterConnectionState.Synchronizing
             }
+            if (mutableState.value in STOP_STATES) return@synchronized
             val owner = generation
             grace =
                 scope.launch {

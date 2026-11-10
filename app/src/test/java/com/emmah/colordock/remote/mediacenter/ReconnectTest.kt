@@ -155,4 +155,40 @@ class ReconnectTest {
             assertEquals(1, control.connections.size)
             assertEquals(MediacenterConnectionState.PairingRequired, repository.state.value)
         }
+
+    @Test fun pairingRequiredSurvivesBackgroundGraceWithoutAutomaticAuthentication() =
+        preservesStopState(MediacenterConnectionState.PairingRequired)
+
+    @Test fun identityChangedSurvivesBackgroundGraceWithoutAutomaticAuthentication() =
+        preservesStopState(MediacenterConnectionState.IdentityChanged)
+
+    @Test fun versionMismatchSurvivesBackgroundGraceWithoutAutomaticAuthentication() =
+        preservesStopState(MediacenterConnectionState.VersionMismatch)
+
+    @Test fun permissionRequiredSurvivesBackgroundGraceWithoutAutomaticAuthentication() =
+        preservesStopState(MediacenterConnectionState.PermissionRequired)
+
+    private fun preservesStopState(reason: MediacenterConnectionState) =
+        runTest {
+            val control = RecoveryControl()
+            val repository = MediacenterRepository(control, backgroundScope, MemoryPending()) { 0.5 }
+            repository.connect(recoverySaved(), RecoveryRoute())
+            runCurrent()
+            control.state.value = reason
+            runCurrent()
+            assertEquals(reason, repository.state.value)
+            val before = control.connections.size
+            repository.background()
+            runCurrent()
+            advanceTimeBy(5001)
+            runCurrent()
+            assertEquals(reason, repository.state.value)
+            repository.foreground()
+            runCurrent()
+            advanceTimeBy(30000)
+            runCurrent()
+            assertEquals(reason, repository.state.value)
+            assertEquals(before, control.connections.size)
+            assertNull(repository.snapshot.value)
+        }
 }

@@ -42,6 +42,7 @@ internal class MediacenterRequests(
     private var polling: Job? = null
     private val cooldowns = mutableMapOf<String, Job>()
     private var recoveryCursor = 0
+    private var operationsPosition: Pair<String, String>? = null
     private val received = MutableSharedFlow<McReply>(extraBufferCapacity = REPLY_CAPACITY)
     val replies = received.asSharedFlow()
     private val uncertain = MutableStateFlow(false)
@@ -121,7 +122,11 @@ internal class MediacenterRequests(
 
     fun nativeReady(native: RemoteSnapshot) {
         val target = pairing() ?: return
-        native.operations.items.forEach { recovery.observed(target, it) }
+        val position = native.serverEpoch to native.operations.revision
+        if (position != operationsPosition) {
+            native.operations.items.forEach { recovery.observed(target, it) }
+            operationsPosition = position
+        }
         if (polling?.isActive != true) {
             polling =
                 scope.launch(start = CoroutineStart.UNDISPATCHED) {
@@ -167,6 +172,7 @@ internal class MediacenterRequests(
         cooldowns.values.forEach { it.cancel() }
         cooldowns.clear()
         recoveryCursor = 0
+        operationsPosition = null
     }
 
     fun forget(server: String): Boolean =
