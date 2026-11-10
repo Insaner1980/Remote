@@ -30,8 +30,11 @@ internal class MediacenterConnections(
     private var saved: StoredMediacenter? = null
     private var discovery: MediacenterNsdDiscovery? = null
     private var loadGeneration = 0L
+    private var forgetting = false
+    private var reloadBlocked = false
 
     fun open() {
+        if (reloadBlocked) return
         val owner = ++loadGeneration
         scope.launch {
             try {
@@ -41,7 +44,7 @@ internal class MediacenterConnections(
                     ui.update { it.copy(saved = loaded != null) }
                 }
             } catch (_: Exception) {
-                ui.update { it.copy(status = "Pair with Mediacenter again.") }
+                if (owner == loadGeneration) ui.update { it.copy(status = "Pair with Mediacenter again.") }
             }
         }
     }
@@ -66,23 +69,39 @@ internal class MediacenterConnections(
     }
 
     fun select(network: AndroidMediacenterNetwork) {
+        if (forgetting) return
+        val previous = selected
+        val changed =
+            previous != null &&
+                (previous.network != network.network || previous.interfaceName != network.interfaceName)
+        if (changed) {
+            // Retire the route before disconnect observers can request another connection on it.
+            selected = null
+            control.disconnect()
+        }
         stopDiscovery()
         selected = network
         ui.update { it.copy(networkName = network.label, status = "") }
     }
 
     fun selectedNetwork(): AndroidMediacenterNetwork? =
-        selected?.takeIf { it.available() }.also {
-            if (it == null) ui.update { state -> state.copy(status = "Select your local Wi-Fi network first.") }
+        selected?.takeIf { !forgetting && it.available() }.also {
+            if (it == null &&
+                !forgetting
+            ) {
+                ui.update { state -> state.copy(status = "Select your local Wi-Fi network first.") }
+            }
         }
 
     fun paired(
         value: StoredMediacenter,
         network: AndroidMediacenterNetwork,
     ) {
+        if (forgetting) return
         ++loadGeneration
+        reloadBlocked = false
         saved = value
-        ui.update { it.copy(saved = true, status = "Paired with Mediacenter. Connecting…") }
+        ui.update { it.copy(saved = true, forgetFailed = false, status = "Paired with Mediacenter. Connecting…") }
         control.connect(value, network)
     }
 
@@ -107,16 +126,29 @@ internal class MediacenterConnections(
     }
 
     fun forget() {
+        if (forgetting) return
         ++loadGeneration
+        forgetting = true
+        reloadBlocked = true
+        saved = null
         stopDiscovery()
         control.disconnect()
+        ui.update { it.copy(saved = false, forgetting = true, forgetFailed = false, status = "") }
         scope.launch {
             try {
                 credentials.forget()
-                saved = null
-                ui.update { it.copy(saved = false, status = "Forgot Mediacenter on this phone.") }
+                reloadBlocked = false
+                ui.update { it.copy(status = "Forgot Mediacenter on this phone.") }
             } catch (_: Exception) {
-                ui.update { it.copy(status = "The saved Mediacenter could not be removed.") }
+                ui.update {
+                    it.copy(
+                        forgetFailed = true,
+                        status = "Saved Mediacenter data could not be removed. Retry forgetting on this phone.",
+                    )
+                }
+            } finally {
+                forgetting = false
+                ui.update { it.copy(forgetting = false) }
             }
         }
     }

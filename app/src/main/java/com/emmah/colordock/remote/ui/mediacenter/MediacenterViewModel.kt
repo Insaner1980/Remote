@@ -16,14 +16,18 @@ import kotlinx.coroutines.flow.update
 
 internal data class MediacenterSetupState(
     val status: String = "",
-    val busy: Boolean = false,
+    val pairingBusy: Boolean = false,
+    val forgetting: Boolean = false,
+    val forgetFailed: Boolean = false,
     val lanGranted: Boolean = false,
     val cameraDenied: Boolean = false,
     val networkName: String? = null,
     val observation: CertificateObservation? = null,
     val codeReady: Boolean = false,
     val saved: Boolean = false,
-)
+) {
+    val busy: Boolean get() = pairingBusy || forgetting
+}
 
 class MediacenterViewModel internal constructor(
     application: Application,

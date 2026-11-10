@@ -77,7 +77,7 @@ internal class MediacenterPairingController(
         work?.cancel()
         work = null
         clear()
-        ui.update { it.copy(busy = false) }
+        ui.update { it.copy(pairingBusy = false) }
     }
 
     private fun finish(
@@ -98,7 +98,7 @@ internal class MediacenterPairingController(
     private fun runWork(block: suspend () -> Unit) {
         work?.cancel()
         val owner = ++generation
-        ui.update { it.copy(busy = true, status = "") }
+        ui.update { it.copy(pairingBusy = true, status = "") }
         work =
             scope.launch {
                 try {
@@ -116,7 +116,7 @@ internal class MediacenterPairingController(
                         }
                     }
                 } finally {
-                    if (owner == generation) ui.update { it.copy(busy = false) }
+                    if (owner == generation) ui.update { it.copy(pairingBusy = false) }
                 }
             }
     }

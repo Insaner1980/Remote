@@ -150,11 +150,14 @@ private fun MediacenterDialogContent(
             }
         }
         if (!ui.lanGranted) MediacenterLanSettings()
-        if (ui.busy) Text("Connecting securely…")
+        if (ui.busy) Text(if (ui.forgetting) "Removing saved Mediacenter…" else "Connecting securely…")
         if (ui.status.isNotEmpty()) Text(ui.status)
         MediacenterConnectionStatus(connection)
         val browsingSetup = ui.observation == null && !scanning
-        if (ui.saved && !ui.busy && browsingSetup) MediacenterConnectionActions(candidates, viewModel.connections)
+        val hasSavedAction = ui.saved || ui.forgetFailed
+        if (hasSavedAction && !ui.busy && browsingSetup) {
+            MediacenterConnectionActions(candidates, viewModel.connections, ui.saved)
+        }
     }
 }
 
@@ -225,15 +228,20 @@ private fun MediacenterConnectionStatus(
 private fun MediacenterConnectionActions(
     candidates: List<MediacenterEndpoint>,
     connections: MediacenterConnections,
+    canReconnect: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
-        TextButton(onClick = { connections.connect() }) { Text("Reconnect Mediacenter") }
-        TextButton(onClick = connections::find) { Text("Find paired Mediacenter") }
-        candidates.forEach { endpoint ->
-            TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect at ${endpoint.address}") }
+        if (canReconnect) {
+            TextButton(onClick = { connections.connect() }) { Text("Reconnect Mediacenter") }
+            TextButton(onClick = connections::find) { Text("Find paired Mediacenter") }
+            candidates.forEach { endpoint ->
+                TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect at ${endpoint.address}") }
+            }
         }
-        TextButton(onClick = connections::forget) { Text("Forget on this phone") }
+        TextButton(onClick = connections::forget) {
+            Text(if (canReconnect) "Forget on this phone" else "Retry forgetting on this phone")
+        }
     }
 }
 
