@@ -69,6 +69,8 @@ class MediacenterClientTest {
             return listOf(InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1)))
         }
 
+        override fun permissionGranted() = granted
+
         override fun available() = granted
     }
 

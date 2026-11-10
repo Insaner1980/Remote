@@ -32,6 +32,7 @@ internal class MediacenterConnections(
     private var loadGeneration = 0L
     private var forgetting = false
     private var reloadBlocked = false
+    private var forgettingServerId: String? = null
 
     fun open() {
         if (reloadBlocked) return
@@ -101,6 +102,7 @@ internal class MediacenterConnections(
         ++loadGeneration
         reloadBlocked = false
         saved = value
+        forgettingServerId = null
         ui.update { it.copy(saved = true, forgetFailed = false, status = "Paired with Mediacenter. Connecting…") }
         control.connect(value, network)
     }
@@ -130,13 +132,16 @@ internal class MediacenterConnections(
         ++loadGeneration
         forgetting = true
         reloadBlocked = true
+        forgettingServerId = saved?.paired?.serverDeviceId ?: forgettingServerId
         saved = null
         stopDiscovery()
-        control.disconnect()
+        val recoveryCleared = control.forget(forgettingServerId)
         ui.update { it.copy(saved = false, forgetting = true, forgetFailed = false, status = "") }
         scope.launch {
             try {
+                if (!recoveryCleared) throw java.io.IOException("Recovery metadata could not be removed.")
                 credentials.forget()
+                forgettingServerId = null
                 reloadBlocked = false
                 ui.update { it.copy(status = "Forgot Mediacenter on this phone.") }
             } catch (_: Exception) {

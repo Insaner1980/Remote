@@ -373,6 +373,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         model.foreground()
+        mediacenter.foreground()
         if (checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
             model.disconnect()
         } else {
@@ -394,7 +395,7 @@ class MainActivity : ComponentActivity() {
             wallpapers.background()
             model.background()
         }
-        mediacenter.disconnect()
+        mediacenter.background()
         super.onStop()
     }
 

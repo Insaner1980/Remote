@@ -29,6 +29,8 @@ interface MediacenterNetwork {
 
     fun resolve(endpoint: MediacenterEndpoint): List<InetAddress>
 
+    fun permissionGranted(): Boolean = true
+
     fun available(): Boolean
 
     fun watch(onLost: () -> Unit): AutoCloseable = AutoCloseable { }

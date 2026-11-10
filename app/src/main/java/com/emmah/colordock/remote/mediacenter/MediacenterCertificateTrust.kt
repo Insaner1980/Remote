@@ -43,7 +43,7 @@ internal class MediacenterCertificateTrust(
                 CertificateObservation.fingerprint(leaf.encoded).toByteArray(Charsets.US_ASCII),
             )
         ) {
-            throw CertificateException("Mediacenter identity changed. Pair again explicitly.")
+            throw MediacenterIdentityChangedException()
         }
     }
 
@@ -51,3 +51,6 @@ internal class MediacenterCertificateTrust(
         const val WORD_COUNT = 2048
     }
 }
+
+internal class MediacenterIdentityChangedException :
+    CertificateException("Mediacenter identity changed. Pair again explicitly.")

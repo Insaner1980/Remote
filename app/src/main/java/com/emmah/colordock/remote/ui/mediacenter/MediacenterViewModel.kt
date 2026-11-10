@@ -31,7 +31,7 @@ internal data class MediacenterSetupState(
 
 class MediacenterViewModel internal constructor(
     application: Application,
-    control: MediacenterControl,
+    private val control: MediacenterControl,
     credentials: MediacenterCredentials,
     words: List<String>,
 ) : AndroidViewModel(application) {
@@ -76,13 +76,19 @@ class MediacenterViewModel internal constructor(
         mutable.update { it.copy(status = message) }
     }
 
+    fun foreground() {
+        refreshPermission()
+        control.foreground()
+    }
+
     fun background() {
         pairing.cancel()
-        connections.stopDiscovery()
+        connections.close()
+        control.background()
     }
 
     fun closeSetup() {
-        background()
+        pairing.cancel()
         connections.close()
     }
 

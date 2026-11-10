@@ -46,6 +46,14 @@ class MediacenterConnectionsTest {
         override val messages = emptyFlow<String>()
         var active: MediacenterNetwork? = null
         var onDisconnect: () -> Unit = {}
+        val forgottenIdentities = mutableListOf<String?>()
+        var forgetSucceeds = true
+
+        override fun forget(serverId: String?): Boolean {
+            forgottenIdentities.add(serverId)
+            disconnect()
+            return forgetSucceeds
+        }
 
         override fun connect(
             value: StoredMediacenter,
@@ -263,5 +271,30 @@ class MediacenterConnectionsTest {
             assertNull(fixture.control.active)
             assertNull(fixture.store.stored)
             assertFalse(fixture.ui.value.saved)
+        }
+
+    @Test fun forgetPassesSavedIdentityAfterDisconnectAndDoesNotDeleteCredentialOnJournalFailure() =
+        runTest {
+            val fixture = Fixture(this)
+            fixture.connections.close(disconnect = true)
+            fixture.control.forgetSucceeds = false
+            try {
+                fixture.connections.forget()
+                runCurrent()
+                assertEquals(listOf("fixture-server"), fixture.control.forgottenIdentities)
+                assertEquals(0, fixture.store.forgetCalls)
+                assertTrue(fixture.ui.value.forgetFailed)
+                assertFalse(fixture.ui.value.busy)
+                fixture.control.forgetSucceeds = true
+                fixture.connections.forget()
+                runCurrent()
+                assertEquals(listOf("fixture-server", "fixture-server"), fixture.control.forgottenIdentities)
+                fixture.store.releaseForget.complete(Unit)
+                runCurrent()
+                assertNull(fixture.store.stored)
+                assertFalse(fixture.ui.value.forgetFailed)
+            } finally {
+                fixture.store.releaseForget.complete(Unit)
+            }
         }
 }

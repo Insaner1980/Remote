@@ -71,12 +71,10 @@ fun MediacenterSetupDialog(
 
                     Lifecycle.Event.ON_STOP -> {
                         scanning = false
-                        viewModel.disconnect()
+                        viewModel.background()
                     }
 
-                    else -> {
-                        Unit
-                    }
+                    else -> {}
                 }
             }
         lifecycle.lifecycle.addObserver(observer)
@@ -200,9 +198,32 @@ private fun MediacenterConnectionStatus(
                 "Connected to Mediacenter"
             }
 
+            MediacenterConnectionState.Connecting -> {
+                "Connecting to Mediacenter…"
+            }
+
+            MediacenterConnectionState.Synchronizing -> {
+                "Refreshing Mediacenter state…"
+            }
+
+            MediacenterConnectionState.Reconnecting -> {
+                "Reconnecting to Mediacenter…"
+            }
+
+            MediacenterConnectionState.IdentityChanged -> {
+                "Mediacenter identity changed. Check the computer and pair again explicitly."
+            }
+
+            MediacenterConnectionState.VersionMismatch -> {
+                "Update Remote or Mediacenter to use compatible versions."
+            }
+
+            MediacenterConnectionState.NetworkUnavailable -> {
+                "The selected Wi-Fi is unavailable. Select your local Wi-Fi again."
+            }
+
             MediacenterConnectionState.Failed -> {
-                "Connection failed. Check Wi-Fi and the computer's Remote control settings. " +
-                    "A changed identity requires new pairing."
+                "Connection failed. Check Wi-Fi and the computer's Remote control settings, then retry."
             }
 
             MediacenterConnectionState.PairingRequired -> {
@@ -233,7 +254,7 @@ private fun MediacenterConnectionActions(
 ) {
     Column(modifier) {
         if (canReconnect) {
-            TextButton(onClick = { connections.connect() }) { Text("Reconnect Mediacenter") }
+            TextButton(onClick = { connections.connect() }) { Text("Retry Mediacenter") }
             TextButton(onClick = connections::find) { Text("Find paired Mediacenter") }
             candidates.forEach { endpoint ->
                 TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect at ${endpoint.address}") }

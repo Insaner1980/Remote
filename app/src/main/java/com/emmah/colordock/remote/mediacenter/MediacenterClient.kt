@@ -28,6 +28,11 @@ enum class MediacenterConnectionState {
     PairingRequired,
     Failed,
     ResyncRequired,
+    Reconnecting,
+    Synchronizing,
+    IdentityChanged,
+    NetworkUnavailable,
+    VersionMismatch,
 }
 
 interface MediacenterControl {
@@ -42,6 +47,15 @@ interface MediacenterControl {
     fun send(request: McRequest): Boolean
 
     fun disconnect()
+
+    fun foreground() = Unit
+
+    fun background() = disconnect()
+
+    fun forget(serverId: String? = null): Boolean {
+        disconnect()
+        return true
+    }
 }
 
 /** One MC socket and one selected network, independent of every television session. */
@@ -65,7 +79,7 @@ class MediacenterClient : MediacenterControl {
         synchronized(lock) {
             closeOwned(MediacenterConnectionState.Disconnected)
             if (!network.available()) {
-                mutable.value = MediacenterConnectionState.PermissionRequired
+                mutable.value = unavailable(network)
                 return
             }
             mutable.value = MediacenterConnectionState.Connecting
@@ -76,17 +90,13 @@ class MediacenterClient : MediacenterControl {
                     network.watch {
                         terminate(
                             owner,
-                            if (network.available()) {
-                                MediacenterConnectionState.Failed
-                            } else {
-                                MediacenterConnectionState.PermissionRequired
-                            },
+                            unavailable(network),
                         )
                     }
                 if (owner != generation || !network.available()) {
                     watch.close()
                     connection.close()
-                    mutable.value = MediacenterConnectionState.PermissionRequired
+                    mutable.value = unavailable(network)
                     return
                 }
                 transport = connection
@@ -97,7 +107,13 @@ class MediacenterClient : MediacenterControl {
                         terminate(owner, MediacenterConnectionState.Failed)
                     }
                 socket = connection.openSocket(value.paired.credential, listener(owner, value.paired.serverDeviceId))
-            } catch (_: Exception) {
+            } catch (_: SecurityException) {
+                closeOwned(MediacenterConnectionState.PermissionRequired)
+            } catch (failure: java.io.IOException) {
+                closeOwned(failureState(failure))
+            } catch (failure: java.security.GeneralSecurityException) {
+                closeOwned(failureState(failure))
+            } catch (_: IllegalArgumentException) {
                 closeOwned(MediacenterConnectionState.Failed)
             }
         }
@@ -119,9 +135,22 @@ class MediacenterClient : MediacenterControl {
                     if (text.toByteArray(Charsets.UTF_8).size > MAX_MESSAGE_BYTES) {
                         closeOwned(MediacenterConnectionState.ResyncRequired)
                     } else if (!helloReceived) {
-                        val hello = runCatching { RemoteJson.parseHello(text) }.getOrNull()
-                        if (hello?.deviceId != serverId) {
-                            closeOwned(MediacenterConnectionState.Failed)
+                        val parsed = runCatching { RemoteJson.parseHello(text) }
+                        val hello = parsed.getOrNull()
+                        if (hello == null) {
+                            val failure = parsed.exceptionOrNull()
+                            closeOwned(
+                                if (failure is com.emmah.colordock.remote.mediacenter.protocol.McProtocolException &&
+                                    failure.code ==
+                                    com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode.VERSION_MISMATCH
+                                ) {
+                                    MediacenterConnectionState.VersionMismatch
+                                } else {
+                                    MediacenterConnectionState.Failed
+                                },
+                            )
+                        } else if (hello.deviceId != serverId) {
+                            closeOwned(MediacenterConnectionState.IdentityChanged)
                         } else {
                             helloReceived = true
                             helloDeadline?.cancel()
@@ -158,7 +187,7 @@ class MediacenterClient : MediacenterControl {
                     ) {
                         MediacenterConnectionState.PairingRequired
                     } else {
-                        MediacenterConnectionState.Failed
+                        failureState(t)
                     },
                 )
             }
@@ -170,12 +199,10 @@ class MediacenterClient : MediacenterControl {
             ) {
                 terminate(
                     owner,
-                    if (reason ==
-                        "unauthorized"
-                    ) {
-                        MediacenterConnectionState.PairingRequired
-                    } else {
-                        MediacenterConnectionState.Disconnected
+                    when {
+                        code == POLICY_CLOSE && reason == "resync_required" -> MediacenterConnectionState.ResyncRequired
+                        reason == "unauthorized" -> MediacenterConnectionState.PairingRequired
+                        else -> MediacenterConnectionState.Disconnected
                     },
                 )
             }
@@ -221,10 +248,25 @@ class MediacenterClient : MediacenterControl {
         mutable.value = next
     }
 
+    private fun unavailable(network: MediacenterNetwork): MediacenterConnectionState =
+        if (network.permissionGranted()) {
+            MediacenterConnectionState.NetworkUnavailable
+        } else {
+            MediacenterConnectionState.PermissionRequired
+        }
+
+    private fun failureState(failure: Throwable): MediacenterConnectionState =
+        if (generateSequence(failure) { it.cause }.any { it is MediacenterIdentityChangedException }) {
+            MediacenterConnectionState.IdentityChanged
+        } else {
+            MediacenterConnectionState.Failed
+        }
+
     private companion object {
         const val EVENT_CAPACITY = 256
         const val MAX_MESSAGE_BYTES = 262144
         const val HELLO_DEADLINE_MS = 5000L
         const val UNAUTHORIZED = 401
+        const val POLICY_CLOSE = 1008
     }
 }

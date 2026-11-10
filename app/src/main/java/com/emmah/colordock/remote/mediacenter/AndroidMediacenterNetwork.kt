@@ -27,6 +27,8 @@ class AndroidMediacenterNetwork(
     val label: String get() = "Wi-Fi · $interfaceName"
     override val socketFactory: SocketFactory get() = network.socketFactory
 
+    override fun permissionGranted(): Boolean = hasLanPermission(application)
+
     override fun available(): Boolean =
         hasLanPermission(application) &&
             isWifi(manager.getNetworkCapabilities(network)) &&
