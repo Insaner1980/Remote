@@ -1,8 +1,8 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "71963eb5d1f9fbbf8849d977fc3099ab4bc3179b1ed2821f2d520cea0e00109e",
-    "fixturesSha256": "f2f0418b2171a594cce929bafb0915793a4e189fa9834f3109548263542e9a81",
+    "schemaSha256": "07a8097ba6955b32f25251ff502ea2bd29334b31a5292b79873d508ff2fcd23f",
+    "fixturesSha256": "40f8f4460d4afc8f287803b903dab659c3c0e10d2e6b586ec35c23f802e4c8dd",
     "requestMethods": 88
   },
   "schema": {
@@ -5519,6 +5519,7 @@
           "outcome_unknown",
           "unavailable",
           "not_found",
+          "selection_too_large",
           "desktop_locked",
           "renderer_unavailable",
           "local_authorization_required",
@@ -16536,6 +16537,17 @@
       "v": 1,
       "serverDeviceId": "server-1",
       "attemptId": "attempt-1"
+    },
+    "photoSelectionTooLarge": {
+      "v": 1,
+      "id": "photo-selection-too-large",
+      "ok": false,
+      "error": {
+        "code": "selection_too_large",
+        "message": "Choose at most 10,000 photos.",
+        "retryable": false,
+        "refresh": []
+      }
     }
   }
 }

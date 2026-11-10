@@ -1207,6 +1207,7 @@ enum class WireErrorCode(
     OUTCOME_UNKNOWN("outcome_unknown"),
     UNAVAILABLE("unavailable"),
     NOT_FOUND("not_found"),
+    SELECTION_TOO_LARGE("selection_too_large"),
     DESKTOP_LOCKED("desktop_locked"),
     RENDERER_UNAVAILABLE("renderer_unavailable"),
     LOCAL_AUTHORIZATION_REQUIRED("local_authorization_required"),
