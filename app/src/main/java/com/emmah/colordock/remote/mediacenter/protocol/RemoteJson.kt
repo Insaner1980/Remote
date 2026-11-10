@@ -955,11 +955,11 @@ object RemoteJson {
                     }
 
                     MethodName.ACTIVITY_SHOW_MENU -> {
-                        RemoteResult.ActivityShowMenu(readAcceptedResult(result))
+                        RemoteResult.ActivityShowMenu(readForegroundAck(result))
                     }
 
                     MethodName.ACTIVITY_SHOW_PLAYBACK -> {
-                        RemoteResult.ActivityShowPlayback(readAcceptedResult(result))
+                        RemoteResult.ActivityShowPlayback(readForegroundAck(result))
                     }
 
                     MethodName.UI_NAVIGATE -> {
@@ -1321,11 +1321,11 @@ object RemoteJson {
                         }
 
                         is RemoteResult.ActivityShowMenu -> {
-                            writeAcceptedResult(result.value)
+                            writeForegroundAck(result.value)
                         }
 
                         is RemoteResult.ActivityShowPlayback -> {
-                            writeAcceptedResult(result.value)
+                            writeForegroundAck(result.value)
                         }
 
                         is RemoteResult.UiNavigate -> {
@@ -5177,6 +5177,19 @@ object RemoteJson {
         result.put("v", writeVersion(value.v))
         result.put("serverDeviceId", writeId(value.serverDeviceId))
         result.put("attemptId", writeId(value.attemptId))
+        return result
+    }
+
+    private fun readForegroundAck(value: Any): ForegroundAck {
+        val source = obj(value)
+        return ForegroundAck(
+            requestId = readId(source.get("requestId")),
+        )
+    }
+
+    private fun writeForegroundAck(value: ForegroundAck): Any {
+        val result = JSONObject()
+        result.put("requestId", writeId(value.requestId))
         return result
     }
 

@@ -1673,6 +1673,12 @@ data class ManualChallengeResponse(
     override fun toString(): String = "ManualChallengeResponse([redacted])"
 }
 
+data class ForegroundAck(
+    val requestId: String,
+) {
+    override fun toString(): String = "ForegroundAck([redacted])"
+}
+
 enum class Delivery { READ, DURABLE, TRANSIENT }
 
 sealed interface RemoteCommand {
@@ -2566,11 +2572,11 @@ sealed interface RemoteResult {
     ) : RemoteResult
 
     data class ActivityShowMenu(
-        val value: AcceptedResult,
+        val value: ForegroundAck,
     ) : RemoteResult
 
     data class ActivityShowPlayback(
-        val value: AcceptedResult,
+        val value: ForegroundAck,
     ) : RemoteResult
 
     data class UiNavigate(

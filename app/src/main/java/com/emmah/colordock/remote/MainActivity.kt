@@ -62,6 +62,7 @@ import com.emmah.colordock.remote.ui.WallpaperViewModel
 import com.emmah.colordock.remote.ui.asImageFile
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterEntry
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterSetupDialog
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterSoundSettings
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterViewModel
 
 class MainActivity : ComponentActivity() {
@@ -259,7 +260,9 @@ class MainActivity : ComponentActivity() {
         if (settingsOpen) {
             ThemeSettings(theme, appearance::select, {
                 settingsOpen = false
-            }, themeError)
+            }, themeError, sound = {
+                MediacenterSoundSettings((application as ColorDockApplication).container.mediacenter)
+            })
         }
         if (connectionSheet) {
             TvConnectionDialog(

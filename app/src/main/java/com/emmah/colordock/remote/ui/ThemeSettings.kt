@@ -40,6 +40,7 @@ fun ThemeSettings(
     onSelect: (AppTheme) -> Unit,
     onDismiss: () -> Unit,
     error: String? = null,
+    sound: @Composable () -> Unit = {},
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -68,6 +69,7 @@ fun ThemeSettings(
                         }
                     }
                 }
+                sound()
                 error?.let {
                     Text(
                         it,
