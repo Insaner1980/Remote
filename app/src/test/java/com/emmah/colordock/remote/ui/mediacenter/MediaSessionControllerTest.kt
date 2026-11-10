@@ -32,6 +32,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteJson
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
 import com.emmah.colordock.remote.mediacenter.protocol.Topic
 import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -225,6 +226,32 @@ class MediaSessionControllerTest {
             assertTrue(sent.last().command is RemoteCommand.PhotosStop)
         }
 
+    @Test fun stalePhotoConfirmationRetainsFullSelectionUntilFreshExplicitConfirm() =
+        runTest {
+            val f = StaleMediaConfirmation(backgroundScope)
+            f.controller.choose(item("photo", MediaKind.PHOTO), "complete-filtered-order")
+            f.replacePreview()
+            f.complete(MediaKind.PHOTO)
+            val request = f.sent.last()
+            assertTrue(request.command is RemoteCommand.PhotosShow)
+            assertEquals("complete-filtered-order", (request.command as RemoteCommand.PhotosShow).params.selectionId)
+            assertEquals("photo", request.command.params.itemId)
+            assertEquals("fresh-photos", request.expected?.sessionId)
+        }
+
+    @Test fun staleMusicConfirmationRetainsExactDuplicateQueueEntry() =
+        runTest {
+            val f = StaleMediaConfirmation(backgroundScope)
+            f.controller.choose(item("song", MediaKind.MUSIC), entry = "duplicate-b")
+            f.replacePreview()
+            f.complete(MediaKind.MUSIC)
+            val request = f.sent.last()
+            assertTrue(request.command is RemoteCommand.QueuePlayEntry)
+            assertEquals("duplicate-b", (request.command as RemoteCommand.QueuePlayEntry).params.entryId)
+            assertEquals("fresh-music", request.expected?.sessionId)
+            assertEquals("12", request.expected?.queueRevision)
+        }
+
     private fun snapshot() = RemoteJson.parseSnapshot(RecoveryFixture.snapshot())
 
     private fun item(
@@ -243,3 +270,89 @@ private fun musicReplacementConfirmation() =
         60000,
         confirmMethod = ConfirmMethod.ACTIVITY_CONFIRM,
     )
+
+private class StaleMediaConfirmation(
+    scope: CoroutineScope,
+) {
+    val sent = mutableListOf<McRequest>()
+    val controller = MediaSessionController(scope) { sent.add(it) }
+    private val original = RemoteJson.parseSnapshot(RecoveryFixture.snapshot())
+
+    init {
+        controller.observe(original)
+    }
+
+    fun replacePreview() {
+        val old = musicReplacementConfirmation()
+        controller.receive(
+            McReply.Success(
+                sent.last().id,
+                RemoteResult.ActivityPrepare(ActivityPreparation.ConfirmationRequired(old)),
+            ),
+        )
+        controller.confirm()
+        val count = sent.size
+        val fresh =
+            old.copy(
+                confirmationId = "fresh-sheet",
+                expected = Expected(serverEpoch = "epoch", queueRevision = "12"),
+            )
+        controller.receive(
+            McReply.Failure(
+                sent.last().id,
+                ErrorPayload(WireErrorCode.CONFIRMATION_STALE, "Review changed playback", true, emptyList(), fresh),
+            ),
+        )
+        assertEquals(count, sent.size)
+        assertEquals(
+            "fresh-sheet",
+            controller.state.value.preview
+                ?.confirmationId,
+        )
+        assertFalse(controller.state.value.busy)
+    }
+
+    fun complete(kind: MediaKind) {
+        controller.confirm()
+        val confirm = sent.last()
+        assertEquals("fresh-sheet", (confirm.command as RemoteCommand.ActivityConfirm).params.confirmationId)
+        controller.receive(
+            McReply.Success(
+                confirm.id,
+                RemoteResult.ActivityConfirm(AcceptedResult(OperationAccepted.ACCEPTED, "fresh-op")),
+            ),
+        )
+        assertTrue(controller.state.value.busy)
+        assertEquals(confirm, sent.last())
+        controller.observe(
+            original.copy(
+                player = original.player.copy(itemId = "song", sessionId = "fresh-music"),
+                slideshow = original.slideshow.copy(currentItemId = "photo", sessionId = "fresh-photos"),
+                activity =
+                    original.activity.copy(
+                        mode =
+                            if (kind ==
+                                MediaKind.PHOTO
+                            ) {
+                                ActivityMode.PHOTOS
+                            } else {
+                                ActivityMode.MUSIC
+                            },
+                    ),
+                queueSummary = original.queueSummary.copy(revision = "12"),
+                operations =
+                    OperationsTopic(
+                        "9",
+                        listOf(
+                            OperationState(
+                                "fresh-op",
+                                confirm.id,
+                                OperationStatus.SUCCEEDED,
+                                cancellationRequested = false,
+                            ),
+                        ),
+                    ),
+            ),
+        )
+    }
+}

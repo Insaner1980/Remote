@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.PlayerPhase
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerSeekParams
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerStopParams
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerSubtitleTrackParams
+import com.emmah.colordock.remote.mediacenter.protocol.PlayerTopic
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerVolumeParams
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 
@@ -92,22 +94,8 @@ private fun ColumnScope.PlayerAdjustments(
     val session = player?.sessionId
     val enabled = session != null && !state.busy
     if (player != null && session != null) {
-        val duration = player.durationSeconds
-        if (duration != null && duration > 0) {
-            var seek by remember(
-                session,
-                player.positionSeconds,
-            ) { mutableFloatStateOf(player.positionSeconds.toFloat()) }
-            Text("${player.positionSeconds.toInt()} / ${duration.toInt()} seconds")
-            Slider(
-                seek.coerceIn(0f, duration.toFloat()),
-                { seek = it },
-                enabled = enabled,
-                valueRange = 0f..duration.toFloat(),
-                onValueChangeFinished = {
-                    command(RemoteCommand.PlayerSeek(PlayerSeekParams(session, seek.toDouble())))
-                },
-            )
+        key(state.snapshot.connection.serverDeviceId, state.snapshot.serverEpoch, session) {
+            PlayerSeekControl(player, session, enabled, command)
         }
         var volume by remember(session, player.volume) { mutableFloatStateOf(player.volume.toFloat()) }
         Text("Mediacenter volume ${volume.toInt()}")
@@ -136,5 +124,32 @@ private fun ColumnScope.PlayerAdjustments(
                 }, enabled = enabled) { Text("Subtitles: ${track.label}${if (track.selected) " ✓" else ""}") }
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.PlayerSeekControl(
+    player: PlayerTopic,
+    session: String,
+    enabled: Boolean,
+    command: (RemoteCommand) -> Unit,
+) {
+    val duration = player.durationSeconds
+    if (duration != null && duration > 0) {
+        var draft by remember { mutableStateOf<Float?>(null) }
+        Text("${player.positionSeconds.toInt()} / ${duration.toInt()} seconds")
+        Slider(
+            (draft ?: player.positionSeconds.toFloat()).coerceIn(0f, duration.toFloat()),
+            { draft = it },
+            enabled = enabled,
+            valueRange = 0f..duration.toFloat(),
+            onValueChangeFinished = {
+                val selected = draft
+                draft = null
+                if (selected != null && enabled) {
+                    command(RemoteCommand.PlayerSeek(PlayerSeekParams(session, selected.toDouble())))
+                }
+            },
+        )
     }
 }

@@ -29,7 +29,8 @@ internal fun MediaSessionController.receiveFailure(
     val ownsMutation = operationRequest == reply.id
     if (ownsMutation) {
         operationRequest = null
-        handoff = null
+        if (!preservesConfirmationHandoff(reply, command)) handoff = null
+        handoffReady = false
     }
     mutable.value =
         state.value.copy(
@@ -150,4 +151,24 @@ internal fun MediaSessionController.receivePreparation(value: ActivityPreparatio
             reconcileOperation()
         }
     }
+}
+
+private fun MediaSessionController.preservesConfirmationHandoff(
+    reply: McReply.Failure,
+    command: RemoteCommand,
+): Boolean {
+    val previous = state.value.preview
+    val replacement = reply.error.replacementPreview
+    if (previous == null || replacement == null) return false
+    val confirmsCurrent =
+        command is RemoteCommand.ActivityConfirm &&
+            command.params.confirmationId == previous.confirmationId
+    val sameAction =
+        reply.error.code == WireErrorCode.CONFIRMATION_STALE &&
+            replacement.action == previous.action && replacement.confirmMethod == previous.confirmMethod
+    val sameOwner =
+        replacement.ownerDeviceId == previous.ownerDeviceId &&
+            replacement.expected.serverEpoch == previous.expected.serverEpoch &&
+            replacement.expected.serverEpoch == state.value.snapshot?.serverEpoch
+    return confirmsCurrent && sameAction && sameOwner
 }
