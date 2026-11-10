@@ -22,6 +22,7 @@ class MediacenterRepository(
     private val lock = Any()
     private val recovery = PendingRecovery(journal)
     val recoveryAvailable = recovery.available
+    val pairedDeviceId: String? get() = selectedPairing.value?.deviceId
     private val selectedPairing = MutableStateFlow<PairedMediacenter?>(null)
     private val requests: MediacenterRequests =
         MediacenterRequests(control, scope, recovery, lock, { selectedPairing.value }, {

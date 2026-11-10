@@ -100,7 +100,9 @@ internal class MediaSessionController(
     }
 
     fun command(command: RemoteCommand): Boolean {
-        val stopping = command is RemoteCommand.PlayerStop || command is RemoteCommand.PhotosStop
+        val stopping =
+            command is RemoteCommand.PlayerStop || command is RemoteCommand.PhotosStop ||
+                command is RemoteCommand.SourcesCancelScan
         if (state.value.busy && !stopping) {
             return false
         }
@@ -146,9 +148,7 @@ internal class MediaSessionController(
                     observedOperation?.let(::operation)
                 }
             }
-        if (command.delivery ==
-            Delivery.DURABLE
-        ) {
+        if (command.delivery == Delivery.DURABLE && command !is RemoteCommand.SourcesCancelScan) {
             operationRequest = request.id
             operationCommand = command
             observedOperation = null
@@ -184,7 +184,7 @@ internal class MediaSessionController(
             }
 
             else -> {
-                // Accepted and running operations remain pending until native completion.
+                sourceProgress(value)
             }
         }
     }

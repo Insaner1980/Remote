@@ -64,6 +64,7 @@ internal class PendingRecovery(
                                 request.id,
                                 epoch,
                                 pairedDeviceId = pairing.deviceId,
+                                sourceScanWork = sourceScanWork(request.command),
                             ),
                     )
                     true
@@ -167,3 +168,9 @@ internal class PendingRecovery(
         }
     }
 }
+
+private fun sourceScanWork(command: RemoteCommand): SourceScanWork? =
+    when (command) {
+        is RemoteCommand.SourcesScan, is RemoteCommand.FoldersConfirmAdd -> SourceScanWork.SCAN
+        else -> null
+    }

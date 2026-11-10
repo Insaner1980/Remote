@@ -8,6 +8,8 @@ import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
+enum class SourceScanWork { SCAN }
+
 data class PendingCommand(
     val serverId: String,
     val requestId: String,
@@ -17,6 +19,7 @@ data class PendingCommand(
     val resolved: Boolean = false,
     val pairedDeviceId: String = "",
     val cancellationRequested: Boolean = false,
+    val sourceScanWork: SourceScanWork? = null,
 )
 
 interface PendingCommandStore {
@@ -45,6 +48,7 @@ class FilePendingCommandStore(
                 item.getBoolean("resolved"),
                 item.getString("pairedDeviceId"),
                 item.optBoolean("cancellationRequested", false),
+                item.optString("sourceScanWork").takeIf { it == "scan" }?.let { SourceScanWork.SCAN },
             )
         }
     }
@@ -61,6 +65,7 @@ class FilePendingCommandStore(
                         .put("operationId", command.operationId)
                         .put("pairedDeviceId", command.pairedDeviceId)
                         .put("cancellationRequested", command.cancellationRequested)
+                        .put("sourceScanWork", command.sourceScanWork?.let { "scan" })
                         .put("status", command.status.wire)
                         .put("resolved", command.resolved)
                 },

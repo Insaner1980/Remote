@@ -4,10 +4,14 @@ import com.emmah.colordock.remote.mediacenter.protocol.ActivityConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.AudioConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmMethod
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
+import com.emmah.colordock.remote.mediacenter.protocol.FoldersConfirmAddParams
+import com.emmah.colordock.remote.mediacenter.protocol.OperationState
 import com.emmah.colordock.remote.mediacenter.protocol.PhotosSlideshowStartParams
 import com.emmah.colordock.remote.mediacenter.protocol.QueueEnqueueParams
 import com.emmah.colordock.remote.mediacenter.protocol.QueueGetParams
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
+import com.emmah.colordock.remote.mediacenter.protocol.SourcesConfirmReattachmentParams
+import com.emmah.colordock.remote.mediacenter.protocol.SourcesConfirmRemoveParams
 
 internal fun MediaSessionController.destination(value: MediaDestination) {
     mutable.value = state.value.copy(destination = value)
@@ -27,6 +31,18 @@ internal fun MediaSessionController.confirm() {
 
             ConfirmMethod.ACTIVITY_CONFIRM -> {
                 RemoteCommand.ActivityConfirm(ActivityConfirmParams(preview.confirmationId))
+            }
+
+            ConfirmMethod.FOLDERS_CONFIRM_ADD -> {
+                RemoteCommand.FoldersConfirmAdd(FoldersConfirmAddParams(preview.confirmationId))
+            }
+
+            ConfirmMethod.SOURCES_CONFIRM_REMOVE -> {
+                RemoteCommand.SourcesConfirmRemove(SourcesConfirmRemoveParams(preview.confirmationId))
+            }
+
+            ConfirmMethod.SOURCES_CONFIRM_REATTACHMENT -> {
+                RemoteCommand.SourcesConfirmReattachment(SourcesConfirmReattachmentParams(preview.confirmationId))
             }
 
             else -> {
@@ -76,4 +92,17 @@ internal fun MediaSessionController.slideshow(
         return
     }
     command(RemoteCommand.PhotosSlideshowStart(PhotosSlideshowStartParams(selection, start, seconds)))
+}
+
+internal fun MediaSessionController.sourceProgress(value: OperationState) {
+    val scanning = operationCommand is RemoteCommand.SourcesScan || operationCommand is RemoteCommand.FoldersConfirmAdd
+    if (scanning) {
+        val progress =
+            if (value.cancellationRequested) {
+                "Cancellation requested. Waiting for the scan to stop."
+            } else {
+                "Scanning… Waiting for native completion."
+            }
+        mutable.value = state.value.copy(busy = true, message = progress)
+    }
 }

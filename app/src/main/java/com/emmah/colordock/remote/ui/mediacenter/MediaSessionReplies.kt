@@ -52,6 +52,7 @@ internal fun MediaSessionController.receiveFailure(
 }
 
 internal fun MediaSessionController.receiveSuccess(result: RemoteResult) {
+    if (receiveSourceResult(result)) return
     when (result) {
         is RemoteResult.LibraryItem -> {
             choose(result.value)
@@ -172,3 +173,35 @@ private fun MediaSessionController.preservesConfirmationHandoff(
             replacement.expected.serverEpoch == state.value.snapshot?.serverEpoch
     return confirmsCurrent && sameAction && sameOwner
 }
+
+internal fun MediaSessionController.receiveSourceResult(result: RemoteResult): Boolean =
+    when (result) {
+        is RemoteResult.FoldersPrepareAdd -> {
+            receivePreparation(result.value)
+            true
+        }
+
+        is RemoteResult.SourcesPrepareRemove -> {
+            receivePreparation(result.value)
+            true
+        }
+
+        is RemoteResult.FoldersConfirmAdd,
+        is RemoteResult.SourcesConfirmRemove,
+        is RemoteResult.SourcesConfirmReattachment,
+        -> {
+            mutable.value = state.value.copy(preview = null)
+            reconcileOperation()
+            true
+        }
+
+        is RemoteResult.SourcesCancelScan -> {
+            reconcileOperation()
+            if (state.value.busy) message("Cancellation requested. Waiting for the scan to stop.")
+            true
+        }
+
+        else -> {
+            false
+        }
+    }

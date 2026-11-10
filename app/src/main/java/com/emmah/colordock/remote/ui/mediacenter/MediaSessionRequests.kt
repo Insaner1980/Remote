@@ -68,6 +68,7 @@ internal fun MediaSessionController.createRequest(command: RemoteCommand): McReq
                         else -> snapshot.player.sessionId
                     },
                 queueRevision = snapshot.queueSummary.revision,
+                sourcesRevision = snapshot.sourcesSummary.revision,
                 playlistRevision =
                     state.value.playlist
                         ?.playlist
