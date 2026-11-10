@@ -106,9 +106,11 @@ class AudioSettingsTest {
         val controller = AudioSettingsController { sent.add(it) }
         val noOutput = outputs.copy(requestedOutputId = null, effectiveOutputId = null, unavailable = false)
         controller.observe("epoch", noOutput)
-        assertEquals("Audio output unavailable", controller.state.value.message)
+        assertEquals("No playback stream has been confirmed.", controller.state.value.message)
         controller.retry(refreshOnly = true)
         controller.receive(McReply.Success(sent.single().id, RemoteResult.AudioOutputs(noOutput)))
+        assertEquals("No playback stream has been confirmed.", controller.state.value.message)
+        controller.observe("epoch", noOutput.copy(unavailable = true))
         assertEquals("Audio output unavailable", controller.state.value.message)
     }
 

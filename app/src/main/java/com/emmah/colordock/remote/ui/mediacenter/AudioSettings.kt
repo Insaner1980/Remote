@@ -248,7 +248,9 @@ private fun outputStatus(value: OutputsTopic?): String =
                 it.id == value.requestedOutputId && it.available
             } -> "Sound preference saved; no playback stream has been confirmed."
 
-        value.effectiveOutputId == null || value.unavailable -> "Audio output unavailable"
+        value.unavailable -> "Audio output unavailable"
+
+        value.effectiveOutputId == null -> "No playback stream has been confirmed."
 
         else -> "Sound output confirmed by Mediacenter."
     }
