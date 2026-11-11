@@ -177,7 +177,7 @@ internal class MediaSessionController(
                         message = driveSuccess(operationCommand),
                         messageOperation = value,
                     )
-                if (isSettingsChange(operationCommand)) refreshSettings()
+                refreshSettingsAfterSuccess(operationCommand)
                 if (state.value.queueOpen) refreshQueue()
                 if (state.value.playlist != null) refreshPlaylist()
                 finishHandoff()

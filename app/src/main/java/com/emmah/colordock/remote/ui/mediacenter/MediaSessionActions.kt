@@ -33,6 +33,13 @@ internal fun MediaSessionController.confirm() {
     val preview = state.value.preview ?: return
     val next =
         when (preview.confirmMethod) {
+            ConfirmMethod.SETTINGS_END_SESSION -> {
+                RemoteCommand.SettingsEndSession(
+                    com.emmah.colordock.remote.mediacenter.protocol
+                        .SettingsEndSessionParams(preview.confirmationId),
+                )
+            }
+
             ConfirmMethod.VPN_CONFIRM_CHANGE -> {
                 RemoteCommand.VpnConfirmChange(VpnConfirmChangeParams(preview.confirmationId))
             }

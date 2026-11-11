@@ -57,6 +57,7 @@ internal fun SettingsScreen(
                 }
             }
         }
+        LifetimeSettings(state, ready, actions.send)
         ConnectionSettings(state, ready, actions.send)
         state.settings.pairing?.let { PairingDisplay(it, actions.dismissPairing) }
     }

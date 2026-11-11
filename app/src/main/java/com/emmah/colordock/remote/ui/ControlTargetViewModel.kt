@@ -50,6 +50,15 @@ class ControlTargetViewModel : ViewModel() {
         if (retireInput(origin, cancelInput)) open()
     }
 
+    /** Activity stop retires input before the repository starts its existing socket grace. */
+    internal fun background(
+        cancelInput: () -> Unit,
+        background: () -> Unit,
+    ) {
+        retireInput(lease(), cancelInput)
+        background()
+    }
+
     internal fun lease() = ControlTargetLease(state.value.selected, state.value.generation)
 
     internal fun dispatch(

@@ -28,6 +28,10 @@ class PreparationRecoveryTest {
                 listOf(
                     RemoteCommand.ActivityPrepare(ActivityPrepareParams(ActivityKind.MUSIC, "song")),
                     RemoteCommand.AudioPrepare(AudioPrepareParams("hdmi")),
+                    RemoteCommand.SettingsEndSession(
+                        com.emmah.colordock.remote.mediacenter.protocol
+                            .SettingsEndSessionParams("confirmed"),
+                    ),
                 )
             commands.forEachIndexed { index, command ->
                 val id = "prepare-$index"

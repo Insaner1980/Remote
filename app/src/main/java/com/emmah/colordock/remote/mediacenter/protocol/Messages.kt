@@ -1343,6 +1343,7 @@ data class SettingsState(
     val startAtLogin: Boolean,
     val servicePreferences: ServicePreferences? = null,
     val connectionDiagnostics: ConnectionDiagnostics? = null,
+    val idleInhibition: IdleInhibition? = null,
 ) {
     override fun toString(): String = "SettingsState([redacted])"
 }
@@ -1727,6 +1728,15 @@ data class ConnectionDiagnostics(
 }
 
 typealias QrRows = List<String>
+
+enum class IdleInhibition(
+    val wire: String,
+) {
+    INACTIVE("inactive"),
+    ACTIVE("active"),
+    UNSUPPORTED("unsupported"),
+    UNAVAILABLE("unavailable"),
+}
 
 enum class Delivery { READ, DURABLE, TRANSIENT }
 

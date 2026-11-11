@@ -58,6 +58,10 @@ internal fun MediaSessionController.receiveSettingsResult(result: RemoteResult):
             reconcileOperation()
         }
 
+        is RemoteResult.SettingsEndSession -> {
+            receiveDevicePreparation(result.value)
+        }
+
         is RemoteResult.DevicesRevoke -> {
             receiveDevicePreparation(result.value)
         }
@@ -132,4 +136,13 @@ internal fun MediaSessionController.dismissPairing() {
 
 internal fun isSettingsChange(command: RemoteCommand?): Boolean =
     command is RemoteCommand.VpnConfirmChange || command is RemoteCommand.VpnRequirementSet ||
-        command is RemoteCommand.SettingsThemeSet || command is RemoteCommand.DevicesRevoke
+        command is RemoteCommand.SettingsStartAtLoginSet || command is RemoteCommand.SettingsThemeSet ||
+        command is RemoteCommand.DevicesRevoke
+
+internal fun MediaSessionController.refreshSettingsAfterSuccess(command: RemoteCommand?) {
+    if (command is RemoteCommand.SettingsStartAtLoginSet) {
+        submit(RemoteCommand.SettingsGet(Empty))
+    } else if (isSettingsChange(command)) {
+        refreshSettings()
+    }
+}

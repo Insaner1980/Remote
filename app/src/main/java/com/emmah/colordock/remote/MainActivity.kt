@@ -452,7 +452,7 @@ class MainActivity : ComponentActivity() {
             wallpapers.background()
             model.background()
         }
-        mediacenter.background()
+        targets.background(model::cancelInput, mediacenter::background)
         super.onStop()
     }
 

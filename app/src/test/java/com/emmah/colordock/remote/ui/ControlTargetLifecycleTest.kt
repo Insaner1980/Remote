@@ -163,6 +163,28 @@ class ControlTargetLifecycleTest {
         }
     }
 
+    @Test fun backgroundRetiresRootQrAndHeldInputBeforeSocketGrace() {
+        mount()
+        showPairingQr()
+        val old = targets.lease()
+        var cancelled = 0
+        compose.runOnIdle {
+            targets.background({
+                assertEquals(old, targets.lease())
+                cancelled++
+            }, repository::background)
+        }
+        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.runOnIdle {
+            assertEquals(1, cancelled)
+            assertFalse(targets.dispatch(old) { throw AssertionError("Stale input resumed") })
+            assertEquals(initialDisconnects, control.disconnects)
+            assertEquals(1, control.sent.count { it.command is RemoteCommand.PairingBegin })
+            repository.foreground()
+        }
+        compose.onNodeWithText("Hide code").assertDoesNotExist()
+    }
+
     private fun showPairingQr() {
         compose.onNodeWithText("Settings").performClick()
         compose.waitUntil { control.sent.any { it.command is RemoteCommand.SettingsGet } }

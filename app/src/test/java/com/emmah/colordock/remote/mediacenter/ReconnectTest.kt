@@ -56,7 +56,14 @@ class ReconnectTest {
             runCurrent()
             assertNotNull(repository.snapshot.value)
             val before = control.disconnects
-            repository.background()
+            val targets =
+                com.emmah.colordock.remote.ui
+                    .ControlTargetViewModel()
+            val oldLease = targets.lease()
+            var cancelled = 0
+            targets.background({ cancelled++ }, repository::background)
+            assertEquals(1, cancelled)
+            assertFalse(targets.dispatch(oldLease) { throw AssertionError("Retired input resumed") })
             runCurrent()
             assertFalse(
                 repository.send(

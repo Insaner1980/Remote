@@ -4787,6 +4787,12 @@ object RemoteJson {
                 } else {
                     readConnectionDiagnostics(source.get("connectionDiagnostics"))
                 },
+            idleInhibition =
+                if (source.isNull("idleInhibition")) {
+                    null
+                } else {
+                    readIdleInhibition(source.get("idleInhibition"))
+                },
         )
     }
 
@@ -4797,6 +4803,7 @@ object RemoteJson {
         result.put("startAtLogin", writeBool(value.startAtLogin))
         value.servicePreferences?.let { result.put("servicePreferences", writeServicePreferences(it)) }
         value.connectionDiagnostics?.let { result.put("connectionDiagnostics", writeConnectionDiagnostics(it)) }
+        value.idleInhibition?.let { result.put("idleInhibition", writeIdleInhibition(it)) }
         return result
     }
 
@@ -5311,6 +5318,11 @@ object RemoteJson {
     }
 
     private fun writeQrRows(value: QrRows): Any = JSONArray(value.map { writeQrRow(it) })
+
+    private fun readIdleInhibition(value: Any): IdleInhibition =
+        IdleInhibition.entries.firstOrNull { it.wire == string(value) } ?: unsupported()
+
+    private fun writeIdleInhibition(value: IdleInhibition): Any = value.wire
 
     fun parsePairingCandidate(input: String): PairingCandidate = safely { readPairingCandidate(document(input, 65536)) }
 
