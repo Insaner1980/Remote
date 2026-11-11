@@ -1,8 +1,8 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "bfd145ef3eac74d3ca23e1ca26234ef4384a4f466d5759c2efef3f68eec7e2ae",
-    "fixturesSha256": "99cdfc991d516842e71420798394016737ded7c92a6111b64b37463a96b86b4b",
+    "schemaSha256": "275823d7721bebd9a408dfe221a5a6d56bcffa4db6342eda703195120265fb7c",
+    "fixturesSha256": "8ee981af0c6f5abf87c0e467ae6d2bd6490f49a83ea94d05c50e47a51753f460",
     "requestMethods": 88
   },
   "schema": {
@@ -5882,6 +5882,12 @@
           },
           "startAtLogin": {
             "$ref": "#/$defs/Bool"
+          },
+          "servicePreferences": {
+            "$ref": "#/$defs/ServicePreferences"
+          },
+          "connectionDiagnostics": {
+            "$ref": "#/$defs/ConnectionDiagnostics"
           }
         },
         "required": [
@@ -6859,6 +6865,9 @@
               },
               "candidate": {
                 "$ref": "#/$defs/PairingCandidate"
+              },
+              "qrRows": {
+                "$ref": "#/$defs/QrRows"
               }
             },
             "required": [
@@ -6936,6 +6945,86 @@
         "required": [
           "requestId"
         ]
+      },
+      "ServicePreference": {
+        "type": "object",
+        "properties": {
+          "serviceId": {
+            "$ref": "#/$defs/Id"
+          },
+          "label": {
+            "$ref": "#/$defs/Label"
+          },
+          "vpnRequired": {
+            "$ref": "#/$defs/Bool"
+          }
+        },
+        "required": [
+          "serviceId",
+          "label",
+          "vpnRequired"
+        ]
+      },
+      "ServicePreferences": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/ServicePreference"
+        },
+        "maxItems": 32
+      },
+      "ListenerObservation": {
+        "type": "string",
+        "enum": [
+          "listening",
+          "stopped",
+          "unknown"
+        ]
+      },
+      "DiscoveryObservation": {
+        "type": "string",
+        "enum": [
+          "announced",
+          "pending",
+          "unavailable",
+          "stopped",
+          "unknown"
+        ]
+      },
+      "ConnectionDiagnostics": {
+        "type": "object",
+        "properties": {
+          "selectedInterface": {
+            "$ref": "#/$defs/Label"
+          },
+          "listener": {
+            "$ref": "#/$defs/ListenerObservation"
+          },
+          "discovery": {
+            "$ref": "#/$defs/DiscoveryObservation"
+          },
+          "vpnVersion": {
+            "$ref": "#/$defs/Label"
+          }
+        },
+        "required": [
+          "listener",
+          "discovery"
+        ]
+      },
+      "QrRow": {
+        "type": "string",
+        "minLength": 21,
+        "maxLength": 177,
+        "pattern": "^[01]+$"
+      },
+      "QrRows": {
+        "type": "array",
+        "minItems": 21,
+        "maxItems": 177,
+        "items": {
+          "$ref": "#/$defs/QrRow"
+        },
+        "x-validation": "square_binary_matrix"
       }
     },
     "x-methods": [
@@ -15586,7 +15675,20 @@
           "result": {
             "revision": "9007199254740993",
             "theme": "dark",
-            "startAtLogin": false
+            "startAtLogin": false,
+            "servicePreferences": [
+              {
+                "serviceId": "netflix",
+                "label": "Netflix",
+                "vpnRequired": true
+              }
+            ],
+            "connectionDiagnostics": {
+              "selectedInterface": "wlan0",
+              "listener": "listening",
+              "discovery": "announced",
+              "vpnVersion": "3.20.1"
+            }
           }
         }
       },
@@ -16561,6 +16663,55 @@
         "message": "Choose at most 10,000 photos.",
         "retryable": false,
         "refresh": []
+      }
+    },
+    "settingsLegacy": {
+      "revision": "1",
+      "theme": "dark",
+      "startAtLogin": false
+    },
+    "pairingQrReply": {
+      "v": 1,
+      "id": "qr-fixture",
+      "ok": true,
+      "result": {
+        "status": "ready",
+        "operationId": "op-qr",
+        "candidate": {
+          "v": 1,
+          "deviceId": "desktop-1",
+          "addresses": [
+            "192.168.1.20",
+            "fe80::1%eth0"
+          ],
+          "port": 47831,
+          "certificateFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "attemptId": "attempt-1",
+          "secret": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "qrRows": [
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000",
+          "000000000000000000000"
+        ]
       }
     }
   }

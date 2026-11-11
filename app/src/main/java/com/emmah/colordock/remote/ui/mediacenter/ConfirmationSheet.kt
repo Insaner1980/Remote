@@ -23,6 +23,9 @@ internal fun ConfirmationSheet(
         title = {
             Text(
                 when (preview.action) {
+                    ActionKind.CHANGE_VPN -> "Change VPN connection?"
+                    ActionKind.REVOKE_DEVICE -> "Revoke phone access?"
+                    ActionKind.BEGIN_PAIRING -> "Pair another phone?"
                     ActionKind.ADD_SOURCE -> "Add this library folder?"
                     ActionKind.REMOVE_SOURCE -> "Remove library association?"
                     ActionKind.REATTACH_SOURCE -> "Confirm this drive attachment?"

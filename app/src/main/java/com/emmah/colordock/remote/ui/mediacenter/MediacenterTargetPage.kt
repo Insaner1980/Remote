@@ -40,6 +40,10 @@ import com.emmah.colordock.remote.mediacenter.protocol.SourcesScanParams
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 
+private const val UNCERTAIN_ACTION_MESSAGE =
+    "An earlier action has an uncertain outcome. " +
+        "Inspect current Mediacenter state before issuing it again."
+
 internal data class MediaTargetControllers(
     val media: MediaSessionController,
     val library: LibraryViewModel,
@@ -85,6 +89,7 @@ fun MediacenterTargetPage(
     val sourceState by sources.state.collectAsState()
     val recoveredScans by sources.recovered.state.collectAsState()
     val state by media.state.collectAsState()
+    ObserveRoutineSettings(media)
     val libraryState by library.state.collectAsState()
     val sound by audio.state.collectAsState()
     val uncertain by repository.inputOutcomeUncertain.collectAsState()
@@ -107,7 +112,7 @@ fun MediacenterTargetPage(
         val unresolved = pending.count { !it.resolved }
         if (unresolved > 0) Text("Mediacenter is reconciling $unresolved action(s).")
         if (pending.any { it.resolved && it.status == OperationStatus.OUTCOME_UNKNOWN }) {
-            Text("An earlier action has an uncertain outcome. Inspect playback before issuing it again.")
+            Text(UNCERTAIN_ACTION_MESSAGE)
         }
         if (uncertain) Text("Input outcome is uncertain. Inspect the computer before sending again.")
         if (!recoveryAvailable) Text("Command recovery is unavailable. Reconnect after freeing phone storage.")
@@ -135,10 +140,10 @@ internal fun MediacenterTargetContent(
     modifier: Modifier = Modifier,
     settings: @Composable () -> Unit = {},
 ) {
-    val (state, libraryState, sound) = model
+    val state = model.media
+    val libraryState = model.library
     val media = controllers.media
     val renderer = controllers.renderer
-    val audio = controllers.audio
     val contentScroll = rememberScrollState()
     LaunchedEffect(state.destination, libraryState.items.firstOrNull()?.id) { contentScroll.scrollTo(0) }
     val navigation = remember { LibraryNavigation() }
@@ -170,22 +175,7 @@ internal fun MediacenterTargetContent(
                 }
 
                 MediaDestination.Settings -> {
-                    SoundOptions(
-                        sound,
-                        SoundActions({
-                            audio.retry(true)
-                        }, {
-                            audio.retry()
-                        }, {
-                            audio.choose(
-                                it,
-                            )
-                        }, { audio.test(it) }, { audio.confirm() }, { audio.cancel() }),
-                        showConfirmation = false,
-                    )
-                    TargetSources(model, controllers)
-                    TargetDrives(model, controllers)
-                    settings()
+                    TargetSettings(model, controllers, settings)
                 }
             }
         }
@@ -392,7 +382,7 @@ private fun TargetDialogs(
 }
 
 @Composable
-private fun TargetSources(
+internal fun TargetSources(
     model: MediaTargetState,
     controllers: MediaTargetControllers,
 ) {
@@ -453,7 +443,7 @@ private fun ObserveSourceRecovery(
 }
 
 @Composable
-private fun TargetDrives(
+internal fun TargetDrives(
     model: MediaTargetState,
     controllers: MediaTargetControllers,
 ) {

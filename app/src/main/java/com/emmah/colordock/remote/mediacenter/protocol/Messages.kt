@@ -1341,6 +1341,8 @@ data class SettingsState(
     val revision: String,
     val theme: Theme,
     val startAtLogin: Boolean,
+    val servicePreferences: ServicePreferences? = null,
+    val connectionDiagnostics: ConnectionDiagnostics? = null,
 ) {
     override fun toString(): String = "SettingsState([redacted])"
 }
@@ -1641,16 +1643,23 @@ enum class ConfirmMethod(
 sealed interface PairingPreparation {
     data class ConfirmationRequired(
         val preview: ConfirmationPreview,
-    ) : PairingPreparation
+    ) : PairingPreparation {
+        override fun toString(): String = "PairingPreparation([redacted])"
+    }
 
     data class Ready(
         val operationId: String,
         val candidate: PairingCandidate,
-    ) : PairingPreparation
+        val qrRows: QrRows? = null,
+    ) : PairingPreparation {
+        override fun toString(): String = "PairingPreparation([redacted])"
+    }
 
     data class AlreadyIssued(
         val operationId: String,
-    ) : PairingPreparation
+    ) : PairingPreparation {
+        override fun toString(): String = "PairingPreparation([redacted])"
+    }
 }
 
 enum class ManualChallengeMode(
@@ -1679,6 +1688,45 @@ data class ForegroundAck(
 ) {
     override fun toString(): String = "ForegroundAck([redacted])"
 }
+
+data class ServicePreference(
+    val serviceId: String,
+    val label: String,
+    val vpnRequired: Boolean,
+) {
+    override fun toString(): String = "ServicePreference([redacted])"
+}
+
+typealias ServicePreferences = List<ServicePreference>
+
+enum class ListenerObservation(
+    val wire: String,
+) {
+    LISTENING("listening"),
+    STOPPED("stopped"),
+    UNKNOWN("unknown"),
+}
+
+enum class DiscoveryObservation(
+    val wire: String,
+) {
+    ANNOUNCED("announced"),
+    PENDING("pending"),
+    UNAVAILABLE("unavailable"),
+    STOPPED("stopped"),
+    UNKNOWN("unknown"),
+}
+
+data class ConnectionDiagnostics(
+    val selectedInterface: String? = null,
+    val listener: ListenerObservation,
+    val discovery: DiscoveryObservation,
+    val vpnVersion: String? = null,
+) {
+    override fun toString(): String = "ConnectionDiagnostics([redacted])"
+}
+
+typealias QrRows = List<String>
 
 enum class Delivery { READ, DURABLE, TRANSIENT }
 

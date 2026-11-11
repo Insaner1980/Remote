@@ -4,18 +4,22 @@ import com.emmah.colordock.remote.mediacenter.protocol.ActivityConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.AudioConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmMethod
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
+import com.emmah.colordock.remote.mediacenter.protocol.DevicesRevokeParams
 import com.emmah.colordock.remote.mediacenter.protocol.DrivesConfirmEjectParams
 import com.emmah.colordock.remote.mediacenter.protocol.FoldersConfirmAddParams
 import com.emmah.colordock.remote.mediacenter.protocol.OperationState
+import com.emmah.colordock.remote.mediacenter.protocol.PairingBeginParams
 import com.emmah.colordock.remote.mediacenter.protocol.PhotosSlideshowStartParams
 import com.emmah.colordock.remote.mediacenter.protocol.QueueEnqueueParams
 import com.emmah.colordock.remote.mediacenter.protocol.QueueGetParams
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesConfirmReattachmentParams
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesConfirmRemoveParams
+import com.emmah.colordock.remote.mediacenter.protocol.VpnConfirmChangeParams
 
 internal fun MediaSessionController.destination(value: MediaDestination) {
     mutable.value = state.value.copy(destination = value)
+    if (value != MediaDestination.Settings) dismissPairing()
 }
 
 internal fun MediaSessionController.message(
@@ -29,6 +33,18 @@ internal fun MediaSessionController.confirm() {
     val preview = state.value.preview ?: return
     val next =
         when (preview.confirmMethod) {
+            ConfirmMethod.VPN_CONFIRM_CHANGE -> {
+                RemoteCommand.VpnConfirmChange(VpnConfirmChangeParams(preview.confirmationId))
+            }
+
+            ConfirmMethod.DEVICES_REVOKE -> {
+                RemoteCommand.DevicesRevoke(DevicesRevokeParams(confirmationId = preview.confirmationId))
+            }
+
+            ConfirmMethod.PAIRING_BEGIN -> {
+                RemoteCommand.PairingBegin(PairingBeginParams(preview.confirmationId))
+            }
+
             ConfirmMethod.DRIVES_CONFIRM_EJECT -> {
                 RemoteCommand.DrivesConfirmEject(DrivesConfirmEjectParams(preview.confirmationId))
             }

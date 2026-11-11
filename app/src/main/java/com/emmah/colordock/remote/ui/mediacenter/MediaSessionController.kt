@@ -23,6 +23,7 @@ internal enum class MediaDestination { Remote, Library, Settings }
 
 internal data class MediaSessionState(
     val snapshot: RemoteSnapshot? = null,
+    val settings: RoutineSettingsState = RoutineSettingsState(),
     val destination: MediaDestination = MediaDestination.Remote,
     val message: String = "Connect to Mediacenter.",
     // Only the native operation that produced the current message; local feedback clears this.
@@ -87,6 +88,7 @@ internal class MediaSessionController(
             mutable.value = state.value.copy(snapshot = snapshot)
         }
         if (snapshot == null) return
+        mutable.value = state.value.copy(settings = state.value.settings.copy(vpn = snapshot.vpn))
         if (photoSession != null && photoSession != snapshot.slideshow.sessionId) {
             photoSelection = null
             photoSession = null
@@ -175,6 +177,7 @@ internal class MediaSessionController(
                         message = driveSuccess(operationCommand),
                         messageOperation = value,
                     )
+                if (isSettingsChange(operationCommand)) refreshSettings()
                 if (state.value.queueOpen) refreshQueue()
                 if (state.value.playlist != null) refreshPlaylist()
                 finishHandoff()

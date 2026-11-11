@@ -67,6 +67,9 @@ internal fun MediaSessionController.createRequest(command: RemoteCommand): McReq
                         command.method.wire.startsWith("photos.") -> snapshot.slideshow.sessionId
                         else -> snapshot.player.sessionId
                     },
+                settingsRevision =
+                    state.value.settings.native
+                        ?.revision,
                 queueRevision = snapshot.queueSummary.revision,
                 sourcesRevision = snapshot.sourcesSummary.revision,
                 playlistRevision =

@@ -4775,6 +4775,18 @@ object RemoteJson {
             revision = readDecimal(source.get("revision")),
             theme = readTheme(source.get("theme")),
             startAtLogin = readBool(source.get("startAtLogin")),
+            servicePreferences =
+                if (source.isNull("servicePreferences")) {
+                    null
+                } else {
+                    readServicePreferences(source.get("servicePreferences"))
+                },
+            connectionDiagnostics =
+                if (source.isNull("connectionDiagnostics")) {
+                    null
+                } else {
+                    readConnectionDiagnostics(source.get("connectionDiagnostics"))
+                },
         )
     }
 
@@ -4783,6 +4795,8 @@ object RemoteJson {
         result.put("revision", writeDecimal(value.revision))
         result.put("theme", writeTheme(value.theme))
         result.put("startAtLogin", writeBool(value.startAtLogin))
+        value.servicePreferences?.let { result.put("servicePreferences", writeServicePreferences(it)) }
+        value.connectionDiagnostics?.let { result.put("connectionDiagnostics", writeConnectionDiagnostics(it)) }
         return result
     }
 
@@ -5111,6 +5125,12 @@ object RemoteJson {
                 PairingPreparation.Ready(
                     operationId = readId(source.get("operationId")),
                     candidate = readPairingCandidate(source.get("candidate")),
+                    qrRows =
+                        if (source.isNull("qrRows")) {
+                            null
+                        } else {
+                            readQrRows(source.get("qrRows"))
+                        },
                 )
             }
 
@@ -5143,6 +5163,9 @@ object RemoteJson {
                         "operationId",
                         writeId(value.operationId),
                     ).put("candidate", writePairingCandidate(value.candidate))
+                    .apply {
+                        value.qrRows?.let { put("qrRows", writeQrRows(it)) }
+                    }
             }
 
             is PairingPreparation.AlreadyIssued -> {
@@ -5199,6 +5222,95 @@ object RemoteJson {
         result.put("requestId", writeId(value.requestId))
         return result
     }
+
+    private fun readServicePreference(value: Any): ServicePreference {
+        val source = obj(value)
+        return ServicePreference(
+            serviceId = readId(source.get("serviceId")),
+            label = readLabel(source.get("label")),
+            vpnRequired = readBool(source.get("vpnRequired")),
+        )
+    }
+
+    private fun writeServicePreference(value: ServicePreference): Any {
+        val result = JSONObject()
+        result.put("serviceId", writeId(value.serviceId))
+        result.put("label", writeLabel(value.label))
+        result.put("vpnRequired", writeBool(value.vpnRequired))
+        return result
+    }
+
+    private fun readServicePreferences(value: Any): ServicePreferences {
+        val source = value as? JSONArray ?: invalid()
+        check(source.length() in 0..32)
+        val result = (0 until source.length()).map { readServicePreference(source.get(it)) }
+        return result
+    }
+
+    private fun writeServicePreferences(value: ServicePreferences): Any =
+        JSONArray(
+            value.map {
+                writeServicePreference(it)
+            },
+        )
+
+    private fun readListenerObservation(value: Any): ListenerObservation =
+        ListenerObservation.entries.firstOrNull { it.wire == string(value) } ?: unsupported()
+
+    private fun writeListenerObservation(value: ListenerObservation): Any = value.wire
+
+    private fun readDiscoveryObservation(value: Any): DiscoveryObservation =
+        DiscoveryObservation.entries.firstOrNull { it.wire == string(value) } ?: unsupported()
+
+    private fun writeDiscoveryObservation(value: DiscoveryObservation): Any = value.wire
+
+    private fun readConnectionDiagnostics(value: Any): ConnectionDiagnostics {
+        val source = obj(value)
+        return ConnectionDiagnostics(
+            selectedInterface =
+                if (source.isNull("selectedInterface")) {
+                    null
+                } else {
+                    readLabel(source.get("selectedInterface"))
+                },
+            listener = readListenerObservation(source.get("listener")),
+            discovery = readDiscoveryObservation(source.get("discovery")),
+            vpnVersion =
+                if (source.isNull("vpnVersion")) {
+                    null
+                } else {
+                    readLabel(source.get("vpnVersion"))
+                },
+        )
+    }
+
+    private fun writeConnectionDiagnostics(value: ConnectionDiagnostics): Any {
+        val result = JSONObject()
+        value.selectedInterface?.let { result.put("selectedInterface", writeLabel(it)) }
+        result.put("listener", writeListenerObservation(value.listener))
+        result.put("discovery", writeDiscoveryObservation(value.discovery))
+        value.vpnVersion?.let { result.put("vpnVersion", writeLabel(it)) }
+        return result
+    }
+
+    private fun readQrRow(value: Any): String {
+        val result = string(value)
+        check(result.codePointCount(0, result.length) in 21..177)
+        check(result.matches(Regex("^[01]+$")))
+        return result
+    }
+
+    private fun writeQrRow(value: String): Any = value
+
+    private fun readQrRows(value: Any): QrRows {
+        val source = value as? JSONArray ?: invalid()
+        check(source.length() in 21..177)
+        val result = (0 until source.length()).map { readQrRow(source.get(it)) }
+        check(result.all { it.length == result.size })
+        return result
+    }
+
+    private fun writeQrRows(value: QrRows): Any = JSONArray(value.map { writeQrRow(it) })
 
     fun parsePairingCandidate(input: String): PairingCandidate = safely { readPairingCandidate(document(input, 65536)) }
 

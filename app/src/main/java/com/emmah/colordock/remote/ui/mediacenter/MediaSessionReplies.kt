@@ -24,6 +24,11 @@ internal fun MediaSessionController.receiveFailure(
     reply: McReply.Failure,
     command: RemoteCommand,
 ) {
+    if (command is RemoteCommand.VpnState) {
+        submit(
+            RemoteCommand.SettingsGet(com.emmah.colordock.remote.mediacenter.protocol.Empty),
+        )
+    }
     val ownsPlaylistStart = playPlaylistAfterRead && command is RemoteCommand.PlaylistsGet
     if (ownsPlaylistStart) playPlaylistAfterRead = false
     val ownsMutation = operationRequest == reply.id
@@ -53,7 +58,7 @@ internal fun MediaSessionController.receiveFailure(
 }
 
 internal fun MediaSessionController.receiveSuccess(result: RemoteResult) {
-    if (receiveSourceResult(result)) return
+    if (receiveSourceResult(result) || receiveSettingsResult(result)) return
     when (result) {
         is RemoteResult.LibraryItem -> {
             choose(result.value)
