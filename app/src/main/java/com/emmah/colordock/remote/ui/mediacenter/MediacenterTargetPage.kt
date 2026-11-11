@@ -25,10 +25,13 @@ import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterRepository
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
+import com.emmah.colordock.remote.mediacenter.protocol.DrivesMountParams
+import com.emmah.colordock.remote.mediacenter.protocol.DrivesPrepareEjectParams
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
 import com.emmah.colordock.remote.mediacenter.protocol.FoldersPrepareAddParams
 import com.emmah.colordock.remote.mediacenter.protocol.MediaItem
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
+import com.emmah.colordock.remote.mediacenter.protocol.OperationsCancelParams
 import com.emmah.colordock.remote.mediacenter.protocol.PlaybackStart
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesCancelScanParams
@@ -44,6 +47,7 @@ internal data class MediaTargetControllers(
     val audio: AudioSettingsController,
     val folders: FolderController? = null,
     val sources: SourcesController? = null,
+    val drives: DrivesController? = null,
 )
 
 internal data class MediaTargetState(
@@ -52,6 +56,7 @@ internal data class MediaTargetState(
     val sound: AudioSettingsState,
     val folders: FolderState = FolderState(),
     val sources: SourcesState = SourcesState(),
+    val drives: DrivesState = DrivesState(),
 )
 
 private class LibraryNavigation {
@@ -73,6 +78,8 @@ fun MediacenterTargetPage(
     val audio = remember(repository) { AudioSettingsController(repository::send) }
     val folders = remember(repository) { FolderController(repository::send) }
     val sources = remember(repository) { SourcesController(repository::send) }
+    val drives = remember(repository) { DrivesController(repository::send) }
+    val driveState by drives.state.collectAsState()
     val folderState by folders.state.collectAsState()
     val sourceState by sources.state.collectAsState()
     val recoveredScans by sources.recovered.state.collectAsState()
@@ -82,7 +89,7 @@ fun MediacenterTargetPage(
     val uncertain by repository.inputOutcomeUncertain.collectAsState()
     val recoveryAvailable by repository.recoveryAvailable.collectAsState()
     val pending by repository.pending.collectAsState()
-    val controllers = MediaTargetControllers(media, library, renderer, audio, folders, sources)
+    val controllers = MediaTargetControllers(media, library, renderer, audio, folders, sources, drives)
     ObserveMediaTarget(repository, controllers)
     ObserveSourceRecovery(repository, sources)
     val thumbnail: suspend (
@@ -109,6 +116,7 @@ fun MediacenterTargetPage(
                 sound,
                 folderState,
                 sourceState.copy(recoveredScans = recoveredScans),
+                driveState,
             ),
             controllers,
             thumbnail,
@@ -168,6 +176,7 @@ internal fun MediacenterTargetContent(
                         showConfirmation = false,
                     )
                     TargetSources(model, controllers)
+                    TargetDrives(model, controllers)
                     settings()
                 }
             }
@@ -198,6 +207,7 @@ private fun ObserveMediaTarget(
             audio.observe(it?.serverEpoch, it?.outputs, it?.operations?.items.orEmpty())
             controllers.folders?.observe(it?.serverEpoch, it?.connection?.serverDeviceId)
             controllers.sources?.observe(it?.serverEpoch, it?.connection?.serverDeviceId, it?.sourcesSummary?.revision)
+            controllers.drives?.observe(it?.serverEpoch, it?.connection?.serverDeviceId, it?.sourcesSummary?.revision)
         }
     }
     LaunchedEffect(repository) {
@@ -208,6 +218,7 @@ private fun ObserveMediaTarget(
             audio.receive(it)
             controllers.folders?.receive(it)
             controllers.sources?.receive(it)
+            controllers.drives?.receive(it)
         }
     }
     LaunchedEffect(repository) { repository.pending.collect { it.forEach(media::recovered) } }
@@ -224,6 +235,7 @@ private fun ObserveMediaTarget(
             library.observe(null)
             controllers.folders?.observe(null, null)
             controllers.sources?.observe(null, null, null)
+            controllers.drives?.observe(null, null, null)
             renderer.stop()
         }
     }
@@ -430,4 +442,37 @@ private fun ObserveSourceRecovery(
     DisposableEffect(sources) {
         onDispose { sources.recovered.observe(null, emptyList(), null) }
     }
+}
+
+@Composable
+private fun TargetDrives(
+    model: MediaTargetState,
+    controllers: MediaTargetControllers,
+) {
+    val drives = controllers.drives ?: return
+    val media = controllers.media
+    val operation =
+        media.observedOperation?.takeIf {
+            it.status in listOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING) &&
+                (
+                    media.operationCommand is RemoteCommand.DrivesMount ||
+                        media.operationCommand is RemoteCommand.DrivesConfirmEject
+                )
+        }
+    DrivesScreen(
+        model.drives,
+        model.media.busy,
+        DriveActions(
+            drives::refresh,
+            { media.command(RemoteCommand.DrivesMount(DrivesMountParams(it))) },
+            { media.command(RemoteCommand.DrivesPrepareEject(DrivesPrepareEjectParams(it))) },
+            operation?.let { current ->
+                {
+                    media.command(
+                        RemoteCommand.OperationsCancel(OperationsCancelParams(operationId = current.operationId)),
+                    )
+                }
+            },
+        ),
+    )
 }

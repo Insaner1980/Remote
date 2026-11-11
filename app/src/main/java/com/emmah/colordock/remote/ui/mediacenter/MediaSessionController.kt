@@ -102,7 +102,7 @@ internal class MediaSessionController(
     fun command(command: RemoteCommand): Boolean {
         val stopping =
             command is RemoteCommand.PlayerStop || command is RemoteCommand.PhotosStop ||
-                command is RemoteCommand.SourcesCancelScan
+                command is RemoteCommand.SourcesCancelScan || command is RemoteCommand.OperationsCancel
         if (state.value.busy && !stopping) {
             return false
         }
@@ -148,7 +148,9 @@ internal class MediaSessionController(
                     observedOperation?.let(::operation)
                 }
             }
-        if (command.delivery == Delivery.DURABLE && command !is RemoteCommand.SourcesCancelScan) {
+        if (command.delivery == Delivery.DURABLE && command !is RemoteCommand.SourcesCancelScan &&
+            command !is RemoteCommand.OperationsCancel
+        ) {
             operationRequest = request.id
             operationCommand = command
             observedOperation = null
@@ -165,7 +167,7 @@ internal class MediaSessionController(
             OperationStatus.SUCCEEDED -> {
                 operationRequest = null
                 handoffReady = handoff != null && state.value.preview == null
-                mutable.value = state.value.copy(busy = false, message = "")
+                mutable.value = state.value.copy(busy = false, message = driveSuccess(operationCommand))
                 if (state.value.queueOpen) refreshQueue()
                 if (state.value.playlist != null) refreshPlaylist()
                 finishHandoff()
@@ -177,7 +179,9 @@ internal class MediaSessionController(
                 handoffReady = false
                 photoSelection = null
                 photoSession = null
-                val detail = value.errorCode?.wire ?: "inspect current playback before retrying"
+                val detail =
+                    driveFailure(operationCommand, value.errorCode) ?: value.errorCode?.wire
+                        ?: "inspect current state before retrying"
                 mutable.value = state.value.copy(busy = false, message = "Action ${value.status.wire}: $detail")
                 if (operationCommand?.method?.wire?.startsWith("queue.") == true) refreshQueue()
                 if (operationCommand?.method?.wire?.startsWith("playlists.") == true) refreshPlaylist()
@@ -185,6 +189,7 @@ internal class MediaSessionController(
 
             else -> {
                 sourceProgress(value)
+                driveProgress(value)
             }
         }
     }

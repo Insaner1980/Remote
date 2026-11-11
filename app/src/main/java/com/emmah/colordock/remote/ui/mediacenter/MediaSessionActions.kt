@@ -4,6 +4,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.ActivityConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.AudioConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmMethod
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
+import com.emmah.colordock.remote.mediacenter.protocol.DrivesConfirmEjectParams
 import com.emmah.colordock.remote.mediacenter.protocol.FoldersConfirmAddParams
 import com.emmah.colordock.remote.mediacenter.protocol.OperationState
 import com.emmah.colordock.remote.mediacenter.protocol.PhotosSlideshowStartParams
@@ -25,6 +26,10 @@ internal fun MediaSessionController.confirm() {
     val preview = state.value.preview ?: return
     val next =
         when (preview.confirmMethod) {
+            ConfirmMethod.DRIVES_CONFIRM_EJECT -> {
+                RemoteCommand.DrivesConfirmEject(DrivesConfirmEjectParams(preview.confirmationId))
+            }
+
             ConfirmMethod.AUDIO_CONFIRM -> {
                 RemoteCommand.AudioConfirm(AudioConfirmParams(preview.confirmationId))
             }

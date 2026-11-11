@@ -41,7 +41,7 @@ internal fun MediaSessionController.receiveFailure(
                         reply.error.code in
                             listOf(WireErrorCode.NOT_FOUND, WireErrorCode.CONFIRMATION_EXPIRED)
                     },
-            message = reply.error.message,
+            message = driveFailure(command, reply.error.code) ?: reply.error.message,
         )
     if (reply.error.code ==
         WireErrorCode.STALE_STATE
@@ -176,6 +176,11 @@ private fun MediaSessionController.preservesConfirmationHandoff(
 
 internal fun MediaSessionController.receiveSourceResult(result: RemoteResult): Boolean =
     when (result) {
+        is RemoteResult.DrivesPrepareEject -> {
+            receivePreparation(result.value)
+            true
+        }
+
         is RemoteResult.FoldersPrepareAdd -> {
             receivePreparation(result.value)
             true
@@ -186,12 +191,19 @@ internal fun MediaSessionController.receiveSourceResult(result: RemoteResult): B
             true
         }
 
+        is RemoteResult.DrivesConfirmEject,
         is RemoteResult.FoldersConfirmAdd,
         is RemoteResult.SourcesConfirmRemove,
         is RemoteResult.SourcesConfirmReattachment,
         -> {
             mutable.value = state.value.copy(preview = null)
             reconcileOperation()
+            true
+        }
+
+        is RemoteResult.OperationsCancel -> {
+            reconcileOperation()
+            if (state.value.busy) message("Cancellation requested. Waiting for native completion.")
             true
         }
 
