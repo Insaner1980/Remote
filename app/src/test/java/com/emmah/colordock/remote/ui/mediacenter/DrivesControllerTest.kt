@@ -1,5 +1,7 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import com.emmah.colordock.remote.mediacenter.DriveWork
+import com.emmah.colordock.remote.mediacenter.PendingCommand
 import com.emmah.colordock.remote.mediacenter.RecoveryFixture
 import com.emmah.colordock.remote.mediacenter.protocol.AcceptedResult
 import com.emmah.colordock.remote.mediacenter.protocol.ActionKind
@@ -135,5 +137,31 @@ class DrivesControllerTest {
                 .label,
         )
         assertTrue(sent.all { it.command is RemoteCommand.DrivesList })
+    }
+
+    @Test fun reconstructedControllerShowsPriorNativeOutcomeWithoutSendingAnotherDriveCommand() {
+        val sent = mutableListOf<McRequest>()
+        val controller = DrivesController { sent.add(it) }
+        val record =
+            PendingCommand(
+                "server",
+                "request",
+                "epoch",
+                "op",
+                OperationStatus.FAILED,
+                true,
+                "phone",
+                driveWork = DriveWork.EJECT,
+                driveErrorCode = WireErrorCode.LOCAL_AUTHORIZATION_REQUIRED,
+                driveObserved = true,
+            )
+        controller.recovery.observe(RemoteJson.parseSnapshot(RecoveryFixture.snapshot()), listOf(record), "phone")
+        assertTrue(
+            controller.recovery.state.value
+                .single()
+                .message
+                .contains("authorization on the computer"),
+        )
+        assertTrue(sent.isEmpty())
     }
 }

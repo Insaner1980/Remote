@@ -24,14 +24,18 @@ import androidx.compose.ui.test.then
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.emmah.colordock.remote.mediacenter.DriveWork
+import com.emmah.colordock.remote.mediacenter.PendingCommand
 import com.emmah.colordock.remote.mediacenter.protocol.AcceptedResult
 import com.emmah.colordock.remote.mediacenter.protocol.ActionKind
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityPreparation
 import com.emmah.colordock.remote.mediacenter.protocol.Availability
+import com.emmah.colordock.remote.mediacenter.protocol.CancellationAck
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmMethod
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationPreview
 import com.emmah.colordock.remote.mediacenter.protocol.Drive
 import com.emmah.colordock.remote.mediacenter.protocol.DriveVolume
+import com.emmah.colordock.remote.mediacenter.protocol.DrivesConfirmEjectParams
 import com.emmah.colordock.remote.mediacenter.protocol.Expected
 import com.emmah.colordock.remote.mediacenter.protocol.McReply
 import com.emmah.colordock.remote.mediacenter.protocol.McRequest
@@ -43,6 +47,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
 import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
 import com.emmah.colordock.remote.ui.RemoteTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -162,10 +167,128 @@ class DrivesScreenTest {
         compose.onNodeWithText("Use the computer to authorize", substring = true).performScrollTo().assertIsDisplayed()
     }
 
+    @Test fun disconnectedAcceptedEjectShowsRecoveredTerminalOutcomeInCanonicalSettings() {
+        val sent = mutableListOf<McRequest>()
+        val recovery = RecoveredDrives()
+        lateinit var media: MediaSessionController
+        compose.setContent {
+            val work by recovery.state.collectAsState()
+            DriveTarget({ sent.add(it) }, { media = it }, work)
+        }
+        val cases =
+            listOf(
+                Triple(OperationStatus.SUCCEEDED, null, "Earlier safe-removal operation completed"),
+                Triple(OperationStatus.FAILED, WireErrorCode.BUSY, "Close its files"),
+                Triple(
+                    OperationStatus.FAILED,
+                    WireErrorCode.LOCAL_AUTHORIZATION_REQUIRED,
+                    "authorization on the computer",
+                ),
+                Triple(OperationStatus.OUTCOME_UNKNOWN, WireErrorCode.OUTCOME_UNKNOWN, "outcome is unknown"),
+            )
+        cases.forEach { (status, code, message) ->
+            compose.runOnIdle {
+                val request = reconnectAcceptedDrive(media, sent, recovery)
+                recovery.receive(
+                    McReply.Success(
+                        "lookup",
+                        RemoteResult.OperationsGet(OperationState("eject-op", request, status, code, false)),
+                    ),
+                )
+            }
+            compose.onNodeWithText(message, substring = true).performScrollTo().assertIsDisplayed()
+        }
+        compose.runOnIdle {
+            assertEquals(cases.size, sent.count { it.command is RemoteCommand.DrivesConfirmEject })
+            assertFalse(sent.any { it.command is RemoteCommand.DrivesMount })
+        }
+    }
+
+    @Test fun recoveredRunningDriveUsesNativeCancelIdAndAckDoesNotCompleteIt() {
+        val sent = mutableListOf<McRequest>()
+        val recovery = RecoveredDrives()
+        lateinit var media: MediaSessionController
+        var request = ""
+        compose.setContent {
+            val work by recovery.state.collectAsState()
+            DriveTarget({ sent.add(it) }, { media = it }, work)
+        }
+        compose.runOnIdle {
+            request = reconnectAcceptedDrive(media, sent, recovery)
+            assertTrue(recovery.state.value.isEmpty())
+            recovery.receive(
+                McReply.Success(
+                    "lookup",
+                    RemoteResult.OperationsGet(
+                        OperationState("eject-op", request, OperationStatus.RUNNING, cancellationRequested = false),
+                    ),
+                ),
+            )
+        }
+        compose.onNodeWithText("Cancel recovered drive operation").performScrollTo().performClick()
+        compose.runOnIdle {
+            val cancel = sent.last().command as RemoteCommand.OperationsCancel
+            assertEquals("eject-op", cancel.params.operationId)
+            media.receive(McReply.Success(sent.last().id, RemoteResult.OperationsCancel(CancellationAck(true))))
+            assertTrue(
+                recovery.state.value
+                    .single()
+                    .running,
+            )
+            recovery.receive(
+                McReply.Success(
+                    "done",
+                    RemoteResult.OperationsGet(
+                        OperationState("eject-op", request, OperationStatus.CANCELLED, cancellationRequested = true),
+                    ),
+                ),
+            )
+        }
+        compose
+            .onNodeWithText(
+                "Earlier drive operation was cancelled",
+                substring = true,
+            ).performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(1, sent.count { it.command is RemoteCommand.DrivesConfirmEject }) }
+    }
+
+    private fun reconnectAcceptedDrive(
+        media: MediaSessionController,
+        sent: List<McRequest>,
+        recovery: RecoveredDrives,
+    ): String {
+        media.command(RemoteCommand.DrivesConfirmEject(DrivesConfirmEjectParams("confirmation")))
+        val request = sent.last().id
+        media.receive(
+            McReply.Success(
+                request,
+                RemoteResult.DrivesConfirmEject(AcceptedResult(OperationAccepted.ACCEPTED, "eject-op")),
+            ),
+        )
+        media.observe(null)
+        recovery.observe(null, emptyList(), null)
+        media.observe(phoneMediaSnapshot())
+        val record =
+            PendingCommand(
+                "server",
+                request,
+                "epoch",
+                "eject-op",
+                OperationStatus.RUNNING,
+                pairedDeviceId = "phone",
+                driveWork = DriveWork.EJECT,
+            )
+        recovery.observe(phoneMediaSnapshot(), listOf(record), "phone")
+        return request
+    }
+
     @Composable
     private fun DriveTarget(
         send: (McRequest) -> Boolean,
         capture: (MediaSessionController) -> Unit,
+        recovered: List<RecoveredDrive> = emptyList(),
     ) {
         val scope = rememberCoroutineScope()
         val media =
@@ -189,7 +312,12 @@ class DrivesScreenTest {
             }
         RemoteTheme {
             MediacenterTargetContent(
-                MediaTargetState(state, LibraryState(), AudioSettingsState(), drives = driveState()),
+                MediaTargetState(
+                    state,
+                    LibraryState(),
+                    AudioSettingsState(),
+                    drives = driveState().copy(recovered = recovered),
+                ),
                 controllers,
                 { null },
             )

@@ -80,6 +80,7 @@ fun MediacenterTargetPage(
     val sources = remember(repository) { SourcesController(repository::send) }
     val drives = remember(repository) { DrivesController(repository::send) }
     val driveState by drives.state.collectAsState()
+    val recoveredDrives by drives.recovery.state.collectAsState()
     val folderState by folders.state.collectAsState()
     val sourceState by sources.state.collectAsState()
     val recoveredScans by sources.recovered.state.collectAsState()
@@ -92,6 +93,7 @@ fun MediacenterTargetPage(
     val controllers = MediaTargetControllers(media, library, renderer, audio, folders, sources, drives)
     ObserveMediaTarget(repository, controllers)
     ObserveSourceRecovery(repository, sources)
+    ObserveDriveRecovery(repository, drives)
     val thumbnail: suspend (
         String,
     ) -> ByteArray? =
@@ -116,7 +118,7 @@ fun MediacenterTargetPage(
                 sound,
                 folderState,
                 sourceState.copy(recoveredScans = recoveredScans),
-                driveState,
+                driveState.copy(recovered = recoveredDrives),
             ),
             controllers,
             thumbnail,
@@ -150,7 +152,13 @@ internal fun MediacenterTargetContent(
             }
         }
         Column(Modifier.weight(1f).verticalScroll(contentScroll).padding(16.dp)) {
-            if (state.message.isNotEmpty()) Text(state.message)
+            val hasDriveOutcome =
+                model.drives.recovered.isNotEmpty() &&
+                    media.operationCommand
+                        ?.method
+                        ?.wire
+                        ?.startsWith("drives.") == true
+            if (state.message.isNotEmpty() && !hasDriveOutcome) Text(state.message)
             if (state.snapshot == null) Text("Reconnect using Mediacenter Connection settings, then refresh.")
             when (state.destination) {
                 MediaDestination.Remote -> {
@@ -454,6 +462,7 @@ private fun TargetDrives(
     val operation =
         media.observedOperation?.takeIf {
             it.status in listOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING) &&
+                model.drives.recovered.none { recovered -> recovered.operation.operationId == it.operationId } &&
                 (
                     media.operationCommand is RemoteCommand.DrivesMount ||
                         media.operationCommand is RemoteCommand.DrivesConfirmEject
@@ -461,7 +470,7 @@ private fun TargetDrives(
         }
     DrivesScreen(
         model.drives,
-        model.media.busy,
+        model.media.busy || model.drives.recovered.any { it.running },
         DriveActions(
             drives::refresh,
             { media.command(RemoteCommand.DrivesMount(DrivesMountParams(it))) },
@@ -473,6 +482,24 @@ private fun TargetDrives(
                     )
                 }
             },
+            { media.command(RemoteCommand.OperationsCancel(OperationsCancelParams(operationId = it))) },
         ),
     )
+}
+
+@Composable
+private fun ObserveDriveRecovery(
+    repository: MediacenterRepository,
+    drives: DrivesController,
+) {
+    LaunchedEffect(repository, drives) {
+        combine(repository.snapshot, repository.state, repository.pending) { snapshot, connection, pending ->
+            snapshot.takeIf { connection == MediacenterConnectionState.Connected } to pending
+        }.collect { (snapshot, pending) ->
+            drives.recovery.observe(snapshot, pending, repository.pairedDeviceId)
+        }
+    }
+    DisposableEffect(drives) {
+        onDispose { drives.recovery.observe(null, emptyList(), null) }
+    }
 }

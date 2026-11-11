@@ -5,4 +5,5 @@ internal data class DriveActions(
     val mount: (String) -> Unit,
     val eject: (String) -> Unit,
     val cancel: (() -> Unit)? = null,
+    val cancelRecovered: (String) -> Unit = {},
 )

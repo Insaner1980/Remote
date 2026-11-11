@@ -13,6 +13,7 @@ import java.util.UUID
 
 internal data class DrivesState(
     val items: List<Drive> = emptyList(),
+    val recovered: List<RecoveredDrive> = emptyList(),
     val connected: Boolean = false,
     val loading: Boolean = false,
     val message: String = "Connect to manage drives.",
@@ -22,6 +23,7 @@ internal data class DrivesState(
 internal class DrivesController(
     private val send: (McRequest) -> Boolean,
 ) {
+    val recovery = RecoveredDrives()
     private val mutable = MutableStateFlow(DrivesState())
     val state = mutable.asStateFlow()
     private var epoch: String? = null
@@ -68,6 +70,7 @@ internal class DrivesController(
     }
 
     fun receive(reply: McReply) {
+        recovery.receive(reply)
         if (reply.id != pending) return
         pending = null
         mutable.value =

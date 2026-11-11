@@ -20,6 +20,7 @@ internal fun DrivesScreen(
         if (state.message.isNotEmpty()) Text(state.message)
         TextButton(onClick = actions.refresh, enabled = state.connected && !state.loading) { Text("Refresh drives") }
         if (state.connected && !state.loading && state.items.isEmpty()) Text("No removable drives found.")
+        RecoveredDriveRows(state, actions)
         state.items.forEach { drive ->
             Text(drive.label)
             drive.volumes.forEach { volume ->
@@ -36,6 +37,24 @@ internal fun DrivesScreen(
         }
         actions.cancel?.let { cancel ->
             TextButton(onClick = cancel, enabled = state.connected) { Text("Cancel drive operation") }
+        }
+    }
+}
+
+@Composable
+private fun RecoveredDriveRows(
+    state: DrivesState,
+    actions: DriveActions,
+) {
+    state.recovered.forEach { work ->
+        Text(work.message)
+        if (work.running) {
+            TextButton(
+                onClick = { actions.cancelRecovered(work.operation.operationId) },
+                enabled = state.connected && !work.operation.cancellationRequested,
+            ) {
+                Text("Cancel recovered drive operation")
+            }
         }
     }
 }

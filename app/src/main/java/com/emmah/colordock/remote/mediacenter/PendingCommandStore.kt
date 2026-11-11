@@ -1,6 +1,7 @@
 package com.emmah.colordock.remote.mediacenter
 
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
+import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -9,6 +10,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 enum class SourceScanWork { SCAN }
+
+enum class DriveWork { MOUNT, EJECT }
 
 data class PendingCommand(
     val serverId: String,
@@ -20,6 +23,9 @@ data class PendingCommand(
     val pairedDeviceId: String = "",
     val cancellationRequested: Boolean = false,
     val sourceScanWork: SourceScanWork? = null,
+    val driveWork: DriveWork? = null,
+    val driveErrorCode: WireErrorCode? = null,
+    val driveObserved: Boolean = false,
 )
 
 interface PendingCommandStore {
@@ -49,6 +55,9 @@ class FilePendingCommandStore(
                 item.getString("pairedDeviceId"),
                 item.optBoolean("cancellationRequested", false),
                 item.optString("sourceScanWork").takeIf { it == "scan" }?.let { SourceScanWork.SCAN },
+                DriveWork.entries.firstOrNull { it.name.lowercase() == item.optString("driveWork") },
+                WireErrorCode.entries.firstOrNull { it.wire == item.optString("driveErrorCode") },
+                item.optBoolean("driveObserved", false),
             )
         }
     }
@@ -66,6 +75,9 @@ class FilePendingCommandStore(
                         .put("pairedDeviceId", command.pairedDeviceId)
                         .put("cancellationRequested", command.cancellationRequested)
                         .put("sourceScanWork", command.sourceScanWork?.let { "scan" })
+                        .put("driveWork", command.driveWork?.name?.lowercase())
+                        .put("driveErrorCode", command.driveErrorCode?.takeIf { command.driveObserved }?.wire)
+                        .put("driveObserved", command.driveObserved)
                         .put("status", command.status.wire)
                         .put("resolved", command.resolved)
                 },

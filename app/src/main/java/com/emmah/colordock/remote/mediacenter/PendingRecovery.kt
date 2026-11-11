@@ -65,6 +65,7 @@ internal class PendingRecovery(
                                 epoch,
                                 pairedDeviceId = pairing.deviceId,
                                 sourceScanWork = sourceScanWork(request.command),
+                                driveWork = driveWork(request.command),
                             ),
                     )
                     true
@@ -99,7 +100,8 @@ internal class PendingRecovery(
                     require(command.operationId == null || command.operationId == operation.operationId)
                     val nonterminal = operation.status in setOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING)
                     val stale =
-                        (command.resolved && nonterminal) ||
+                        (command.driveObserved && command.resolved) ||
+                            (command.resolved && nonterminal) ||
                             (command.status == OperationStatus.RUNNING && operation.status == OperationStatus.ACCEPTED)
                     if (stale) {
                         command
@@ -109,6 +111,8 @@ internal class PendingRecovery(
                             status = operation.status,
                             resolved = !nonterminal,
                             cancellationRequested = operation.cancellationRequested,
+                            driveObserved = command.driveWork != null,
+                            driveErrorCode = operation.errorCode.takeIf { command.driveWork != null },
                         )
                     }
                 } else {
@@ -126,7 +130,16 @@ internal class PendingRecovery(
         publish(
             mutable.value.map { command ->
                 if (command.belongsTo(pairing) && command.requestId == requestId) {
-                    command.copy(status = status, resolved = true)
+                    if (command.driveObserved && command.resolved) {
+                        command
+                    } else {
+                        command.copy(
+                            status = status,
+                            resolved = true,
+                            driveObserved = false,
+                            driveErrorCode = null,
+                        )
+                    }
                 } else {
                     command
                 }
@@ -172,5 +185,12 @@ internal class PendingRecovery(
 private fun sourceScanWork(command: RemoteCommand): SourceScanWork? =
     when (command) {
         is RemoteCommand.SourcesScan, is RemoteCommand.FoldersConfirmAdd -> SourceScanWork.SCAN
+        else -> null
+    }
+
+private fun driveWork(command: RemoteCommand): DriveWork? =
+    when (command) {
+        is RemoteCommand.DrivesMount -> DriveWork.MOUNT
+        is RemoteCommand.DrivesConfirmEject -> DriveWork.EJECT
         else -> null
     }
