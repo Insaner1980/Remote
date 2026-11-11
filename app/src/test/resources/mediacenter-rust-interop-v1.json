@@ -1,0 +1,868 @@
+{
+  "dispatcher": {
+    "accepted": "{\"v\":1,\"id\":\"pause-once\",\"ok\":true,\"result\":{\"operationId\":\"67c473af-8575-465b-b3c2-49808099ae64\",\"status\":\"accepted\"}}",
+    "conflict": "{\"v\":1,\"id\":\"pause-once\",\"ok\":false,\"error\":{\"code\":\"request_id_conflict\",\"message\":\"The native operation could not be completed.\",\"retryable\":false,\"refresh\":[]}}",
+    "duplicate": "{\"v\":1,\"id\":\"pause-once\",\"ok\":true,\"result\":{\"operationId\":\"67c473af-8575-465b-b3c2-49808099ae64\",\"status\":\"accepted\"}}",
+    "effectCount": 1,
+    "request": "{\"v\":1,\"id\":\"pause-once\",\"method\":\"player.pause\",\"params\":{\"sessionId\":\"test-session\",\"paused\":true},\"expected\":{\"serverEpoch\":\"14eafab4-48f9-4a57-ba16-2ac4ce24fffb\",\"sessionId\":\"test-session\"}}",
+    "terminal": "{\"v\":1,\"id\":\"lookup\",\"ok\":true,\"result\":{\"cancellationRequested\":false,\"operationId\":\"67c473af-8575-465b-b3c2-49808099ae64\",\"requestId\":\"pause-once\",\"status\":\"succeeded\"}}"
+  },
+  "format": "mediacenter-rust-interop-v1",
+  "hello": "{\"v\":1,\"type\":\"hello\",\"minor\":0,\"serverEpoch\":\"opaque-1\",\"deviceId\":\"opaque-1\",\"version\":\"Example\",\"capabilities\":{\"methods\":[],\"services\":[],\"browserBridge\":false},\"snapshotSequence\":\"9007199254740993\"}",
+  "helloMax": "{\"v\":1,\"type\":\"hello\",\"minor\":0,\"serverEpoch\":\"opaque-1\",\"deviceId\":\"opaque-1\",\"version\":\"Example\",\"capabilities\":{\"methods\":[],\"services\":[],\"browserBridge\":false},\"snapshotSequence\":\"18446744073709551615\"}",
+  "invalidReplies": [
+    {
+      "method": "confirmations.get",
+      "wire": "{\"error\":{\"code\":\"confirmation_stale\",\"message\":\"The affected items changed. Review the new confirmation.\",\"refresh\":[\"activity\"],\"retryable\":false},\"id\":\"request-1\",\"ok\":false,\"v\":1}"
+    },
+    {
+      "method": "confirmations.get",
+      "wire": "{\"error\":{\"code\":\"confirmation_stale\",\"message\":\"The affected items changed. Review the new confirmation.\",\"refresh\":[\"activity\"],\"replacementPreview\":null,\"retryable\":false},\"id\":\"request-1\",\"ok\":false,\"v\":1}"
+    }
+  ],
+  "invalidRequests": [
+    "{'v':1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{v:1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":01,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":0x1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":+1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"},}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}} false",
+    "/*comment*/{\"v\":1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":NaN,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":Infinity,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1e999,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1,\"id\":\"\\ud800\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1,\"id\":\"\\udc00\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1,\"id\":\"a\tb\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\";\"query\":\"x\"}}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\"=\"video\"}}",
+    "{\"v\":1,\"v\":1,\"id\":\"r\",\"method\":\"state.get\",\"params\":{}}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"state.get\",\"params\":{},\"extra\":{\"x\":1,\"x\":2}}",
+    "{\"v\":1,\"id\":\"r\",\"method\":\"state.get\",\"params\":{},\"extra\":1e999}",
+    "{\"expected\":{\"queueRevision\":\"1\",\"serverEpoch\":\"e\",\"sessionId\":\"s\"},\"id\":\"r\",\"method\":\"queue.repeat\",\"params\":{\"mode\":\"surprise\"},\"v\":1}",
+    "{\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\",\"limit\":101},\"v\":1}",
+    "{\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"cursor\":\"äääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääääää\",\"kind\":\"video\"},\"v\":1}",
+    "{\"id\":\"r\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\",\"query\":\"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"browser.key\",\"params\":{\"browserSessionId\":\"b\",\"key\":\"OSCommand\",\"targetGeneration\":\"1\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"browser.text\",\"params\":{\"browserSessionId\":\"b\",\"targetGeneration\":\"1\",\"text\":\"😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"browser.pointer\",\"params\":{\"browserSessionId\":\"b\",\"inputSequence\":\"1\",\"targetGeneration\":\"1\",\"x\":1.1,\"y\":0},\"v\":1}",
+    "{\"expected\":{\"queueRevision\":\"1\",\"serverEpoch\":\"e\",\"sessionId\":\"s\"},\"id\":\"r\",\"method\":\"queue.enqueue\",\"params\":{\"itemIds\":[\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\",\"m\"]},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"devices.revoke\",\"params\":{},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"devices.revoke\",\"params\":{\"confirmationId\":\"c\",\"deviceId\":\"d\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"browser.open\",\"params\":{\"serviceId\":\"s\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"r\",\"method\":\"browser.open\",\"params\":{\"confirmationId\":\"c\",\"profileId\":\"p\",\"serviceId\":\"s\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"request-24\",\"method\":\"playlists.save\",\"params\":{\"action\":\"save_queue\",\"name\":\"Sofa queue\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"e\"},\"id\":\"request-24\",\"method\":\"playlists.save\",\"params\":{\"action\":\"append\",\"itemIds\":[\"m\"],\"playlistId\":\"p\"},\"v\":1}",
+    "{\"expected\":{\"playlistRevision\":\"4\",\"serverEpoch\":\"e\"},\"id\":\"request-24\",\"method\":\"playlists.save\",\"params\":{\"action\":\"remove\",\"entryIds\":[],\"playlistId\":\"p\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-14\",\"method\":\"queue.enqueue\",\"params\":{\"itemIds\":[\"opaque-1\"]},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-15\",\"method\":\"queue.remove\",\"params\":{\"entryId\":\"opaque-1\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-16\",\"method\":\"queue.move\",\"params\":{\"entryId\":\"opaque-1\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-17\",\"method\":\"queue.playEntry\",\"params\":{\"entryId\":\"opaque-1\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-20\",\"method\":\"queue.shuffle\",\"params\":{\"enabled\":true},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-21\",\"method\":\"queue.repeat\",\"params\":{\"mode\":\"off\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-24\",\"method\":\"playlists.save\",\"params\":{\"action\":\"save_queue\",\"name\":\"Sofa queue\"},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-79\",\"method\":\"operations.cancel\",\"params\":{},\"v\":1}",
+    "{\"expected\":{\"serverEpoch\":\"opaque-1\"},\"id\":\"request-79\",\"method\":\"operations.cancel\",\"params\":{\"operationId\":\"operation-1\",\"requestId\":\"submitted-request-1\"},\"v\":1}",
+    "{\"extra\":\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"id\":\"oversize\",\"method\":\"state.get\",\"params\":{},\"v\":1}"
+  ],
+  "reducer": {
+    "event": "{\"topic\":\"player\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740994\",\"data\":{\"revision\":\"9007199254740994\",\"phase\":\"paused\",\"positionSeconds\":0.0,\"volume\":0.0,\"muted\":false,\"audioTracks\":[],\"subtitleTracks\":[]}}",
+    "gap": "{\"topic\":\"player\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740996\",\"data\":{\"revision\":\"9007199254740994\",\"phase\":\"paused\",\"positionSeconds\":0.0,\"volume\":0.0,\"muted\":false,\"audioTracks\":[],\"subtitleTracks\":[]}}",
+    "hello": "{\"v\":1,\"type\":\"hello\",\"minor\":0,\"serverEpoch\":\"opaque-1\",\"deviceId\":\"opaque-1\",\"version\":\"Example\",\"capabilities\":{\"methods\":[],\"services\":[],\"browserBridge\":false},\"snapshotSequence\":\"9007199254740993\"}",
+    "snapshot": "{\"v\":1,\"type\":\"snapshot\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740993\",\"connection\":{\"revision\":\"9007199254740993\",\"serverDeviceId\":\"opaque-1\",\"displayName\":\"Example\"},\"activity\":{\"revision\":\"9007199254740993\",\"mode\":\"idle\"},\"player\":{\"revision\":\"9007199254740993\",\"phase\":\"idle\",\"positionSeconds\":0.0,\"volume\":0.0,\"muted\":false,\"audioTracks\":[],\"subtitleTracks\":[]},\"queueSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"shuffle\":false,\"repeat\":\"off\"},\"slideshow\":{\"revision\":\"9007199254740993\",\"paused\":false,\"intervalSeconds\":1,\"shuffle\":false,\"fit\":\"fit\"},\"outputs\":{\"revision\":\"9007199254740993\",\"unavailable\":false,\"outputs\":[]},\"sourcesSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"scanning\":false},\"vpn\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0},\"ui\":{\"revision\":\"9007199254740993\",\"available\":false},\"operations\":{\"revision\":\"9007199254740993\",\"items\":[]}}"
+  },
+  "replies": [
+    {
+      "method": "state.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"v\":1,\"type\":\"snapshot\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740993\",\"connection\":{\"revision\":\"9007199254740993\",\"serverDeviceId\":\"opaque-1\",\"displayName\":\"Example\"},\"activity\":{\"revision\":\"9007199254740993\",\"mode\":\"video\",\"sessionId\":\"session-1\",\"title\":\"Sample video\"},\"player\":{\"revision\":\"9007199254740993\",\"sessionId\":\"session-1\",\"itemId\":\"media-1\",\"phase\":\"paused\",\"positionSeconds\":12.5,\"durationSeconds\":90.0,\"volume\":50.0,\"muted\":false,\"audioTracks\":[{\"id\":\"track-1\",\"label\":\"Sample audio\",\"selected\":true}],\"subtitleTracks\":[]},\"queueSummary\":{\"revision\":\"9007199254740993\",\"count\":\"1\",\"shuffle\":false,\"repeat\":\"off\"},\"slideshow\":{\"revision\":\"9007199254740993\",\"paused\":false,\"intervalSeconds\":1,\"shuffle\":false,\"fit\":\"fit\"},\"outputs\":{\"revision\":\"9007199254740993\",\"effectiveOutputId\":\"output-1\",\"unavailable\":false,\"outputs\":[{\"id\":\"output-1\",\"name\":\"Sample HDMI output\",\"available\":true}]},\"sourcesSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"scanning\":false},\"vpn\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0},\"ui\":{\"revision\":\"9007199254740993\",\"available\":true,\"rendererGeneration\":\"1\",\"route\":\"videos\",\"focusId\":\"media-1\",\"focusRevision\":\"2\"},\"operations\":{\"revision\":\"9007199254740993\",\"items\":[]}}}"
+    },
+    {
+      "method": "capabilities.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"methods\":[],\"services\":[],\"browserBridge\":false}}"
+    },
+    {
+      "method": "library.query",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "library.item",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"id\":\"opaque-1\",\"sourceId\":\"opaque-1\",\"kind\":\"video\",\"name\":\"Sample label\",\"availability\":\"available\"}}"
+    },
+    {
+      "method": "player.play",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.pause",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.seek",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.volume",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.mute",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.audioTrack",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.subtitleTrack",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.stop",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"items\":[]}}"
+    },
+    {
+      "method": "queue.enqueue",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.remove",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.move",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.playEntry",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.next",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.previous",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.shuffle",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.repeat",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "playlists.list",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "playlists.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"playlist\":{\"id\":\"opaque-1\",\"name\":\"Sample name\",\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\"},\"entries\":{\"revision\":\"9007199254740993\",\"items\":[]}}}"
+    },
+    {
+      "method": "playlists.save",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "playlists.delete",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "playlists.play",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.show",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.slideshow.start",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.next",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.previous",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.pause",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.interval",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.shuffle",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.fit",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.stop",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.prepare",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"replace_activity\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"activity.confirm\"}}}"
+    },
+    {
+      "method": "activity.confirm",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.showMenu",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"request-1\"}}"
+    },
+    {
+      "method": "activity.showPlayback",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"request-1\"}}"
+    },
+    {
+      "method": "ui.navigate",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "ui.moveFocus",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "ui.activate",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "ui.back",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "ui.search",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "audio.outputs",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"unavailable\":false,\"outputs\":[]}}"
+    },
+    {
+      "method": "audio.prepare",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"change_audio\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"audio.confirm\"}}}"
+    },
+    {
+      "method": "audio.confirm",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "audio.test",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.list",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"items\":[]}}"
+    },
+    {
+      "method": "folders.roots",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "folders.children",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "folders.prepareAdd",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"add_source\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"folders.confirmAdd\"}}}"
+    },
+    {
+      "method": "folders.confirmAdd",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.scan",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.cancelScan",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "sources.prepareRemove",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"remove_source\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"sources.confirmRemove\"}}}"
+    },
+    {
+      "method": "sources.confirmRemove",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.confirmReattachment",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "drives.list",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"items\":[]}}"
+    },
+    {
+      "method": "drives.mount",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "drives.prepareEject",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"eject_drive\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"drives.confirmEject\"}}}"
+    },
+    {
+      "method": "drives.confirmEject",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "vpn.state",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0}}"
+    },
+    {
+      "method": "vpn.countries",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "vpn.prepareChange",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"change_vpn\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"vpn.confirmChange\"}}}"
+    },
+    {
+      "method": "vpn.confirmChange",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "vpn.requirement.set",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.open",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"enroll_browser\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"browser.open\"}}}"
+    },
+    {
+      "method": "browser.state",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"browserSessionId\":\"browser-1\",\"targetGeneration\":\"4\",\"enrolled\":false,\"capabilities\":{\"pointer\":false,\"keyboard\":false,\"text\":false,\"semanticPause\":false,\"semanticSeek\":false,\"semanticVolume\":false},\"pendingConfirmation\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"approve_browser_origin\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"browserContext\":{\"browserSessionId\":\"browser-1\",\"targetGeneration\":\"4\",\"hostname\":\"login.example.org\"},\"confirmMethod\":\"browser.open\"}}}"
+    },
+    {
+      "method": "browser.pointer",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.click",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.scroll",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.key",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.text",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.back",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.reload",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.close",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"requestId\":\"opaque-1\",\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"operationId\":\"opaque-1\",\"requestId\":\"opaque-1\",\"status\":\"accepted\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.cancel",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "confirmations.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"replace_activity\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"activity.confirm\"}}"
+    },
+    {
+      "method": "confirmations.cancel",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "settings.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"revision\":\"9007199254740993\",\"theme\":\"dark\",\"startAtLogin\":false,\"servicePreferences\":[{\"serviceId\":\"netflix\",\"label\":\"Netflix\",\"vpnRequired\":true}],\"connectionDiagnostics\":{\"selectedInterface\":\"wlan0\",\"listener\":\"listening\",\"discovery\":\"announced\",\"vpnVersion\":\"3.20.1\"},\"idleInhibition\":\"unavailable\"}}"
+    },
+    {
+      "method": "settings.theme.set",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "settings.startAtLogin.set",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "settings.endSession",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"end_session\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"settings.endSession\"}}}"
+    },
+    {
+      "method": "devices.list",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"items\":[]}}"
+    },
+    {
+      "method": "devices.revoke",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"revoke_device\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"devices.revoke\"}}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"begin_pairing\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"pairing.begin\"}}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"confirmation_required\",\"preview\":{\"confirmationId\":\"opaque-1\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"begin_pairing\",\"affectedLabels\":[],\"expected\":{},\"expiresInMs\":60000,\"confirmMethod\":\"pairing.begin\"}}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"ready\",\"operationId\":\"operation-1\",\"candidate\":{\"v\":1,\"deviceId\":\"desktop-1\",\"addresses\":[\"192.168.1.20\",\"fe80::1%eth0\"],\"port\":47831,\"certificateFingerprint\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"attemptId\":\"attempt-1\",\"secret\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"already_issued\",\"operationId\":\"operation-1\"}}"
+    },
+    {
+      "method": "confirmations.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":false,\"error\":{\"code\":\"confirmation_stale\",\"message\":\"The affected items changed. Review the new confirmation.\",\"retryable\":false,\"refresh\":[\"activity\"],\"replacementPreview\":{\"confirmationId\":\"confirmation-fresh-2\",\"ownerDeviceId\":\"opaque-1\",\"action\":\"replace_activity\",\"affectedLabels\":[],\"expected\":{\"serverEpoch\":\"epoch-1\",\"queueRevision\":\"2\"},\"expiresInMs\":60000,\"confirmMethod\":\"activity.confirm\"}}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"qr-fixture\",\"ok\":true,\"result\":{\"status\":\"ready\",\"operationId\":\"op-qr\",\"candidate\":{\"v\":1,\"deviceId\":\"desktop-1\",\"addresses\":[\"192.168.1.20\",\"fe80::1%eth0\"],\"port\":47831,\"certificateFingerprint\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"attemptId\":\"attempt-1\",\"secret\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"},\"qrRows\":[\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\",\"000000000000000000000\"]}}"
+    },
+    {
+      "method": "activity.prepare",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"ok\":true,\"result\":{\"status\":\"accepted\",\"operation\":{\"operationId\":\"operation-1\"}}}"
+    },
+    {
+      "method": "photos.slideshow.start",
+      "wire": "{\"v\":1,\"id\":\"photo-selection-too-large\",\"ok\":false,\"error\":{\"code\":\"selection_too_large\",\"message\":\"Choose at most 10,000 photos.\",\"retryable\":false,\"refresh\":[]}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"accepted\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"running\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"succeeded\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"failed\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"cancelled\",\"cancellationRequested\":false}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"journal\",\"ok\":true,\"result\":{\"operationId\":\"operation-1\",\"requestId\":\"request-1\",\"status\":\"outcome_unknown\",\"cancellationRequested\":false}}"
+    }
+  ],
+  "requests": [
+    {
+      "method": "state.get",
+      "wire": "{\"v\":1,\"id\":\"request-1\",\"method\":\"state.get\",\"params\":{}}"
+    },
+    {
+      "method": "capabilities.get",
+      "wire": "{\"v\":1,\"id\":\"request-2\",\"method\":\"capabilities.get\",\"params\":{}}"
+    },
+    {
+      "method": "library.query",
+      "wire": "{\"v\":1,\"id\":\"request-3\",\"method\":\"library.query\",\"params\":{\"kind\":\"video\"}}"
+    },
+    {
+      "method": "library.item",
+      "wire": "{\"v\":1,\"id\":\"request-4\",\"method\":\"library.item\",\"params\":{\"itemId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.play",
+      "wire": "{\"v\":1,\"id\":\"request-5\",\"method\":\"player.play\",\"params\":{\"itemId\":\"opaque-1\",\"start\":\"resume\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.pause",
+      "wire": "{\"v\":1,\"id\":\"request-6\",\"method\":\"player.pause\",\"params\":{\"sessionId\":\"opaque-1\",\"paused\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.seek",
+      "wire": "{\"v\":1,\"id\":\"request-7\",\"method\":\"player.seek\",\"params\":{\"sessionId\":\"opaque-1\",\"positionSeconds\":0.0},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.volume",
+      "wire": "{\"v\":1,\"id\":\"request-8\",\"method\":\"player.volume\",\"params\":{\"sessionId\":\"opaque-1\",\"volume\":0.0},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.mute",
+      "wire": "{\"v\":1,\"id\":\"request-9\",\"method\":\"player.mute\",\"params\":{\"sessionId\":\"opaque-1\",\"muted\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.audioTrack",
+      "wire": "{\"v\":1,\"id\":\"request-10\",\"method\":\"player.audioTrack\",\"params\":{\"sessionId\":\"opaque-1\",\"trackId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.subtitleTrack",
+      "wire": "{\"v\":1,\"id\":\"request-11\",\"method\":\"player.subtitleTrack\",\"params\":{\"sessionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "player.stop",
+      "wire": "{\"v\":1,\"id\":\"request-12\",\"method\":\"player.stop\",\"params\":{\"sessionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "queue.get",
+      "wire": "{\"v\":1,\"id\":\"request-13\",\"method\":\"queue.get\",\"params\":{}}"
+    },
+    {
+      "method": "queue.enqueue",
+      "wire": "{\"v\":1,\"id\":\"request-14\",\"method\":\"queue.enqueue\",\"params\":{\"itemIds\":[\"opaque-1\"]},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.remove",
+      "wire": "{\"v\":1,\"id\":\"request-15\",\"method\":\"queue.remove\",\"params\":{\"entryId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.move",
+      "wire": "{\"v\":1,\"id\":\"request-16\",\"method\":\"queue.move\",\"params\":{\"entryId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.playEntry",
+      "wire": "{\"v\":1,\"id\":\"request-17\",\"method\":\"queue.playEntry\",\"params\":{\"entryId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.next",
+      "wire": "{\"v\":1,\"id\":\"request-18\",\"method\":\"queue.next\",\"params\":{},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.previous",
+      "wire": "{\"v\":1,\"id\":\"request-19\",\"method\":\"queue.previous\",\"params\":{},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.shuffle",
+      "wire": "{\"v\":1,\"id\":\"request-20\",\"method\":\"queue.shuffle\",\"params\":{\"enabled\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "queue.repeat",
+      "wire": "{\"v\":1,\"id\":\"request-21\",\"method\":\"queue.repeat\",\"params\":{\"mode\":\"off\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "playlists.list",
+      "wire": "{\"v\":1,\"id\":\"request-22\",\"method\":\"playlists.list\",\"params\":{\"query\":\"Road\"}}"
+    },
+    {
+      "method": "playlists.get",
+      "wire": "{\"v\":1,\"id\":\"request-23\",\"method\":\"playlists.get\",\"params\":{\"playlistId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "playlists.save",
+      "wire": "{\"v\":1,\"id\":\"request-24\",\"method\":\"playlists.save\",\"params\":{\"action\":\"save_queue\",\"name\":\"Sofa queue\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\",\"queueRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "playlists.delete",
+      "wire": "{\"v\":1,\"id\":\"request-25\",\"method\":\"playlists.delete\",\"params\":{\"playlistId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"playlistRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "playlists.play",
+      "wire": "{\"v\":1,\"id\":\"request-26\",\"method\":\"playlists.play\",\"params\":{\"playlistId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"playlistRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "photos.show",
+      "wire": "{\"v\":1,\"id\":\"request-27\",\"method\":\"photos.show\",\"params\":{\"itemId\":\"opaque-1\",\"selectionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.slideshow.start",
+      "wire": "{\"v\":1,\"id\":\"request-28\",\"method\":\"photos.slideshow.start\",\"params\":{\"selectionId\":\"opaque-1\",\"intervalSeconds\":1},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.next",
+      "wire": "{\"v\":1,\"id\":\"request-29\",\"method\":\"photos.next\",\"params\":{\"sessionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.previous",
+      "wire": "{\"v\":1,\"id\":\"request-30\",\"method\":\"photos.previous\",\"params\":{\"sessionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.pause",
+      "wire": "{\"v\":1,\"id\":\"request-31\",\"method\":\"photos.pause\",\"params\":{\"sessionId\":\"opaque-1\",\"paused\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.interval",
+      "wire": "{\"v\":1,\"id\":\"request-32\",\"method\":\"photos.interval\",\"params\":{\"sessionId\":\"opaque-1\",\"intervalSeconds\":1},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.shuffle",
+      "wire": "{\"v\":1,\"id\":\"request-33\",\"method\":\"photos.shuffle\",\"params\":{\"sessionId\":\"opaque-1\",\"enabled\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.fit",
+      "wire": "{\"v\":1,\"id\":\"request-34\",\"method\":\"photos.fit\",\"params\":{\"sessionId\":\"opaque-1\",\"fit\":\"fit\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "photos.stop",
+      "wire": "{\"v\":1,\"id\":\"request-35\",\"method\":\"photos.stop\",\"params\":{\"sessionId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.prepare",
+      "wire": "{\"v\":1,\"id\":\"request-36\",\"method\":\"activity.prepare\",\"params\":{\"kind\":\"video\",\"itemId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.confirm",
+      "wire": "{\"v\":1,\"id\":\"request-37\",\"method\":\"activity.confirm\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.showMenu",
+      "wire": "{\"v\":1,\"id\":\"request-38\",\"method\":\"activity.showMenu\",\"params\":{},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "activity.showPlayback",
+      "wire": "{\"v\":1,\"id\":\"request-39\",\"method\":\"activity.showPlayback\",\"params\":{},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sessionId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "ui.navigate",
+      "wire": "{\"v\":1,\"id\":\"request-40\",\"method\":\"ui.navigate\",\"params\":{\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\",\"route\":\"home\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "ui.moveFocus",
+      "wire": "{\"v\":1,\"id\":\"request-41\",\"method\":\"ui.moveFocus\",\"params\":{\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\",\"direction\":\"up\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "ui.activate",
+      "wire": "{\"v\":1,\"id\":\"request-42\",\"method\":\"ui.activate\",\"params\":{\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\",\"focusId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "ui.back",
+      "wire": "{\"v\":1,\"id\":\"request-43\",\"method\":\"ui.back\",\"params\":{\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "ui.search",
+      "wire": "{\"v\":1,\"id\":\"request-44\",\"method\":\"ui.search\",\"params\":{\"rendererGeneration\":\"9007199254740993\",\"focusRevision\":\"9007199254740993\",\"route\":\"home\",\"text\":\"\",\"editSequence\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "audio.outputs",
+      "wire": "{\"v\":1,\"id\":\"request-45\",\"method\":\"audio.outputs\",\"params\":{}}"
+    },
+    {
+      "method": "audio.prepare",
+      "wire": "{\"v\":1,\"id\":\"request-46\",\"method\":\"audio.prepare\",\"params\":{\"outputId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "audio.confirm",
+      "wire": "{\"v\":1,\"id\":\"request-47\",\"method\":\"audio.confirm\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "audio.test",
+      "wire": "{\"v\":1,\"id\":\"request-48\",\"method\":\"audio.test\",\"params\":{\"outputId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.list",
+      "wire": "{\"v\":1,\"id\":\"request-49\",\"method\":\"sources.list\",\"params\":{}}"
+    },
+    {
+      "method": "folders.roots",
+      "wire": "{\"v\":1,\"id\":\"request-50\",\"method\":\"folders.roots\",\"params\":{}}"
+    },
+    {
+      "method": "folders.children",
+      "wire": "{\"v\":1,\"id\":\"request-51\",\"method\":\"folders.children\",\"params\":{\"nodeId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "folders.prepareAdd",
+      "wire": "{\"v\":1,\"id\":\"request-52\",\"method\":\"folders.prepareAdd\",\"params\":{\"nodeId\":\"opaque-1\",\"kinds\":[\"video\"]},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sourcesRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "folders.confirmAdd",
+      "wire": "{\"v\":1,\"id\":\"request-53\",\"method\":\"folders.confirmAdd\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.scan",
+      "wire": "{\"v\":1,\"id\":\"request-54\",\"method\":\"sources.scan\",\"params\":{\"sourceId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sourcesRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "sources.cancelScan",
+      "wire": "{\"v\":1,\"id\":\"request-55\",\"method\":\"sources.cancelScan\",\"params\":{\"operationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.prepareRemove",
+      "wire": "{\"v\":1,\"id\":\"request-56\",\"method\":\"sources.prepareRemove\",\"params\":{\"sourceId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"sourcesRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "sources.confirmRemove",
+      "wire": "{\"v\":1,\"id\":\"request-57\",\"method\":\"sources.confirmRemove\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "sources.confirmReattachment",
+      "wire": "{\"v\":1,\"id\":\"request-58\",\"method\":\"sources.confirmReattachment\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "drives.list",
+      "wire": "{\"v\":1,\"id\":\"request-59\",\"method\":\"drives.list\",\"params\":{}}"
+    },
+    {
+      "method": "drives.mount",
+      "wire": "{\"v\":1,\"id\":\"request-60\",\"method\":\"drives.mount\",\"params\":{\"volumeId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "drives.prepareEject",
+      "wire": "{\"v\":1,\"id\":\"request-61\",\"method\":\"drives.prepareEject\",\"params\":{\"driveId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "drives.confirmEject",
+      "wire": "{\"v\":1,\"id\":\"request-62\",\"method\":\"drives.confirmEject\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "vpn.state",
+      "wire": "{\"v\":1,\"id\":\"request-63\",\"method\":\"vpn.state\",\"params\":{}}"
+    },
+    {
+      "method": "vpn.countries",
+      "wire": "{\"v\":1,\"id\":\"request-64\",\"method\":\"vpn.countries\",\"params\":{}}"
+    },
+    {
+      "method": "vpn.prepareChange",
+      "wire": "{\"v\":1,\"id\":\"request-65\",\"method\":\"vpn.prepareChange\",\"params\":{\"action\":\"connect\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"settingsRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "vpn.confirmChange",
+      "wire": "{\"v\":1,\"id\":\"request-66\",\"method\":\"vpn.confirmChange\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "vpn.requirement.set",
+      "wire": "{\"v\":1,\"id\":\"request-67\",\"method\":\"vpn.requirement.set\",\"params\":{\"serviceId\":\"opaque-1\",\"required\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"settingsRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "browser.open",
+      "wire": "{\"v\":1,\"id\":\"request-68\",\"method\":\"browser.open\",\"params\":{\"serviceId\":\"opaque-1\",\"profileId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.state",
+      "wire": "{\"v\":1,\"id\":\"request-69\",\"method\":\"browser.state\",\"params\":{}}"
+    },
+    {
+      "method": "browser.pointer",
+      "wire": "{\"v\":1,\"id\":\"request-70\",\"method\":\"browser.pointer\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\",\"x\":0.0,\"y\":0.0,\"inputSequence\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.click",
+      "wire": "{\"v\":1,\"id\":\"request-71\",\"method\":\"browser.click\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\",\"x\":0.0,\"y\":0.0,\"button\":\"left\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.scroll",
+      "wire": "{\"v\":1,\"id\":\"request-72\",\"method\":\"browser.scroll\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\",\"deltaX\":0.0,\"deltaY\":0.0,\"inputSequence\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.key",
+      "wire": "{\"v\":1,\"id\":\"request-73\",\"method\":\"browser.key\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\",\"key\":\"Enter\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.text",
+      "wire": "{\"v\":1,\"id\":\"request-74\",\"method\":\"browser.text\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\",\"text\":\"\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.back",
+      "wire": "{\"v\":1,\"id\":\"request-75\",\"method\":\"browser.back\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.reload",
+      "wire": "{\"v\":1,\"id\":\"request-76\",\"method\":\"browser.reload\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "browser.close",
+      "wire": "{\"v\":1,\"id\":\"request-77\",\"method\":\"browser.close\",\"params\":{\"browserSessionId\":\"opaque-1\",\"targetGeneration\":\"9007199254740993\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "operations.get",
+      "wire": "{\"v\":1,\"id\":\"request-78\",\"method\":\"operations.get\",\"params\":{\"requestId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "operations.cancel",
+      "wire": "{\"v\":1,\"id\":\"request-79\",\"method\":\"operations.cancel\",\"params\":{\"operationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "confirmations.get",
+      "wire": "{\"v\":1,\"id\":\"request-80\",\"method\":\"confirmations.get\",\"params\":{\"confirmationId\":\"opaque-1\"}}"
+    },
+    {
+      "method": "confirmations.cancel",
+      "wire": "{\"v\":1,\"id\":\"request-81\",\"method\":\"confirmations.cancel\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "settings.get",
+      "wire": "{\"v\":1,\"id\":\"request-82\",\"method\":\"settings.get\",\"params\":{}}"
+    },
+    {
+      "method": "settings.theme.set",
+      "wire": "{\"v\":1,\"id\":\"request-83\",\"method\":\"settings.theme.set\",\"params\":{\"theme\":\"dark\"},\"expected\":{\"serverEpoch\":\"opaque-1\",\"settingsRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "settings.startAtLogin.set",
+      "wire": "{\"v\":1,\"id\":\"request-84\",\"method\":\"settings.startAtLogin.set\",\"params\":{\"enabled\":true},\"expected\":{\"serverEpoch\":\"opaque-1\",\"settingsRevision\":\"9007199254740993\"}}"
+    },
+    {
+      "method": "settings.endSession",
+      "wire": "{\"v\":1,\"id\":\"request-85\",\"method\":\"settings.endSession\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "devices.list",
+      "wire": "{\"v\":1,\"id\":\"request-86\",\"method\":\"devices.list\",\"params\":{}}"
+    },
+    {
+      "method": "devices.revoke",
+      "wire": "{\"v\":1,\"id\":\"request-87\",\"method\":\"devices.revoke\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    },
+    {
+      "method": "pairing.begin",
+      "wire": "{\"v\":1,\"id\":\"request-88\",\"method\":\"pairing.begin\",\"params\":{\"confirmationId\":\"opaque-1\"},\"expected\":{\"serverEpoch\":\"opaque-1\"}}"
+    }
+  ],
+  "snapshotMax": "{\"v\":1,\"type\":\"snapshot\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"18446744073709551615\",\"connection\":{\"revision\":\"9007199254740993\",\"serverDeviceId\":\"opaque-1\",\"displayName\":\"Example\"},\"activity\":{\"revision\":\"9007199254740993\",\"mode\":\"idle\"},\"player\":{\"revision\":\"9007199254740993\",\"phase\":\"idle\",\"positionSeconds\":0.0,\"volume\":0.0,\"muted\":false,\"audioTracks\":[],\"subtitleTracks\":[]},\"queueSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"shuffle\":false,\"repeat\":\"off\"},\"slideshow\":{\"revision\":\"9007199254740993\",\"paused\":false,\"intervalSeconds\":1,\"shuffle\":false,\"fit\":\"fit\"},\"outputs\":{\"revision\":\"9007199254740993\",\"unavailable\":false,\"outputs\":[]},\"sourcesSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"scanning\":false},\"vpn\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0},\"ui\":{\"revision\":\"9007199254740993\",\"available\":false},\"operations\":{\"revision\":\"9007199254740993\",\"items\":[]}}",
+  "snapshots": [
+    "{\"v\":1,\"type\":\"snapshot\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740993\",\"connection\":{\"revision\":\"9007199254740993\",\"serverDeviceId\":\"opaque-1\",\"displayName\":\"Example\"},\"activity\":{\"revision\":\"9007199254740993\",\"mode\":\"idle\"},\"player\":{\"revision\":\"9007199254740993\",\"phase\":\"idle\",\"positionSeconds\":0.0,\"volume\":0.0,\"muted\":false,\"audioTracks\":[],\"subtitleTracks\":[]},\"queueSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"shuffle\":false,\"repeat\":\"off\"},\"slideshow\":{\"revision\":\"9007199254740993\",\"paused\":false,\"intervalSeconds\":1,\"shuffle\":false,\"fit\":\"fit\"},\"outputs\":{\"revision\":\"9007199254740993\",\"unavailable\":false,\"outputs\":[]},\"sourcesSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"scanning\":false},\"vpn\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0},\"ui\":{\"revision\":\"9007199254740993\",\"available\":false},\"operations\":{\"revision\":\"9007199254740993\",\"items\":[]}}",
+    "{\"v\":1,\"type\":\"snapshot\",\"serverEpoch\":\"opaque-1\",\"sequence\":\"9007199254740993\",\"connection\":{\"revision\":\"9007199254740993\",\"serverDeviceId\":\"opaque-1\",\"displayName\":\"Example\"},\"activity\":{\"revision\":\"9007199254740993\",\"mode\":\"video\",\"sessionId\":\"session-1\",\"title\":\"Sample video\"},\"player\":{\"revision\":\"9007199254740993\",\"sessionId\":\"session-1\",\"itemId\":\"media-1\",\"phase\":\"paused\",\"positionSeconds\":12.5,\"durationSeconds\":90.0,\"volume\":50.0,\"muted\":false,\"audioTracks\":[{\"id\":\"track-1\",\"label\":\"Sample audio\",\"selected\":true}],\"subtitleTracks\":[]},\"queueSummary\":{\"revision\":\"9007199254740993\",\"count\":\"1\",\"shuffle\":false,\"repeat\":\"off\"},\"slideshow\":{\"revision\":\"9007199254740993\",\"paused\":false,\"intervalSeconds\":1,\"shuffle\":false,\"fit\":\"fit\"},\"outputs\":{\"revision\":\"9007199254740993\",\"effectiveOutputId\":\"output-1\",\"unavailable\":false,\"outputs\":[{\"id\":\"output-1\",\"name\":\"Sample HDMI output\",\"available\":true}]},\"sourcesSummary\":{\"revision\":\"9007199254740993\",\"count\":\"9007199254740993\",\"scanning\":false},\"vpn\":{\"revision\":\"9007199254740993\",\"state\":\"unknown\",\"killSwitch\":\"unknown\",\"observedAtMs\":0},\"ui\":{\"revision\":\"9007199254740993\",\"available\":true,\"rendererGeneration\":\"1\",\"route\":\"videos\",\"focusId\":\"media-1\",\"focusRevision\":\"2\"},\"operations\":{\"revision\":\"9007199254740993\",\"items\":[]}}"
+  ],
+  "provenance": {
+    "baseMediacenter": "5dd0bee09028ab68d258eecffd79015e3edda2c1",
+    "baseRemote": "899edad359f06262061e2345200ef49e48f04657",
+    "sourceSha256": {
+      "MC/scripts/task21-interop.mjs": "f6ab6cb2568118430ee4653ff196e303964eb8a1d01b6650270ad832eba84cb3",
+      "MC/scripts/task21-interop.test.mjs": "24c2619f1b2d2d404b53fa81be61dc8330bbb67b2f0dab377b5603e692a6d7a3",
+      "MC/protocol/remote/v1/schema.json": "4984f317886e36bbcc6a8cf2c045f00c2f3978a9f1d3995aa119ee0dfff9b154",
+      "MC/protocol/remote/v1/fixtures.json": "b96b69c10096e429d980ef58536ffd5fafdb60235c353ae3a337cde990e93c5a",
+      "MC/protocol/remote/v1/manifest.json": "69869aac78e3f23c95fe406ae9d1a52f4401f2104e61bc2341e2592f3e9cd042",
+      "MC/src-tauri/src/remote/interop_tests.rs": "3b10f2f834749a14e595328d507d5267a3577bc6d2fea9919a9d0f924ab53a5c",
+      "MC/src-tauri/src/remote/mod.rs": "536150ae55f8e548befbc4f51e5c93085ff7bc2e02cc8ba4e9405dc92e5244e3",
+      "MC/src-tauri/src/remote/protocol.rs": "0d695e011de0249681cd8abe2093897bb3a751038dddc56efa4ac79b89d8da8b",
+      "MC/src-tauri/src/remote/protocol_json.rs": "877bf0d8f294c88fb265f4f3ab931159607de2867f12d32afed0bf2af7f93905",
+      "MC/src-tauri/src/remote/protocol_methods.rs": "b7677b5309373f5eac3c7ca782dcb0e4e8505d8293c706c40d58ccad18a9633d",
+      "MC/src-tauri/src/remote/adapters.rs": "f4f9d855dcddd4d4f5934a548f91e88ea5878ed15a69aa18ba744e9b98045374",
+      "MC/src-tauri/src/remote/dispatch.rs": "d80fb16fd3512fb4f3fbf1da252717f52217db8488a60cf3752127afbd1e35bb",
+      "MC/src-tauri/src/remote/operations.rs": "2a8f9bddab0b2aa980fd5c593dd51ee88d7178ef3eb6d940ac44204ae21947cb",
+      "MC/src-tauri/src/remote/store.rs": "a7757e8a9470b423929c01664cc4000b4c341fd8f79d5ae353fd5dc239de3c19",
+      "MC/src-tauri/src/remote/server.rs": "55fbfe35de2d4bd5d811ded3d65f3e7d08af6a2d51a8d9085c86d6f5af0da857",
+      "MC/src-tauri/src/remote/state.rs": "e727864f4fac6772cfd742551119b4c1308bac69dfe403fff6124bdb73f2f26f",
+      "MC/src-tauri/src/remote/event_hub.rs": "b8c462dae495f6f0b91c904024cb9e3fd03c8e38a5ea95e232ef0c3245bae9a4",
+      "Remote/app/src/main/java/com/emmah/colordock/remote/mediacenter/protocol/RemoteJson.kt": "7a172b15cc457dec325b0f34136b72ce42fed414df33f0b37a3fae7b27bc066d",
+      "Remote/app/src/main/java/com/emmah/colordock/remote/mediacenter/protocol/Messages.kt": "4460027d9a22ae99b81c7034978256db98aa626c14c19eb030bac83c086428f3",
+      "Remote/app/src/main/java/com/emmah/colordock/remote/mediacenter/protocol/StrictJson.kt": "4a77a5c3acaae65f14dc444c4a9647f5d6792585e7ff0240525a106a6841934f",
+      "Remote/app/src/main/java/com/emmah/colordock/remote/mediacenter/RemoteStateReducer.kt": "55913d6390545455834d47f4f7273d2f2cfb8a98027d3ddeef6d1e7c60af58c0",
+      "Remote/app/src/test/java/com/emmah/colordock/remote/mediacenter/RustInteropTest.kt": "24b15aa2372b983889cabd36f0de6ac67b71cb7b308cea39ac30a363efd5ad0a"
+    }
+  }
+}
