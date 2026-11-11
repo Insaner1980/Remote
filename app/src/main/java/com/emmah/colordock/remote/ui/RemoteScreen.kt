@@ -104,6 +104,7 @@ fun RemoteScreen(
     onLoadAppIcon: (String) -> Unit = {},
     onAppLaunchHandle: () -> Unit = {},
     onClearAppLaunchError: () -> Unit = {},
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     var powerConfirmation by rememberSaveable { mutableStateOf(false) }
     var numbers by rememberSaveable { mutableStateOf(false) }
@@ -160,6 +161,7 @@ fun RemoteScreen(
         { powerConfirmation = true },
         { numbers = true },
         modifier,
+        targetSelector,
     )
     if (powerConfirmation) {
         RemotePowerDialog({ powerConfirmation = false }, onCommand)
@@ -204,6 +206,7 @@ private fun RemoteControls(
     onPowerConfirmation: () -> Unit,
     onNumbers: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier
@@ -213,7 +216,7 @@ private fun RemoteControls(
             ).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        RemoteHeader(state, enabled, onConnection, onSettings, onPowerConfirmation)
+        RemoteHeader(state, onConnection, onSettings, onPowerConfirmation, targetSelector)
         AdaptivePair(
             first = { width ->
                 RemoteAction("LG Home", R.drawable.ic_home, enabled, {
@@ -244,40 +247,45 @@ private fun RemoteControls(
 @Composable
 private fun RemoteHeader(
     state: TvState,
-    enabled: Boolean,
     onConnection: () -> Unit,
     onSettings: () -> Unit,
     onPowerConfirmation: () -> Unit,
+    targetSelector: (@Composable () -> Unit)?,
 ) {
+    val enabled = state.connection == TvConnectionState.Ready
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        TextButton(
-            onConnection,
-            Modifier.weight(1f),
-            shape = RoundedCornerShape(0.dp),
-            contentPadding = PaddingValues(0.dp),
-        ) {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    state.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Canvas(Modifier.size(10.dp)) {
-                        drawCircle(if (enabled) Color(CONNECTED_STATUS_ARGB) else Color(UNAVAILABLE_STATUS_ARGB))
-                    }
+        if (targetSelector != null) {
+            Column(Modifier.weight(1f)) { targetSelector() }
+        } else {
+            TextButton(
+                onConnection,
+                Modifier.weight(1f),
+                shape = RoundedCornerShape(0.dp),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
-                        if (enabled) "Connected" else "TV unavailable",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        state.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Canvas(Modifier.size(10.dp)) {
+                            drawCircle(if (enabled) Color(CONNECTED_STATUS_ARGB) else Color(UNAVAILABLE_STATUS_ARGB))
+                        }
+                        Text(
+                            if (enabled) "Connected" else "TV unavailable",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -318,9 +326,9 @@ private fun RemoteTransport(
 ) {
     val muteLabel =
         when (state.muted) {
-            true -> "Unmute"
-            false -> "Mute"
-            null -> "Mute sound"
+            true -> "Unmute TV"
+            false -> "Mute TV"
+            null -> "Mute TV sound"
         }
     val mute = {
         onCommand(if (state.muted == true) TvCommand.Unmute else TvCommand.Mute)
@@ -371,7 +379,7 @@ private fun CompactTransport(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Rocker(
-            "Volume",
+            "TV volume",
             R.drawable.ic_volume_up,
             TvCommand.VolumeUp,
             TvCommand.VolumeDown,
@@ -415,7 +423,7 @@ private fun ExpandedTransport(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Rocker(
-                "Volume",
+                "TV volume",
                 R.drawable.ic_volume_up,
                 TvCommand.VolumeUp,
                 TvCommand.VolumeDown,

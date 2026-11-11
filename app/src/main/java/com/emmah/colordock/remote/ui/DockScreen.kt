@@ -85,6 +85,7 @@ fun DockScreen(
     onLocation: (WeatherLocation) -> Unit,
     modifier: Modifier = Modifier,
     onSettings: () -> Unit = {},
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     var page by rememberSaveable { mutableStateOf("home") }
     val snapshot = state.snapshot
@@ -113,9 +114,13 @@ fun DockScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Color Dock", style = MaterialTheme.typography.headlineSmall)
-                Text("Home screen settings", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (targetSelector != null) {
+                Column(Modifier.weight(1f)) { targetSelector() }
+            } else {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Color Dock", style = MaterialTheme.typography.headlineSmall)
+                    Text("Home screen settings", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
             SettingsButton(onSettings)
         }

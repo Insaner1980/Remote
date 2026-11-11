@@ -357,6 +357,30 @@ class DrivesScreenTest {
         compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
     }
 
+    @Test fun activeControllerCancellationAckKeepsOneCanonicalRecoveredWaitingStatus() {
+        val sent = mutableListOf<McRequest>()
+        val recovered = mutableStateOf(emptyList<RecoveredDrive>())
+        lateinit var media: MediaSessionController
+        compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            val waiting = acceptMount(media, sent.last()).copy(cancellationRequested = true)
+            media.operation(waiting)
+            recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, waiting))
+            media.command(
+                RemoteCommand.OperationsCancel(
+                    com.emmah.colordock.remote.mediacenter.protocol
+                        .OperationsCancelParams(waiting.operationId),
+                ),
+            )
+            media.receive(McReply.Success(sent.last().id, RemoteResult.OperationsCancel(CancellationAck(true))))
+            assertTrue(media.state.value.busy)
+        }
+        compose.onNodeWithText("Cancellation requested. Waiting for native completion.").assertDoesNotExist()
+        compose.onAllNodesWithText("waiting", substring = true, ignoreCase = true).assertCountEquals(1)
+        compose.onAllNodesWithText("Cancel recovered drive operation").assertCountEquals(1)
+    }
+
     private fun acceptMount(
         media: MediaSessionController,
         request: McRequest,

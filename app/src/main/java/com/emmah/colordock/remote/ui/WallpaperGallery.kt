@@ -99,6 +99,7 @@ internal fun WallpaperGallery(
     onNext: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     val snapshot = state.snapshot
     LazyVerticalGrid(
@@ -112,9 +113,13 @@ internal fun WallpaperGallery(
             GridItemSpan(maxLineSpan)
         }) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Wallpapers", style = MaterialTheme.typography.headlineSmall)
-                    Text("Pictures stored on your TV", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (targetSelector != null) {
+                    Column(Modifier.weight(1f)) { targetSelector() }
+                } else {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Wallpapers", style = MaterialTheme.typography.headlineSmall)
+                        Text("Pictures stored on your TV", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
                 SettingsButton(onSettings)
             }

@@ -13,6 +13,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +26,12 @@ import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterRepository
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
+import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
 import com.emmah.colordock.remote.mediacenter.protocol.DrivesMountParams
 import com.emmah.colordock.remote.mediacenter.protocol.DrivesPrepareEjectParams
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
 import com.emmah.colordock.remote.mediacenter.protocol.FoldersPrepareAddParams
+import com.emmah.colordock.remote.mediacenter.protocol.McRequest
 import com.emmah.colordock.remote.mediacenter.protocol.MediaItem
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.mediacenter.protocol.OperationsCancelParams
@@ -52,7 +55,31 @@ internal data class MediaTargetControllers(
     val folders: FolderController? = null,
     val sources: SourcesController? = null,
     val drives: DrivesController? = null,
-)
+) {
+    /** A retired input lease cannot block explicit MC preview cancellation. */
+    fun cancelPreviews(repository: MediacenterRepository) {
+        val media = this.media
+        val audio = this.audio
+        val previews =
+            listOfNotNull(
+                media.state.value.preview
+                    .takeUnless { media.state.value.busy },
+                audio.state.value.preview
+                    .takeUnless { audio.state.value.busy },
+            )
+        previews.forEach { preview ->
+            repository.send(
+                McRequest(
+                    java.util.UUID
+                        .randomUUID()
+                        .toString(),
+                    RemoteCommand.ConfirmationsCancel(ConfirmationsCancelParams(preview.confirmationId)),
+                    preview.expected,
+                ),
+            )
+        }
+    }
+}
 
 internal data class MediaTargetState(
     val media: MediaSessionState,
@@ -68,27 +95,48 @@ private class LibraryNavigation {
     var append by mutableStateOf<MediaItem?>(null)
 }
 
-/** Task 16 places this single target page under the existing target selector. */
+/** Navigation survives input-context retirement; confirmations, QR and input controllers do not. */
+class MediacenterNavigation {
+    internal var destination: MediaDestination = MediaDestination.Remote
+}
+
+/**
+ * One target page under the existing device selector. Explicit hoisted slots preserve existing callers
+ * and one canonical settings/navigation owner.
+ */
+@Suppress("LongParameterList")
 @Composable
 fun MediacenterTargetPage(
     repository: MediacenterRepository,
     modifier: Modifier = Modifier,
     settings: @Composable () -> Unit = {},
+    header: @Composable () -> Unit = {},
+    send: (McRequest) -> Boolean = repository::send,
+    navigation: MediacenterNavigation? = null,
 ) {
     val scope = rememberCoroutineScope()
-    val media = remember(repository) { MediaSessionController(scope, repository::send) }
-    val library = remember(repository) { LibraryViewModel(scope, repository::send) }
-    val renderer = remember(repository) { RendererController(scope, repository::send) }
-    val audio = remember(repository) { AudioSettingsController(repository::send) }
-    val folders = remember(repository) { FolderController(repository::send) }
-    val sources = remember(repository) { SourcesController(repository::send) }
-    val drives = remember(repository) { DrivesController(repository::send) }
+    val media =
+        remember(repository, send) {
+            MediaSessionController(
+                scope,
+                send,
+            ).apply {
+                destination(navigation?.destination ?: MediaDestination.Remote)
+            }
+        }
+    val library = remember(repository, send) { LibraryViewModel(scope, send) }
+    val renderer = remember(repository, send) { RendererController(scope, send) }
+    val audio = remember(repository, send) { AudioSettingsController(send) }
+    val folders = remember(repository, send) { FolderController(send) }
+    val sources = remember(repository, send) { SourcesController(send) }
+    val drives = remember(repository, send) { DrivesController(send) }
     val driveState by drives.state.collectAsState()
     val recoveredDrives by drives.recovery.state.collectAsState()
     val folderState by folders.state.collectAsState()
     val sourceState by sources.state.collectAsState()
     val recoveredScans by sources.recovered.state.collectAsState()
     val state by media.state.collectAsState()
+    SideEffect { navigation?.destination = state.destination }
     ObserveRoutineSettings(media)
     val libraryState by library.state.collectAsState()
     val sound by audio.state.collectAsState()
@@ -99,16 +147,9 @@ fun MediacenterTargetPage(
     ObserveMediaTarget(repository, controllers)
     ObserveSourceRecovery(repository, sources)
     ObserveDriveRecovery(repository, drives)
-    val thumbnail: suspend (
-        String,
-    ) -> ByteArray? =
-        remember(repository, state.snapshot?.connection?.serverDeviceId, state.snapshot?.serverEpoch) {
-            val load: suspend (
-                String,
-            ) -> ByteArray? = { id -> repository.thumbnail(id) }
-            load
-        }
+    val thumbnail = rememberMediacenterThumbnails(repository, state.snapshot)
     Column(modifier.fillMaxSize()) {
+        header()
         val unresolved = pending.count { !it.resolved }
         if (unresolved > 0) Text("Mediacenter is reconciling $unresolved action(s).")
         if (pending.any { it.resolved && it.status == OperationStatus.OUTCOME_UNKNOWN }) {
@@ -229,7 +270,9 @@ private fun ObserveMediaTarget(
     }
     DisposableEffect(media, library, renderer) {
         onDispose {
+            controllers.cancelPreviews(repository)
             media.observe(null)
+            audio.observe(null, null)
             library.observe(null)
             controllers.folders?.observe(null, null)
             controllers.sources?.observe(null, null, null)

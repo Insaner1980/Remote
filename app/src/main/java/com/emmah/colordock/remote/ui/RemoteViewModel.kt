@@ -325,6 +325,10 @@ class RemoteViewModel internal constructor(
         repeats.release()
     }
 
+    fun cancelInput() {
+        repeats.cancel()
+    }
+
     fun refreshApps() {
         repeats.release()
         tvApps.refresh()

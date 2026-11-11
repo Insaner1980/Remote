@@ -82,7 +82,7 @@ class MainRoutesTest {
                 }
             }
             compose.onNodeWithContentDescription("Settings").performScrollTo().performClick()
-            compose.onNodeWithContentDescription("Volume up").performScrollTo().performClick()
+            compose.onNodeWithContentDescription("TV volume up").performScrollTo().performClick()
             compose.runOnIdle {
                 assertEquals(1, settings)
                 assertNull(model.error.value)

@@ -276,7 +276,7 @@ class TvAppsScreenTest {
     @Test fun appLaunchProgressDoesNotDisableOrdinaryRemoteControls() {
         feature.value = feature.value.copy(launchingId = "netflix", launchTitle = "Netflix")
         show()
-        compose.onNodeWithContentDescription("Volume up").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("TV volume up").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(listOf(TvCommand.VolumeUp), commands)
         }

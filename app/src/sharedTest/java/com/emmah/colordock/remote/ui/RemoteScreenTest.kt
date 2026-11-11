@@ -75,7 +75,7 @@ class RemoteScreenTest {
         scale: Float,
     ) {
         show(width, scale)
-        compose.onNodeWithText("Volume").assertDoesNotExist()
+        compose.onNodeWithText("TV volume").assertDoesNotExist()
         compose.onNodeWithText("Channel").assertDoesNotExist()
         compose.onNodeWithContentDescription("Up").performScrollTo()
         val up = compose.onNodeWithContentDescription("Up").fetchSemanticsNode().boundsInRoot
@@ -84,7 +84,7 @@ class RemoteScreenTest {
         assertTrue(up.bottom <= ok.top)
         assertTrue(ok.bottom <= down.top)
         assertHorizontalDirectionOrder()
-        listOf("Volume up", "Volume down", "Channel up", "Channel down").forEach { label ->
+        listOf("TV volume up", "TV volume down", "Channel up", "Channel down").forEach { label ->
             compose
                 .onNodeWithContentDescription(
                     label,
@@ -151,7 +151,7 @@ class RemoteScreenTest {
     @Test fun unknownMuteIsExplicitAndUnavailableGuideIsDisabled() {
         show()
         compose.onNodeWithText("TV Guide").performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithText("Mute sound").performScrollTo().performClick()
+        compose.onNodeWithText("Mute TV sound").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(listOf(TvCommand.Mute), sent)
         }

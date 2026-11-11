@@ -17,9 +17,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.mediacenter.MediacenterRepository
 import com.emmah.colordock.remote.mediacenter.protocol.Availability
 import com.emmah.colordock.remote.mediacenter.protocol.MediaItem
 import com.emmah.colordock.remote.mediacenter.protocol.MediaKind
+import com.emmah.colordock.remote.mediacenter.protocol.RemoteSnapshot
+
+/** A fresh loader identity invalidates remembered image work when the native owner changes. */
+@Composable
+internal fun rememberMediacenterThumbnails(
+    repository: MediacenterRepository,
+    snapshot: RemoteSnapshot?,
+): suspend (String) -> ByteArray? =
+    remember(repository, snapshot?.connection?.serverDeviceId, snapshot?.serverEpoch) {
+        val load: suspend (String) -> ByteArray? = { id -> repository.thumbnail(id) }
+        load
+    }
 
 @Composable
 internal fun LibraryScreen(

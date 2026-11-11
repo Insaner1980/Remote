@@ -209,7 +209,9 @@ internal fun MediaSessionController.receiveSourceResult(result: RemoteResult): B
 
         is RemoteResult.OperationsCancel -> {
             reconcileOperation()
-            if (state.value.busy) message("Cancellation requested. Waiting for native completion.")
+            if (state.value.busy && state.value.messageOperation == null) {
+                message("Cancellation requested. Waiting for native completion.")
+            }
             true
         }
 

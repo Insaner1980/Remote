@@ -52,6 +52,7 @@ fun ConnectionScreen(
     onAppSettings: () -> Unit = {},
     onForget: (() -> Unit)? = null,
     connectedContent: @Composable ColumnScope.() -> Unit = {},
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     var address by rememberSaveable(initialAddress) { mutableStateOf(initialAddress.orEmpty()) }
     var searched by rememberSaveable { mutableStateOf(false) }
@@ -67,11 +68,15 @@ fun ConnectionScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Text(
-                stringResource(R.string.connect_title),
-                Modifier.weight(1f),
-                style = MaterialTheme.typography.headlineMedium,
-            )
+            if (targetSelector != null) {
+                Column(Modifier.weight(1f)) { targetSelector() }
+            } else {
+                Text(
+                    stringResource(R.string.connect_title),
+                    Modifier.weight(1f),
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            }
             SettingsButton(onAppSettings)
         }
         Text(stringResource(R.string.connect_explanation))

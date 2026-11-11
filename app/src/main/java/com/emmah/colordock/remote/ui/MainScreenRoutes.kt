@@ -72,6 +72,7 @@ internal fun WallpaperRoute(
     onAdd: () -> Unit,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     val model = modelProvider()
     val wallpapers = wallpapersProvider()
@@ -97,6 +98,7 @@ internal fun WallpaperRoute(
         wallpapers::abandon,
         modifier,
         onSettings = openSettings,
+        targetSelector = targetSelector,
     )
 }
 
@@ -111,6 +113,7 @@ internal fun DockRoute(
     dockProvider: () -> DockViewModel,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     val model = modelProvider()
     val dock = dockProvider()
@@ -128,6 +131,7 @@ internal fun DockRoute(
         dock::location,
         modifier,
         onSettings = openSettings,
+        targetSelector = targetSelector,
     )
 }
 
@@ -143,26 +147,29 @@ internal fun RemoteRoute(
     onConnection: () -> Unit,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
+    dispatch: (() -> Unit) -> Unit = { it() },
 ) {
     val model = modelProvider()
     RemoteScreen(
         state,
         channels,
-        model::send,
-        model::press,
+        { value -> dispatch { model.send(value) } },
+        { value -> dispatch { model.press(value) } },
         model::release,
-        model::launchDock,
-        model::tune,
+        { dispatch { model.launchDock() } },
+        { value -> dispatch { model.tune(value) } },
         onConnection = onConnection,
         modifier = modifier,
         onSettings = openSettings,
+        targetSelector = targetSelector,
         apps = tvApps,
         appIcons = appIcons,
-        onRefreshApps = model::refreshApps,
-        onOpenApp = model::openApp,
-        onLoadAppIcon = model::loadAppIcon,
-        onAppLaunchHandle = model::acknowledgeAppLaunch,
-        onClearAppLaunchError = model::clearAppLaunchError,
+        onRefreshApps = { dispatch { model.refreshApps() } },
+        onOpenApp = { value -> dispatch { model.openApp(value) } },
+        onLoadAppIcon = { value -> dispatch { model.loadAppIcon(value) } },
+        onAppLaunchHandle = { dispatch { model.acknowledgeAppLaunch() } },
+        onClearAppLaunchError = { dispatch { model.clearAppLaunchError() } },
     )
 }
 
@@ -183,9 +190,11 @@ internal fun ConnectionRoute(
     onFind: () -> Unit,
     openSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     ConnectionScreen(
         state = displayedState,
+        targetSelector = targetSelector,
         needsSettings = needsPermissionSettings,
         onConnect = onConnect,
         onCancel = onCancel,
@@ -270,3 +279,45 @@ internal fun ConnectionErrorDialog(
         },
     )
 }
+
+@Composable
+internal fun ObserveCompanion(
+    target: ControlTarget,
+    tab: RemoteTab,
+    connection: TvConnectionState,
+    dockState: DockState,
+    wallpaperProvider: () -> WallpaperViewModel,
+) {
+    val wallpapers = wallpaperProvider()
+    LaunchedEffect(target, tab, connection) {
+        if (target == ControlTarget.LgTv && tab != RemoteTab.Remote && connection == TvConnectionState.Ready) {
+            wallpapers.join()
+        }
+    }
+    LaunchedEffect(dockState.snapshot?.current?.id, dockState.snapshot?.current?.thumbnailHash) {
+        dockState.snapshot?.current?.let(wallpapers::thumbnail)
+    }
+}
+
+internal fun displayedTvState(
+    state: TvState,
+    invalidAddress: Boolean,
+    permissionDenied: Boolean,
+    resources: android.content.res.Resources,
+): TvState =
+    when {
+        invalidAddress -> {
+            TvState(TvConnectionState.Failed, resources.getString(R.string.invalid_address))
+        }
+
+        permissionDenied -> {
+            TvState(
+                TvConnectionState.PermissionRequired,
+                resources.getString(R.string.permission_explanation),
+            )
+        }
+
+        else -> {
+            state
+        }
+    }

@@ -133,16 +133,12 @@ private fun MediacenterDialogContent(
                 TextButton(onClick = { onScanningChange(false) }) { Text("Pair manually") }
             }
 
-            ui.observation != null -> {
-                ManualVerification(ui.observation!!, ui, manualActions)
-            }
-
             else -> {
-                MediacenterSetupScreen(
-                    ui.lanGranted,
-                    ui.cameraDenied,
+                MediacenterManualSetup(
+                    ui,
                     onPermission,
                     viewModel.pairing::probe,
+                    manualActions,
                     Modifier.weight(1f, fill = false),
                 )
             }
@@ -266,11 +262,29 @@ private fun MediacenterConnectionActions(
     }
 }
 
-private class ManualVerificationActions(
+internal class ManualVerificationActions(
     val confirm: (CertificateObservation) -> Unit,
     val reject: () -> Unit,
     val pair: (String) -> Unit,
 )
+
+@Composable
+internal fun MediacenterManualSetup(
+    ui: MediacenterSetupState,
+    onPermission: (MediacenterSetupPermission) -> Unit,
+    onProbe: (String, Int) -> Unit,
+    actions: ManualVerificationActions,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier) {
+        val observation = ui.observation
+        if (observation != null) {
+            ManualVerification(observation, ui, actions)
+        } else {
+            MediacenterSetupScreen(ui.lanGranted, ui.cameraDenied, onPermission, onProbe)
+        }
+    }
+}
 
 @Composable
 private fun ManualVerification(

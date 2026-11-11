@@ -283,6 +283,8 @@ private fun RemoteKey(
     onRelease: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val currentOnPress by rememberUpdatedState(onPress)
+    val currentOnRelease by rememberUpdatedState(onRelease)
     val press =
         if (command.repeatable) {
             Modifier.pointerInput(command, enabled) {
@@ -290,11 +292,11 @@ private fun RemoteKey(
                     val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                     if (enabled) {
                         down.consume()
-                        onPress(command)
+                        currentOnPress(command)
                         try {
                             waitForUpOrCancellation(pass = PointerEventPass.Initial)?.consume()
                         } finally {
-                            onRelease()
+                            currentOnRelease()
                         }
                     }
                 }
@@ -311,7 +313,7 @@ private fun RemoteKey(
             modifier
                 .then(press)
                 .onFocusChanged {
-                    if (!it.isFocused) onRelease()
+                    if (!it.isFocused) currentOnRelease()
                 }.semantics {
                     contentDescription = label
                 },

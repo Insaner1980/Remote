@@ -186,6 +186,7 @@ fun WallpaperScreen(
     onAbandon: () -> Unit,
     modifier: Modifier = Modifier,
     onSettings: () -> Unit = {},
+    targetSelector: (@Composable () -> Unit)? = null,
 ) {
     val snapshot = state.snapshot
     var deleteConfirmation by remember(ui.detail?.id) { mutableStateOf(false) }
@@ -234,6 +235,7 @@ fun WallpaperScreen(
         onNext,
         onSettings,
         modifier,
+        targetSelector,
     )
 }
 

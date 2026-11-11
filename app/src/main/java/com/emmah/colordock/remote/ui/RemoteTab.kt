@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -69,5 +70,22 @@ fun RemoteAppShell(
         }
     }) { padding ->
         content(Modifier.padding(padding))
+    }
+}
+
+/** Only LG owns the global Remote / Wallpapers / Color Dock bar. */
+@Composable
+internal fun TargetAppShell(
+    target: ControlTargetState,
+    selected: RemoteTab,
+    onSelect: (RemoteTab) -> Unit,
+    mediacenter: @Composable (Modifier) -> Unit,
+    television: @Composable (Modifier) -> Unit,
+) {
+    key(target.selected, target.generation) {
+        when (target.selected) {
+            ControlTarget.LgTv -> RemoteAppShell(selected, onSelect, content = television)
+            ControlTarget.Mediacenter -> mediacenter(Modifier)
+        }
     }
 }

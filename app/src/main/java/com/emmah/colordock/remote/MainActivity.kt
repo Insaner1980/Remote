@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -44,15 +45,21 @@ import com.emmah.colordock.remote.ui.AppTheme
 import com.emmah.colordock.remote.ui.ConnectionErrorDialog
 import com.emmah.colordock.remote.ui.ConnectionRoute
 import com.emmah.colordock.remote.ui.ConnectionScreen
+import com.emmah.colordock.remote.ui.ControlTarget
+import com.emmah.colordock.remote.ui.ControlTargetLease
+import com.emmah.colordock.remote.ui.ControlTargetViewModel
 import com.emmah.colordock.remote.ui.DockRoute
 import com.emmah.colordock.remote.ui.DockScreen
 import com.emmah.colordock.remote.ui.DockViewModel
+import com.emmah.colordock.remote.ui.ObserveCompanion
 import com.emmah.colordock.remote.ui.RemoteAppShell
 import com.emmah.colordock.remote.ui.RemoteRoute
 import com.emmah.colordock.remote.ui.RemoteScreen
 import com.emmah.colordock.remote.ui.RemoteTab
 import com.emmah.colordock.remote.ui.RemoteTheme
 import com.emmah.colordock.remote.ui.RemoteViewModel
+import com.emmah.colordock.remote.ui.TargetAppShell
+import com.emmah.colordock.remote.ui.TargetSelector
 import com.emmah.colordock.remote.ui.ThemeSettings
 import com.emmah.colordock.remote.ui.ThemeViewModel
 import com.emmah.colordock.remote.ui.TvConnectionDialog
@@ -60,12 +67,15 @@ import com.emmah.colordock.remote.ui.WallpaperRoute
 import com.emmah.colordock.remote.ui.WallpaperScreen
 import com.emmah.colordock.remote.ui.WallpaperViewModel
 import com.emmah.colordock.remote.ui.asImageFile
+import com.emmah.colordock.remote.ui.displayedTvState
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterEntry
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterNavigation
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterSetupDialog
-import com.emmah.colordock.remote.ui.mediacenter.MediacenterSoundSettings
+import com.emmah.colordock.remote.ui.mediacenter.MediacenterTargetPage
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterViewModel
 
 class MainActivity : ComponentActivity() {
+    private val targets: ControlTargetViewModel by viewModels()
     private val mediacenter: MediacenterViewModel by viewModels()
     private val appearance: ThemeViewModel by viewModels()
     private val model: RemoteViewModel by viewModels()
@@ -135,11 +145,30 @@ class MainActivity : ComponentActivity() {
         themeError: String?,
     ) {
         var settingsOpen by rememberSaveable { mutableStateOf(false) }
-        val openSettings = {
-            model.release()
-            settingsOpen = true
-        }
         val state by model.state.collectAsStateWithLifecycle()
+        val targetState by targets.state.collectAsStateWithLifecycle()
+        val repository = (application as ColorDockApplication).container.mediacenter
+        val mcConnection by repository.state.collectAsStateWithLifecycle()
+        LaunchedEffect(state.connection, mcConnection) { targets.observe(state.connection, mcConnection) }
+        val lease = ControlTargetLease(targetState.selected, targetState.generation)
+        val mediaSend =
+            remember(repository, lease) {
+                { request: com.emmah.colordock.remote.mediacenter.protocol.McRequest ->
+                    var sent = false
+                    targets.dispatch(lease) { sent = repository.send(request) }
+                    sent
+                }
+            }
+        var mcSetup by rememberSaveable { mutableStateOf(false) }
+        val mediaNavigation = remember { MediacenterNavigation() }
+        val retireContext: (() -> Unit) -> Unit = { open ->
+            targets.openContext(lease, {
+                model.cancelInput()
+                mediacenter.closeSetup()
+            }, open)
+        }
+        val openSettings = { retireContext { settingsOpen = true } }
+        val openMcSetup = { retireContext { mcSetup = true } }
         val channels by model.channels.collectAsStateWithLifecycle()
         val tvApps by model.apps.collectAsStateWithLifecycle()
         val appIcons by model.appIcons.collectAsStateWithLifecycle()
@@ -157,12 +186,7 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.PickMultipleVisualMedia(MAX_PICKER_IMAGES),
                 wallpapers::select,
             )
-        LaunchedEffect(tab, state.connection) {
-            if (tab != RemoteTab.Remote && state.connection == TvConnectionState.Ready) wallpapers.join()
-        }
-        LaunchedEffect(dockState.snapshot?.current?.id, dockState.snapshot?.current?.thumbnailHash) {
-            dockState.snapshot?.current?.let(wallpapers::thumbnail)
-        }
+        ObserveCompanion(targetState.selected, tab, state.connection, dockState) { wallpapers }
         var connectionSheet by rememberSaveable { mutableStateOf(false) }
         val forgetTv = {
             connectionSheet = false
@@ -170,101 +194,129 @@ class MainActivity : ComponentActivity() {
             model.forget()
         }
         var invalidAddress by rememberSaveable { mutableStateOf(false) }
-        val displayedState =
+        val displayedState = displayedTvState(state, invalidAddress, permissionDenied, resources)
+        val selector: @Composable () -> Unit = {
+            TargetSelector(targetState, state.name, { next ->
+                targets.select(next) {
+                    model.cancelInput()
+                    mediacenter.closeSetup()
+                    connectionSheet = false
+                    settingsOpen = false
+                    mcSetup = false
+                }
+            }, {
+                retireContext {
+                    if (targetState.selected == ControlTarget.LgTv) connectionSheet = true else mcSetup = true
+                }
+            })
+        }
+        TargetAppShell(
+            targetState,
+            tab,
+            { next ->
+                model.cancelInput()
+                tab = next
+            },
+            mediacenter = { screenModifier ->
+                MediacenterTargetPage(
+                    repository,
+                    screenModifier,
+                    settings = {
+                        TextButton(onClick = openMcSetup) { Text("Mediacenter Connection") }
+                        TextButton(onClick = openSettings) { Text("Phone appearance") }
+                    },
+                    header = { selector() },
+                    send = mediaSend,
+                    navigation = mediaNavigation,
+                )
+            },
+        ) { screenModifier ->
             when {
-                invalidAddress -> {
-                    TvState(TvConnectionState.Failed, getString(R.string.invalid_address))
+                tab == RemoteTab.Wallpapers -> {
+                    WallpaperRoute(
+                        dockState,
+                        wallpaperUi,
+                        thumbnails,
+                        { model },
+                        { wallpapers },
+                        {
+                            picker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                            )
+                        },
+                        openSettings,
+                        screenModifier,
+                        targetSelector = selector,
+                    )
                 }
 
-                permissionDenied -> {
-                    TvState(
-                        TvConnectionState.PermissionRequired,
-                        getString(R.string.permission_explanation),
+                tab == RemoteTab.Dock -> {
+                    DockRoute(
+                        dockState,
+                        dockUi,
+                        thumbnails,
+                        { model },
+                        { dock },
+                        openSettings,
+                        screenModifier,
+                        targetSelector = selector,
+                    )
+                }
+
+                state.connection == TvConnectionState.Ready -> {
+                    RemoteRoute(
+                        state,
+                        channels,
+                        { model },
+                        tvApps,
+                        appIcons,
+                        { connectionSheet = true },
+                        openSettings,
+                        screenModifier,
+                        targetSelector = selector,
+                        dispatch = { action -> targets.dispatch(lease, action) },
                     )
                 }
 
                 else -> {
-                    state
+                    ConnectionRoute(
+                        state,
+                        displayedState,
+                        needsPermissionSettings,
+                        savedAddress,
+                        searching,
+                        discovered,
+                        forgetTv,
+                        { address ->
+                            invalidAddress = TvTarget.parse(address) == null
+                            if (!invalidAddress) connectWithPermission(address)
+                        },
+                        model::disconnect,
+                        {
+                            startActivity(
+                                Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    "package:$packageName".toUri(),
+                                ),
+                            )
+                        },
+                        ::findWithPermission,
+                        openSettings,
+                        screenModifier,
+                        targetSelector = selector,
+                    )
                 }
             }
-        MediacenterTarget({ model }) { targetModifier ->
-            RemoteAppShell(tab, { next ->
-                model.release()
-                tab = next
-            }, modifier = targetModifier) { screenModifier ->
-                when {
-                    tab == RemoteTab.Wallpapers -> {
-                        WallpaperRoute(
-                            dockState,
-                            wallpaperUi,
-                            thumbnails,
-                            { model },
-                            { wallpapers },
-                            {
-                                picker.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                )
-                            },
-                            openSettings,
-                            screenModifier,
-                        )
-                    }
-
-                    tab == RemoteTab.Dock -> {
-                        DockRoute(dockState, dockUi, thumbnails, { model }, { dock }, openSettings, screenModifier)
-                    }
-
-                    state.connection == TvConnectionState.Ready -> {
-                        RemoteRoute(
-                            state,
-                            channels,
-                            { model },
-                            tvApps,
-                            appIcons,
-                            { connectionSheet = true },
-                            openSettings,
-                            screenModifier,
-                        )
-                    }
-
-                    else -> {
-                        ConnectionRoute(
-                            state,
-                            displayedState,
-                            needsPermissionSettings,
-                            savedAddress,
-                            searching,
-                            discovered,
-                            forgetTv,
-                            { address ->
-                                invalidAddress = TvTarget.parse(address) == null
-                                if (!invalidAddress) connectWithPermission(address)
-                            },
-                            model::disconnect,
-                            {
-                                startActivity(
-                                    Intent(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                        "package:$packageName".toUri(),
-                                    ),
-                                )
-                            },
-                            ::findWithPermission,
-                            openSettings,
-                            screenModifier,
-                        )
-                    }
-                }
-            }
+        }
+        if (mcSetup && targetState.selected == ControlTarget.Mediacenter) {
+            MediacenterSetupDialog(onDismiss = { mcSetup = false })
         }
         if (settingsOpen) {
             ThemeSettings(theme, appearance::select, {
                 settingsOpen = false
-            }, themeError, sound = {
-                MediacenterSoundSettings((application as ColorDockApplication).container.mediacenter)
-            })
+            }, themeError)
         }
-        if (connectionSheet) {
+        if (connectionSheet && targetState.selected == ControlTarget.LgTv) {
             TvConnectionDialog(
                 state,
                 { connectionSheet = false },
@@ -272,7 +324,9 @@ class MainActivity : ComponentActivity() {
                 forgetTv,
             )
         }
-        error?.let { message -> ConnectionErrorDialog(message, model::clearError) }
+        if (targetState.selected == ControlTarget.LgTv) {
+            error?.let { message -> ConnectionErrorDialog(message, model::clearError) }
+        }
     }
 
     private fun connectWithPermission(address: String) {
@@ -423,20 +477,3 @@ private const val SPLASH_ICON_DURATION_MS = 250L
 private const val SPLASH_FADE_DURATION_MS = 200L
 private const val SPLASH_TITLE_DELAY_MS = 40L
 private const val SPLASH_EXIT_DELAY_MS = 300L
-
-@Composable
-private fun MediacenterTarget(
-    tvModel: () -> RemoteViewModel,
-    modifier: Modifier = Modifier,
-    content: @Composable (Modifier) -> Unit,
-) {
-    var open by rememberSaveable { mutableStateOf(false) }
-    Column(modifier) {
-        MediacenterEntry(onOpen = {
-            tvModel().release()
-            open = true
-        })
-        content(Modifier.weight(1f))
-    }
-    if (open) MediacenterSetupDialog(onDismiss = { open = false })
-}

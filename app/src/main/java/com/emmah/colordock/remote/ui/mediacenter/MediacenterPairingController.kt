@@ -20,6 +20,10 @@ internal class MediacenterPairingController(
     private val connections: MediacenterConnections,
     private val scope: CoroutineScope,
     private val ui: MutableStateFlow<MediacenterSetupState>,
+    private val probeCertificate: suspend (MediacenterEndpoint, AndroidMediacenterNetwork) -> CertificateObservation =
+        service::probe,
+    private val requestChallenge: suspend (MediacenterEndpoint, AndroidMediacenterNetwork, String) ->
+    VerifiedMediacenterChallenge = service::challenge,
 ) {
     private var work: Job? = null
     private var generation = 0L
@@ -35,7 +39,7 @@ internal class MediacenterPairingController(
         val network = connections.selectedNetwork() ?: return
         clear()
         runWork {
-            val observation = service.probe(endpoint, network)
+            val observation = probeCertificate(endpoint, network)
             probed = ManualProbe(endpoint, network)
             manual.show(observation)
             ui.update { it.copy(observation = observation) }
@@ -50,7 +54,7 @@ internal class MediacenterPairingController(
                 manual.confirmedPin
             }.getOrNull() ?: return
         runWork {
-            challenge = service.challenge(observed.endpoint, observed.network, pin)
+            challenge = requestChallenge(observed.endpoint, observed.network, pin)
             ui.update { it.copy(codeReady = true) }
         }
     }
@@ -107,6 +111,7 @@ internal class MediacenterPairingController(
                     throw cancelled
                 } catch (_: Exception) {
                     if (owner == generation) {
+                        clear()
                         ui.update {
                             it.copy(
                                 status =
