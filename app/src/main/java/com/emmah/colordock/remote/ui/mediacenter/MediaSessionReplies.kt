@@ -42,6 +42,7 @@ internal fun MediaSessionController.receiveFailure(
                             listOf(WireErrorCode.NOT_FOUND, WireErrorCode.CONFIRMATION_EXPIRED)
                     },
             message = driveFailure(command, reply.error.code) ?: reply.error.message,
+            messageOperation = null,
         )
     if (reply.error.code ==
         WireErrorCode.STALE_STATE

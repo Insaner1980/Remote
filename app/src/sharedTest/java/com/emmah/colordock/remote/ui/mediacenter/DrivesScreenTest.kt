@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -36,6 +38,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationPreview
 import com.emmah.colordock.remote.mediacenter.protocol.Drive
 import com.emmah.colordock.remote.mediacenter.protocol.DriveVolume
 import com.emmah.colordock.remote.mediacenter.protocol.DrivesConfirmEjectParams
+import com.emmah.colordock.remote.mediacenter.protocol.ErrorPayload
 import com.emmah.colordock.remote.mediacenter.protocol.Expected
 import com.emmah.colordock.remote.mediacenter.protocol.McReply
 import com.emmah.colordock.remote.mediacenter.protocol.McRequest
@@ -252,6 +255,121 @@ class DrivesScreenTest {
             .assertIsDisplayed()
         compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, sent.count { it.command is RemoteCommand.DrivesConfirmEject }) }
+    }
+
+    @Test fun retainedDriveOutcomeDoesNotHideLaterAdmissionFailure() {
+        val sent = mutableListOf<McRequest>()
+        val recovered = mutableStateOf(emptyList<RecoveredDrive>())
+        lateinit var media: MediaSessionController
+        compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            val request = sent.last().id
+            media.receive(
+                McReply.Success(
+                    request,
+                    RemoteResult.DrivesMount(AcceptedResult(OperationAccepted.ACCEPTED, "prior-mount")),
+                ),
+            )
+            val done = OperationState("prior-mount", request, OperationStatus.SUCCEEDED, cancellationRequested = false)
+            media.operation(done)
+            recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, done))
+        }
+        compose
+            .onNodeWithText("Earlier mount operation completed", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            assertEquals(2, sent.count { it.command is RemoteCommand.DrivesMount })
+            media.receive(
+                McReply.Failure(sent.last().id, ErrorPayload(WireErrorCode.BUSY, "busy", true, emptyList())),
+            )
+        }
+        compose
+            .onNodeWithText("Another application may be using the drive", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test fun retainedDriveOutcomeDoesNotHideLocalSendRefusal() {
+        val sent = mutableListOf<McRequest>()
+        val recovered = mutableStateOf(emptyList<RecoveredDrive>())
+        var ready = true
+        lateinit var media: MediaSessionController
+        compose.setContent {
+            DriveTarget({
+                sent.add(it)
+                ready
+            }, { media = it }, recovered.value)
+        }
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            val done = acceptMount(media, sent.last()).copy(status = OperationStatus.SUCCEEDED)
+            media.operation(done)
+            recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, done))
+            ready = false
+        }
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            assertEquals(2, sent.count { it.command is RemoteCommand.DrivesMount })
+            assertEquals(recovered.value.single().operation, media.observedOperation)
+        }
+        compose
+            .onNodeWithText("Mediacenter is not ready for this action", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose
+            .onNodeWithText("Earlier mount operation completed", substring = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test fun sameNativeOperationHasOneCanonicalStatusOnlyWhereRecoveryIsRendered() {
+        val sent = mutableListOf<McRequest>()
+        val recovered = mutableStateOf(emptyList<RecoveredDrive>())
+        lateinit var media: MediaSessionController
+        lateinit var running: OperationState
+        compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.runOnIdle {
+            running = acceptMount(media, sent.last())
+            recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, running))
+        }
+        compose.onNodeWithText("Drive operation running", substring = true).assertDoesNotExist()
+        compose.onAllNodesWithText("Earlier drive operation is still running", substring = true).assertCountEquals(1)
+        compose.onAllNodesWithText("Cancel recovered drive operation").assertCountEquals(1)
+        compose.onNodeWithText("Cancel drive operation").assertDoesNotExist()
+        listOf(MediaDestination.Remote, MediaDestination.Library).forEach { destination ->
+            compose.runOnIdle { media.destination(destination) }
+            compose.onNodeWithText("Drive operation running", substring = true).performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Earlier drive operation is still running", substring = true).assertDoesNotExist()
+        }
+        compose.runOnIdle {
+            media.destination(MediaDestination.Settings)
+            val done = running.copy(status = OperationStatus.SUCCEEDED)
+            recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, done))
+            assertEquals(running, media.observedOperation)
+            assertTrue(media.state.value.busy)
+        }
+        compose.onNodeWithText("Drive operation running", substring = true).assertDoesNotExist()
+        compose.onAllNodesWithText("Earlier mount operation completed", substring = true).assertCountEquals(1)
+        compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
+    }
+
+    private fun acceptMount(
+        media: MediaSessionController,
+        request: McRequest,
+    ): OperationState {
+        media.receive(
+            McReply.Success(
+                request.id,
+                RemoteResult.DrivesMount(AcceptedResult(OperationAccepted.ACCEPTED, "mount-op")),
+            ),
+        )
+        val running = OperationState("mount-op", request.id, OperationStatus.RUNNING, cancellationRequested = false)
+        media.operation(running)
+        return running
     }
 
     private fun reconnectAcceptedDrive(

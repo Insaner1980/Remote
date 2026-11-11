@@ -152,13 +152,13 @@ internal fun MediacenterTargetContent(
             }
         }
         Column(Modifier.weight(1f).verticalScroll(contentScroll).padding(16.dp)) {
-            val hasDriveOutcome =
-                model.drives.recovered.isNotEmpty() &&
-                    media.operationCommand
-                        ?.method
-                        ?.wire
-                        ?.startsWith("drives.") == true
-            if (state.message.isNotEmpty() && !hasDriveOutcome) Text(state.message)
+            val representedDriveMessage =
+                state.destination == MediaDestination.Settings &&
+                    model.drives.recovered.any {
+                        it.operation.requestId == state.messageOperation?.requestId &&
+                            it.operation.operationId == state.messageOperation.operationId
+                    }
+            if (state.message.isNotEmpty() && !representedDriveMessage) Text(state.message)
             if (state.snapshot == null) Text("Reconnect using Mediacenter Connection settings, then refresh.")
             when (state.destination) {
                 MediaDestination.Remote -> {

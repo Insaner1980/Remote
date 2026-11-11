@@ -25,6 +25,8 @@ internal data class MediaSessionState(
     val snapshot: RemoteSnapshot? = null,
     val destination: MediaDestination = MediaDestination.Remote,
     val message: String = "Connect to Mediacenter.",
+    // Only the native operation that produced the current message; local feedback clears this.
+    val messageOperation: OperationState? = null,
     val resume: MediaItem? = null,
     val preview: ConfirmationPreview? = null,
     val queue: QueuePage? = null,
@@ -155,7 +157,7 @@ internal class MediaSessionController(
             operationCommand = command
             observedOperation = null
             mutable.value =
-                state.value.copy(busy = true, message = "Waiting for Mediacenter…")
+                state.value.copy(busy = true, message = "Waiting for Mediacenter…", messageOperation = null)
         }
     }
 
@@ -167,7 +169,12 @@ internal class MediaSessionController(
             OperationStatus.SUCCEEDED -> {
                 operationRequest = null
                 handoffReady = handoff != null && state.value.preview == null
-                mutable.value = state.value.copy(busy = false, message = driveSuccess(operationCommand))
+                mutable.value =
+                    state.value.copy(
+                        busy = false,
+                        message = driveSuccess(operationCommand),
+                        messageOperation = value,
+                    )
                 if (state.value.queueOpen) refreshQueue()
                 if (state.value.playlist != null) refreshPlaylist()
                 finishHandoff()
@@ -182,7 +189,12 @@ internal class MediaSessionController(
                 val detail =
                     driveFailure(operationCommand, value.errorCode) ?: value.errorCode?.wire
                         ?: "inspect current state before retrying"
-                mutable.value = state.value.copy(busy = false, message = "Action ${value.status.wire}: $detail")
+                mutable.value =
+                    state.value.copy(
+                        busy = false,
+                        message = "Action ${value.status.wire}: $detail",
+                        messageOperation = value,
+                    )
                 if (operationCommand?.method?.wire?.startsWith("queue.") == true) refreshQueue()
                 if (operationCommand?.method?.wire?.startsWith("playlists.") == true) refreshPlaylist()
             }
