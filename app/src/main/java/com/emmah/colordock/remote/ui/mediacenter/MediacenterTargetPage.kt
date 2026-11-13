@@ -43,10 +43,6 @@ import com.emmah.colordock.remote.mediacenter.protocol.SourcesScanParams
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 
-private const val UNCERTAIN_ACTION_MESSAGE =
-    "An earlier action has an uncertain outcome. " +
-        "Inspect current Mediacenter state before issuing it again."
-
 internal data class MediaTargetControllers(
     val media: MediaSessionController,
     val library: LibraryViewModel,
@@ -55,6 +51,7 @@ internal data class MediaTargetControllers(
     val folders: FolderController? = null,
     val sources: SourcesController? = null,
     val drives: DrivesController? = null,
+    val browser: BrowserInputController? = null,
 ) {
     /** A retired input lease cannot block explicit MC preview cancellation. */
     fun cancelPreviews(repository: MediacenterRepository) {
@@ -88,6 +85,7 @@ internal data class MediaTargetState(
     val folders: FolderState = FolderState(),
     val sources: SourcesState = SourcesState(),
     val drives: DrivesState = DrivesState(),
+    val streaming: StreamingState = StreamingState(),
 )
 
 private class LibraryNavigation {
@@ -130,6 +128,8 @@ fun MediacenterTargetPage(
     val folders = remember(repository, send) { FolderController(send) }
     val sources = remember(repository, send) { SourcesController(send) }
     val drives = remember(repository, send) { DrivesController(send) }
+    val (browser, streaming) = rememberBrowserControllers(repository, media, audio)
+    val streamState by streaming.state.collectAsState()
     val driveState by drives.state.collectAsState()
     val recoveredDrives by drives.recovery.state.collectAsState()
     val folderState by folders.state.collectAsState()
@@ -143,20 +143,15 @@ fun MediacenterTargetPage(
     val uncertain by repository.inputOutcomeUncertain.collectAsState()
     val recoveryAvailable by repository.recoveryAvailable.collectAsState()
     val pending by repository.pending.collectAsState()
-    val controllers = MediaTargetControllers(media, library, renderer, audio, folders, sources, drives)
+    val controllers = MediaTargetControllers(media, library, renderer, audio, folders, sources, drives, browser)
     ObserveMediaTarget(repository, controllers)
+    ObserveStreaming(repository, media, browser, streaming)
     ObserveSourceRecovery(repository, sources)
     ObserveDriveRecovery(repository, drives)
     val thumbnail = rememberMediacenterThumbnails(repository, state.snapshot)
     Column(modifier.fillMaxSize()) {
         header()
-        val unresolved = pending.count { !it.resolved }
-        if (unresolved > 0) Text("Mediacenter is reconciling $unresolved action(s).")
-        if (pending.any { it.resolved && it.status == OperationStatus.OUTCOME_UNKNOWN }) {
-            Text(UNCERTAIN_ACTION_MESSAGE)
-        }
-        if (uncertain) Text("Input outcome is uncertain. Inspect the computer before sending again.")
-        if (!recoveryAvailable) Text("Command recovery is unavailable. Reconnect after freeing phone storage.")
+        MediaRecoveryStatus(pending, uncertain, recoveryAvailable)
         MediacenterTargetContent(
             MediaTargetState(
                 state,
@@ -165,6 +160,7 @@ fun MediacenterTargetPage(
                 folderState,
                 sourceState.copy(recoveredScans = recoveredScans),
                 driveState.copy(recovered = recoveredDrives),
+                streamState,
             ),
             controllers,
             thumbnail,
@@ -193,6 +189,7 @@ internal fun MediacenterTargetContent(
             MediaDestination.entries.forEach { destination ->
                 TextButton(onClick = {
                     renderer.stop()
+                    controllers.browser?.endGesture()
                     media.destination(destination)
                 }) { Text(destination.name) }
             }
@@ -233,7 +230,7 @@ private fun ObserveMediaTarget(
     val library = controllers.library
     val renderer = controllers.renderer
     val audio = controllers.audio
-    LaunchedEffect(repository) {
+    LaunchedEffect(repository, media) {
         combine(repository.snapshot, repository.state) { snapshot, connection ->
             snapshot.takeIf {
                 connection ==
@@ -249,7 +246,7 @@ private fun ObserveMediaTarget(
             controllers.drives?.observe(it?.serverEpoch, it?.connection?.serverDeviceId, it?.sourcesSummary?.revision)
         }
     }
-    LaunchedEffect(repository) {
+    LaunchedEffect(repository, media) {
         repository.replies.collect {
             media.receive(it)
             library.receive(it)
@@ -260,7 +257,7 @@ private fun ObserveMediaTarget(
             controllers.drives?.receive(it)
         }
     }
-    LaunchedEffect(repository) { repository.pending.collect { it.forEach(media::recovered) } }
+    LaunchedEffect(repository, media) { repository.pending.collect { it.forEach(media::recovered) } }
     LaunchedEffect(media, audio) {
         while (true) {
             delay(MEDIA_CONFIRMATION_REFRESH_MS)
@@ -292,30 +289,47 @@ private fun ColumnScope.TargetRemote(
     val media = controllers.media
     val renderer = controllers.renderer
 
-    Column(Modifier.testTag("transport-controls")) {
-        if (state.snapshot?.activity?.mode == ActivityMode.PHOTOS) {
-            Text(state.snapshot.activity.title ?: "Photos")
-            PhotoControls(state, libraryState.selectionId, { media.command(it) }, media::slideshow)
-            TextButton(
-                onClick = { media.queue(true) },
-            ) { Text("Queue") }
-        } else {
-            NowPlayingControls(state, { media.command(it) }, { media.queue(true) })
+    val browserActive = state.snapshot?.activity?.mode == ActivityMode.BROWSER
+    if (!browserActive) {
+        Column(Modifier.testTag("transport-controls")) {
+            if (state.snapshot?.activity?.mode == ActivityMode.PHOTOS) {
+                Text(state.snapshot.activity.title ?: "Photos")
+                PhotoControls(state, libraryState.selectionId, { media.command(it) }, media::slideshow)
+                TextButton(
+                    onClick = { media.queue(true) },
+                ) { Text("Queue") }
+            } else {
+                NowPlayingControls(state, { media.command(it) }, { media.queue(true) })
+            }
         }
     }
     Row {
         TextButton(
-            onClick = { media.command(RemoteCommand.ActivityShowMenu(Empty)) },
+            onClick = {
+                controllers.browser?.endGesture()
+                media.command(RemoteCommand.ActivityShowMenu(Empty))
+            },
             enabled =
                 state.snapshot != null && !state.busy,
         ) { Text("Show menus on computer") }
         TextButton(
             onClick = { media.command(RemoteCommand.ActivityShowPlayback(Empty)) },
             enabled =
-                state.snapshot != null && !state.busy,
+                state.snapshot?.activity?.sessionId != null && !state.busy,
         ) { Text("Show current playback") }
     }
-    RendererControls(state.snapshot, renderer)
+    val browser = controllers.browser
+    if (browserActive && !state.showingMenus && browser != null) {
+        val enabled = state.browserInputVisible() && model.sound.preview == null
+        BrowserControls(model.streaming, browser, enabled = enabled)
+    } else {
+        RendererControls(state.snapshot, renderer)
+    }
+    StreamingServices(
+        model.streaming,
+        !state.busy && state.preview == null && model.sound.preview == null,
+        { media.openBrowser(model.streaming, it) },
+    )
 }
 
 @Composable

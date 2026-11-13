@@ -37,6 +37,7 @@ internal fun MediaSessionController.receiveFailure(
         if (!preservesConfirmationHandoff(reply, command)) handoff = null
         handoffReady = false
     }
+    retireFailedBrowserPreview(reply)
     mutable.value =
         state.value.copy(
             busy = state.value.busy && !ownsMutation && !ownsPlaylistStart,
@@ -58,7 +59,7 @@ internal fun MediaSessionController.receiveFailure(
 }
 
 internal fun MediaSessionController.receiveSuccess(result: RemoteResult) {
-    if (receiveSourceResult(result) || receiveSettingsResult(result)) return
+    if (receiveSourceResult(result) || receiveSettingsResult(result) || receiveBrowserResult(result)) return
     when (result) {
         is RemoteResult.LibraryItem -> {
             choose(result.value)
@@ -80,8 +81,7 @@ internal fun MediaSessionController.receiveSuccess(result: RemoteResult) {
 
         is RemoteResult.ConfirmationsCancel -> {
             handoff = null
-            mutable.value =
-                state.value.copy(preview = null, busy = false)
+            clearConfirmation()
         }
 
         is RemoteResult.QueueGet -> {

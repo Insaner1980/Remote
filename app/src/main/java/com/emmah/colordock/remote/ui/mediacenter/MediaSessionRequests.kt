@@ -22,6 +22,7 @@ internal fun MediaSessionController.resetOwner(snapshot: RemoteSnapshot?) {
     handoff = null
     handoffReady = false
     discoveredModal = null
+    retiredBrowserPreview = null
     mutable.value =
         MediaSessionState(
             snapshot = snapshot,
@@ -77,6 +78,8 @@ internal fun MediaSessionController.createRequest(command: RemoteCommand): McReq
                         ?.playlist
                         ?.revision,
             )
-        McRequest(UUID.randomUUID().toString(), command, expected)
+        val confirmBrowser = command is RemoteCommand.BrowserOpen && command.params.confirmationId != null
+        val confirmation = if (confirmBrowser) state.value.preview?.expected else expected
+        McRequest(UUID.randomUUID().toString(), command, confirmation)
     }
 }

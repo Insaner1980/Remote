@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityConfirmParams
 import com.emmah.colordock.remote.mediacenter.protocol.AudioConfirmParams
+import com.emmah.colordock.remote.mediacenter.protocol.BrowserOpenParams
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmMethod
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationsCancelParams
 import com.emmah.colordock.remote.mediacenter.protocol.DevicesRevokeParams
@@ -52,6 +53,10 @@ internal fun MediaSessionController.confirm() {
                 RemoteCommand.PairingBegin(PairingBeginParams(preview.confirmationId))
             }
 
+            ConfirmMethod.BROWSER_OPEN -> {
+                RemoteCommand.BrowserOpen(BrowserOpenParams(confirmationId = preview.confirmationId))
+            }
+
             ConfirmMethod.DRIVES_CONFIRM_EJECT -> {
                 RemoteCommand.DrivesConfirmEject(DrivesConfirmEjectParams(preview.confirmationId))
             }
@@ -74,11 +79,6 @@ internal fun MediaSessionController.confirm() {
 
             ConfirmMethod.SOURCES_CONFIRM_REATTACHMENT -> {
                 RemoteCommand.SourcesConfirmReattachment(SourcesConfirmReattachmentParams(preview.confirmationId))
-            }
-
-            else -> {
-                message("Open this action in its Mediacenter settings page.")
-                return
             }
         }
     command(next)
@@ -136,4 +136,12 @@ internal fun MediaSessionController.sourceProgress(value: OperationState) {
             }
         mutable.value = state.value.copy(busy = true, message = progress, messageOperation = value)
     }
+}
+
+internal fun MediaSessionController.clearConfirmation() {
+    val previous = state.value.preview
+    if (previous?.confirmMethod == ConfirmMethod.BROWSER_OPEN) {
+        retiredBrowserPreview = previous.confirmationId
+    }
+    mutable.value = state.value.copy(preview = null, busy = false)
 }

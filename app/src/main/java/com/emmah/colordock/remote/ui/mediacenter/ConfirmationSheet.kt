@@ -20,22 +20,14 @@ internal fun ConfirmationSheet(
     AlertDialog(
         onDismissRequest = { if (!busy) actions.cancel() },
         modifier = modifier,
-        title = {
-            Text(
-                when (preview.action) {
-                    ActionKind.CHANGE_VPN -> "Change VPN connection?"
-                    ActionKind.REVOKE_DEVICE -> "Revoke phone access?"
-                    ActionKind.BEGIN_PAIRING -> "Pair another phone?"
-                    ActionKind.ADD_SOURCE -> "Add this library folder?"
-                    ActionKind.REMOVE_SOURCE -> "Remove library association?"
-                    ActionKind.REATTACH_SOURCE -> "Confirm this drive attachment?"
-                    else -> title
-                },
-            )
-        },
+        title = { Text(confirmationTitle(preview.action, title)) },
         text = {
             Column {
-                preview.affectedLabels.forEach { Text(it) }
+                preview.browserContext?.let { Text(it.hostname) }
+                preview.affectedLabels.filterNot { it == preview.browserContext?.hostname }.forEach { Text(it) }
+                if (preview.action == ActionKind.APPROVE_BROWSER_ORIGIN) {
+                    Text("This approval applies to the current browser session.")
+                }
                 if (preview.action == ActionKind.REMOVE_SOURCE) Text("Media files stay on the drive.")
                 if (preview.action ==
                     ActionKind.REATTACH_SOURCE
@@ -51,3 +43,19 @@ internal fun ConfirmationSheet(
         dismissButton = { TextButton(onClick = actions.cancel, enabled = !busy) { Text("Cancel") } },
     )
 }
+
+private fun confirmationTitle(
+    action: ActionKind,
+    defaultTitle: String,
+): String =
+    when (action) {
+        ActionKind.CHANGE_VPN -> "Change VPN connection?"
+        ActionKind.REVOKE_DEVICE -> "Revoke phone access?"
+        ActionKind.BEGIN_PAIRING -> "Pair another phone?"
+        ActionKind.ADD_SOURCE -> "Add this library folder?"
+        ActionKind.OPEN_BROWSER -> "Open the streaming service?"
+        ActionKind.APPROVE_BROWSER_ORIGIN -> "Allow input on this site?"
+        ActionKind.REMOVE_SOURCE -> "Remove library association?"
+        ActionKind.REATTACH_SOURCE -> "Confirm this drive attachment?"
+        else -> defaultTitle
+    }

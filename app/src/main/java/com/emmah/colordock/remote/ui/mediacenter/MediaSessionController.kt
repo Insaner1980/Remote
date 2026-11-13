@@ -36,6 +36,7 @@ internal data class MediaSessionState(
     val playlists: PlaylistPage? = null,
     val playlist: PlaylistContents? = null,
     val busy: Boolean = false,
+    val showingMenus: Boolean = false,
 )
 
 /** One owner for native media workflows. Acceptance is never shown as playback success. */
@@ -57,6 +58,7 @@ internal class MediaSessionController(
     internal var playlistSearch: Job? = null
     internal var playPlaylistAfterRead = false
     internal var discoveredModal: String? = null
+    internal var retiredBrowserPreview: String? = null
 
     internal data class Handoff(
         val item: MediaItem,
@@ -74,7 +76,7 @@ internal class MediaSessionController(
             if (state.value.preview?.confirmationId ==
                 id
             ) {
-                mutable.value = state.value.copy(preview = null, busy = false)
+                clearConfirmation()
             }
         })
 
@@ -85,7 +87,9 @@ internal class MediaSessionController(
         ) {
             resetOwner(snapshot)
         } else {
-            mutable.value = state.value.copy(snapshot = snapshot)
+            val sameActivity = old.activity.sessionId == snapshot.activity.sessionId
+            mutable.value =
+                state.value.copy(snapshot = snapshot, showingMenus = sameActivity && state.value.showingMenus)
         }
         if (snapshot == null) return
         mutable.value = state.value.copy(settings = state.value.settings.copy(vpn = snapshot.vpn))
