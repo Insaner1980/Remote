@@ -83,7 +83,7 @@ internal class MediacenterRequests(
         val id = root.getString("id")
         val tracked = requests.remove(id) ?: return
         deadlines.remove(id)?.cancel()
-        val reply = RemoteJson.parseReply(tracked.method, message)
+        val reply = checkedRemoteReply(tracked.method, message)
         val target = pairing() ?: return
         if (tracked.recoveryId != null) {
             when (reply) {
@@ -193,3 +193,11 @@ internal class MediacenterRequests(
         const val REPLY_CAPACITY = 64
     }
 }
+
+private fun checkedRemoteReply(
+    method: MethodName,
+    message: String,
+): McReply =
+    runCatching { RemoteJson.parseReply(method, message) }
+        .onFailure { protocolTrace("Reply ${method.wire} rejected", it) }
+        .getOrThrow()

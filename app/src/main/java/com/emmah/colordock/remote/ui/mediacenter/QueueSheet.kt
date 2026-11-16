@@ -41,38 +41,50 @@ internal fun QueueSheet(
         text = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 if (queue == null) {
-                    Text("Loading queue…")
+                    androidx.compose.material3.LinearProgressIndicator()
                 } else if (queue.items.isEmpty()) {
-                    Text("Queue is empty.")
+                    Text("Empty")
                 }
                 QueueEntries(queue, enabled, actions)
-                TextButton(
-                    onClick = { actions.page(null) },
-                    enabled = state.snapshot != null,
-                ) { Text("First queue page / refresh") }
+                RefreshAction({ actions.page(null) }, enabled = state.snapshot != null, label = "Refresh queue")
                 queue?.nextCursor?.let { cursor ->
-                    TextButton(onClick = { actions.page(cursor) }, enabled = enabled) { Text("Next queue page") }
+                    TextButton(onClick = { actions.page(cursor) }, enabled = enabled) { Text("More") }
                 }
                 val summary = state.snapshot?.queueSummary
-                TextButton(onClick = {
-                    actions.command(RemoteCommand.QueueShuffle(QueueShuffleParams(summary?.shuffle != true)))
-                }, enabled = enabled) { Text("Shuffle: ${summary?.shuffle == true}") }
-                RepeatMode.entries.forEach { mode ->
+                androidx.compose.foundation.layout.Row {
+                    androidx.compose.material3.FilterChip(selected = summary?.shuffle == true, onClick = {
+                        actions.command(RemoteCommand.QueueShuffle(QueueShuffleParams(summary?.shuffle != true)))
+                    }, enabled = enabled, label = { Text("Shuffle") })
+                    val mode = summary?.repeat ?: RepeatMode.OFF
                     TextButton(onClick = {
-                        actions.command(RemoteCommand.QueueRepeat(QueueRepeatParams(mode)))
-                    }, enabled = enabled) { Text("Repeat ${mode.wire}${if (summary?.repeat == mode) " ✓" else ""}") }
+                        val next =
+                            when (mode) {
+                                RepeatMode.OFF -> RepeatMode.ALL
+                                RepeatMode.ALL -> RepeatMode.ONE
+                                RepeatMode.ONE -> RepeatMode.OFF
+                            }
+                        actions.command(RemoteCommand.QueueRepeat(QueueRepeatParams(next)))
+                    }, enabled = enabled) { Text("Repeat ${mode.wire}") }
                 }
-                var name by remember { mutableStateOf("") }
-                OutlinedTextField(name, { name = it }, label = { Text("Playlist name") })
-                TextButton(
-                    onClick = { actions.command(RemoteCommand.PlaylistsSave(PlaylistsSaveParams.SaveQueue(name))) },
-                    enabled =
-                        enabled && name.isNotBlank() && name.length <= 200,
-                ) { Text("Save queue as playlist") }
-                Text(state.message)
+                var saving by remember { mutableStateOf(false) }
+                TextButton(onClick = { saving = !saving }, enabled = enabled) { Text("Save playlist") }
+                if (saving) {
+                    var name by remember { mutableStateOf("") }
+                    OutlinedTextField(
+                        name,
+                        { name = it.take(MEDIA_QUERY_LIMIT) },
+                        label = { Text("Name") },
+                        singleLine = true,
+                    )
+                    TextButton(
+                        onClick = { actions.command(RemoteCommand.PlaylistsSave(PlaylistsSaveParams.SaveQueue(name))) },
+                        enabled = enabled && name.isNotBlank(),
+                    ) { Text("Save") }
+                }
+                state.notice?.let { Text(it.label) }
             }
         },
-        confirmButton = { TextButton(onClick = actions.close) { Text("Close queue") } },
+        confirmButton = { TextButton(onClick = actions.close) { Text("Close") } },
     )
 }
 
@@ -82,35 +94,54 @@ private fun QueueEntries(
     enabled: Boolean,
     actions: QueueActions,
 ) {
-    queue?.items?.forEachIndexed { index, entry ->
-        TextButton(
-            onClick = { actions.play(entry) },
-            enabled =
-                enabled && entry.item.availability == Availability.AVAILABLE,
-        ) { Text(entry.item.name) }
-        if (entry.item.availability != Availability.AVAILABLE) Text("Offline")
-        TextButton(onClick = {
-            actions.command(RemoteCommand.QueueRemove(QueueRemoveParams(entry.entryId)))
-        }, enabled = enabled) { Text("Remove ${entry.item.name}") }
-        if (index >
-            0
-        ) {
-            TextButton(onClick = {
-                actions.command(
-                    RemoteCommand.QueueMove(
-                        QueueMoveParams(
-                            entry.entryId,
-                            queue.items[
-                                index -
-                                    1,
-                            ].entryId,
-                        ),
-                    ),
-                )
-            }, enabled = enabled) { Text("Move ${entry.item.name} up") }
+    Column {
+        queue?.items?.forEachIndexed { index, entry ->
+            androidx.compose.runtime.key(entry.entryId) {
+                val title = mediaTitle(entry.item.name)
+                androidx.compose.foundation.layout.Row(
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                ) {
+                    TextButton(
+                        onClick = { actions.play(entry) },
+                        enabled =
+                            enabled && entry.item.availability == Availability.AVAILABLE,
+                        modifier = Modifier.weight(1f),
+                    ) { Text(title, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
+                    val options =
+                        buildList {
+                            add(
+                                MenuAction(
+                                    "Remove",
+                                    enabled,
+                                ) { actions.command(RemoteCommand.QueueRemove(QueueRemoveParams(entry.entryId))) },
+                            )
+                            if (index > 0) {
+                                add(
+                                    MenuAction("Move up", enabled) {
+                                        actions.command(
+                                            RemoteCommand.QueueMove(
+                                                QueueMoveParams(entry.entryId, queue.items[index - 1].entryId),
+                                            ),
+                                        )
+                                    },
+                                )
+                            }
+                            add(
+                                MenuAction(
+                                    "Move to end",
+                                    enabled,
+                                ) { actions.command(RemoteCommand.QueueMove(QueueMoveParams(entry.entryId))) },
+                            )
+                        }
+                    ItemActions(
+                        "Options for $title",
+                        options,
+                        modifier = Modifier.testTag("queue-options-${entry.entryId}"),
+                        enabled = enabled,
+                    )
+                }
+                if (entry.item.availability != Availability.AVAILABLE) Text("Offline")
+            }
         }
-        TextButton(onClick = {
-            actions.command(RemoteCommand.QueueMove(QueueMoveParams(entry.entryId)))
-        }, enabled = enabled) { Text("Move ${entry.item.name} to end") }
     }
 }

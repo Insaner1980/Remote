@@ -51,9 +51,11 @@ class MediacenterUsabilityTest {
         compose.setContent { IdleTarget { sent.add(it) } }
         compose.onNodeWithText("idle").assertDoesNotExist()
         compose.onNodeWithText("Pause").assertDoesNotExist()
-        compose.waitUntil(5_000) { sent.any { it.command is RemoteCommand.LibraryQuery } }
-        compose.runOnIdle { sent.clear() }
-        compose.onNodeWithText("Browse library").performClick()
+        compose
+            .onNodeWithText(
+                "Browse your videos, music and photos, or choose a streaming service.",
+            ).assertDoesNotExist()
+        compose.onNodeWithTag("media-nav-Library").performClick()
         compose.onNodeWithTag("media-nav-Library").assertIsSelected()
         compose.waitUntil(5_000) { sent.any { it.command is RemoteCommand.LibraryQuery } }
         compose.runOnIdle { assertTrue(sent.none { it.command is RemoteCommand.PlayerPause }) }

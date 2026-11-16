@@ -84,13 +84,41 @@ class RemoteStateReducerTest {
         assertFalse(reducer.ready)
     }
 
-    @Test fun rejectsSequenceAndTopicRevisionRegressions() {
+    @Test fun consumesSupersededTopicCopiesButStillRejectsSequenceRegressions() {
         val reducer = ready()
         assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("1", "9")))
-        assertEquals(StateReduction.ResyncRequired, reducer.apply(RecoveryFixture.event("2", "8")))
-        assertFalse(reducer.ready)
+        assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("2", "8")))
+        assertTrue(reducer.ready)
+        assertEquals("9", reducer.snapshot!!.connection.revision)
+        assertEquals("2", reducer.snapshot!!.sequence)
+        assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("3", "10")))
         val other = ready()
         assertEquals(StateReduction.ResyncRequired, other.apply(RecoveryFixture.event("0", "9")))
+    }
+
+    @Test fun snapshotCoveredEventConsumesSequenceWithoutReplacingNewerTopicTruth() {
+        val reducer = ready()
+        val snapshot =
+            JSONObject(RecoveryFixture.snapshot()).apply {
+                getJSONObject("connection").put("revision", "9").put("displayName", "Current name")
+            }
+        assertEquals(StateReduction.Applied, reducer.apply(snapshot.toString()))
+        assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("1", "9")))
+        assertEquals("Current name", reducer.snapshot!!.connection.displayName)
+        assertEquals("1", reducer.snapshot!!.sequence)
+        assertTrue(reducer.ready)
+        assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("2", "10")))
+        assertEquals("New name", reducer.snapshot!!.connection.displayName)
+    }
+
+    @Test fun skippedTopicCopyCannotConcealALaterSequenceGapOrChangedEpoch() {
+        val reducer = ready()
+        assertEquals(StateReduction.Applied, reducer.apply(RecoveryFixture.event("1", "0")))
+        assertEquals(StateReduction.ResyncRequired, reducer.apply(RecoveryFixture.event("3", "2")))
+        assertFalse(reducer.ready)
+        val other = ready()
+        assertEquals(StateReduction.ResyncRequired, other.apply(RecoveryFixture.event("1", "0", epoch = "other")))
+        assertFalse(other.ready)
     }
 
     @Test fun rejectsWrongSnapshotIdentityAndEpochAndProtocolVersion() {

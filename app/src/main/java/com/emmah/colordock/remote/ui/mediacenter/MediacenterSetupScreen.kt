@@ -37,36 +37,37 @@ fun MediacenterSetupScreen(
     onManual: (String, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var manual by remember { mutableStateOf(false) }
     var address by remember { mutableStateOf("") }
     var port by remember { mutableStateOf("47831") }
     Column(modifier.verticalScroll(rememberScrollState())) {
-        Text("Open Remote control in Mediacenter Settings on your computer.")
         if (!lanGranted) {
-            Text("Allow local network access to pair with your computer.")
             Button(
                 onClick = { onPermission(MediacenterSetupPermission.LocalNetwork) },
-            ) { Text("Allow local network access") }
+            ) { Text("Allow Wi-Fi access") }
         }
         Button(
             onClick = { onPermission(MediacenterSetupPermission.Camera) },
             enabled = lanGranted,
         ) { Text("Scan code") }
-        if (cameraDenied) Text("Camera access declined. You can pair manually.")
+        if (cameraDenied) Text("Camera unavailable")
         Spacer(Modifier.height(16.dp))
-        Text("Pair manually", style = MaterialTheme.typography.titleMedium)
-        OutlinedTextField(address, { address = it }, label = { Text("Computer address") }, singleLine = true)
-        OutlinedTextField(
-            port,
-            { port = it },
-            label = { Text("Port") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        )
-        Button(
-            onClick = { port.toIntOrNull()?.let { onManual(address, it) } },
-            enabled = lanGranted && port.toIntOrNull()?.let { MediacenterEndpoint.parse(address, it) } != null,
-        ) {
-            Text("Compare verification phrase")
+        TextButton(onClick = { manual = !manual }) { Text("Enter address") }
+        if (manual) {
+            OutlinedTextField(address, { address = it }, label = { Text("Computer address") }, singleLine = true)
+            OutlinedTextField(
+                port,
+                { port = it },
+                label = { Text("Port") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+            Button(
+                onClick = { port.toIntOrNull()?.let { onManual(address, it) } },
+                enabled = lanGranted && port.toIntOrNull()?.let { MediacenterEndpoint.parse(address, it) } != null,
+            ) {
+                Text("Connect")
+            }
         }
     }
 }

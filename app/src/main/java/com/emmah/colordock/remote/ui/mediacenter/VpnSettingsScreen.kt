@@ -1,6 +1,7 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -25,15 +26,26 @@ internal fun VpnSettings(
     var expanded by remember { mutableStateOf(false) }
     var selected by remember(state.countries) { mutableStateOf<String?>(null) }
     Column(modifier) {
-        Text("VPN")
-        Text("State: ${state.vpn?.state?.wire ?: "unknown"}")
-        Text("Country: ${state.vpn?.country ?: "unknown"}")
-        Text("Kill Switch: ${state.vpn?.killSwitch?.wire ?: "unknown"}")
+        androidx.compose.foundation.layout.Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+        ) {
+            Text(
+                when (state.vpn?.state) {
+                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.CONNECTED -> "Connected"
+                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.CONNECTING -> "Connecting…"
+                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.DISCONNECTED -> "Disconnected"
+                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.FAILED -> "Couldn't connect"
+                    else -> "Unavailable"
+                },
+            )
+            state.vpn?.country?.let { Text(it) }
+        }
         TextButton(onClick = { expanded = true }, enabled = enabled && state.countries.isNotEmpty()) {
-            Text(state.countries.firstOrNull { it.id == selected }?.label ?: "Recommended country")
+            Text(state.countries.firstOrNull { it.id == selected }?.label ?: "Automatic")
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text("Recommended country") }, onClick = {
+            DropdownMenuItem(text = { Text("Automatic") }, onClick = {
                 selected = null
                 expanded = false
             })
@@ -47,11 +59,10 @@ internal fun VpnSettings(
         TextButton(
             onClick = { send(RemoteCommand.VpnPrepareChange(VpnPrepareChangeParams(VpnAction.CONNECT, selected))) },
             enabled = enabled,
-        ) { Text("Connect VPN…") }
+        ) { Text("Connect") }
         TextButton(
             onClick = { send(RemoteCommand.VpnPrepareChange(VpnPrepareChangeParams(VpnAction.DISCONNECT))) },
             enabled = enabled,
-        ) { Text("Disconnect VPN…") }
-        Text("VPN changes can interrupt streaming and this phone connection. Review the confirmation first.")
+        ) { Text("Disconnect") }
     }
 }

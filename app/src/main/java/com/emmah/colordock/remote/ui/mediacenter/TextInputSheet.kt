@@ -27,9 +27,9 @@ internal fun TextInputSheet(
         onDismissRequest = dismiss,
         modifier = modifier,
         properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn),
-        title = { Text("Type on computer") },
+        title = { Text("Keyboard") },
         text = {
-            OutlinedSecureTextField(state = field, label = { Text("Text for the selected browser field") })
+            OutlinedSecureTextField(state = field, label = { Text("Text") })
         },
         confirmButton = {
             TextButton(
@@ -38,7 +38,7 @@ internal fun TextInputSheet(
                     if (field.composition == null && sendText(current.toString())) dismiss()
                 },
                 enabled = committed,
-            ) { Text("Send text") }
+            ) { Text("Send") }
         },
         dismissButton = { TextButton(onClick = dismiss) { Text("Cancel") } },
     )

@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -93,15 +94,16 @@ class DrivesScreenTest {
                 font.floatValue = scale
             }
             compose
-                .onNodeWithText("Mount Movies")
+                .onNodeWithText("Connect")
                 .performScrollTo()
                 .assertIsDisplayed()
                 .performClick()
             compose
-                .onNodeWithText("Safely remove USB")
+                .onNodeWithContentDescription("Drive options for USB")
                 .performScrollTo()
                 .assertIsDisplayed()
                 .performClick()
+            compose.onNodeWithText("Eject").performClick()
         }
         compose.runOnIdle {
             assertEquals("opaque-volume", mounted)
@@ -109,7 +111,7 @@ class DrivesScreenTest {
             connected.value =
                 false
         }
-        compose.onNodeWithText("Safely remove USB").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("Drive options for USB").assertIsNotEnabled()
     }
 
     @Test fun targetSettingsShowsNativeSiblingImpactsAndConfirmsOnlyTheId() {
@@ -117,7 +119,8 @@ class DrivesScreenTest {
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Safely remove USB").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Drive options for USB").performScrollTo().performClick()
+        compose.onNodeWithText("Eject").performClick()
         compose.runOnIdle {
             assertTrue(sent.last().command is RemoteCommand.DrivesPrepareEject)
             val preview =
@@ -151,7 +154,7 @@ class DrivesScreenTest {
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             val request = sent.last().id
             media.receive(
@@ -170,7 +173,7 @@ class DrivesScreenTest {
                 ),
             )
         }
-        compose.onNodeWithText("Use the computer to authorize", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Approve on computer", substring = true).assertIsDisplayed()
     }
 
     @Test fun disconnectedAcceptedEjectShowsRecoveredTerminalOutcomeInCanonicalSettings() {
@@ -184,14 +187,14 @@ class DrivesScreenTest {
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         val cases =
             listOf(
-                Triple(OperationStatus.SUCCEEDED, null, "Earlier safe-removal operation completed"),
-                Triple(OperationStatus.FAILED, WireErrorCode.BUSY, "Close its files"),
+                Triple(OperationStatus.SUCCEEDED, null, "Safe to unplug"),
+                Triple(OperationStatus.FAILED, WireErrorCode.BUSY, "Close files on computer"),
                 Triple(
                     OperationStatus.FAILED,
                     WireErrorCode.LOCAL_AUTHORIZATION_REQUIRED,
-                    "authorization on the computer",
+                    "Approve on computer",
                 ),
-                Triple(OperationStatus.OUTCOME_UNKNOWN, WireErrorCode.OUTCOME_UNKNOWN, "outcome is unknown"),
+                Triple(OperationStatus.OUTCOME_UNKNOWN, WireErrorCode.OUTCOME_UNKNOWN, "Not confirmed"),
             )
         cases.forEach { (status, code, message) ->
             compose.runOnIdle {
@@ -233,7 +236,7 @@ class DrivesScreenTest {
                 ),
             )
         }
-        compose.onNodeWithText("Cancel recovered drive operation").performScrollTo().performClick()
+        compose.onNodeWithText("Cancel").performScrollTo().performClick()
         compose.runOnIdle {
             val cancel = sent.last().command as RemoteCommand.OperationsCancel
             assertEquals("eject-op", cancel.params.operationId)
@@ -252,13 +255,16 @@ class DrivesScreenTest {
                 ),
             )
         }
-        compose
-            .onNodeWithText(
-                "Earlier drive operation was cancelled",
-                substring = true,
-            ).performScrollTo()
-            .assertIsDisplayed()
-        compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
+        compose.onNodeWithText("Working…").assertDoesNotExist()
+        compose.runOnIdle {
+            assertEquals(
+                OperationStatus.CANCELLED,
+                recovery.state.value
+                    .single()
+                    .operation.status,
+            )
+        }
+        compose.onNodeWithText("Cancel").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, sent.count { it.command is RemoteCommand.DrivesConfirmEject }) }
     }
 
@@ -268,7 +274,7 @@ class DrivesScreenTest {
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             val request = sent.last().id
             media.receive(
@@ -281,11 +287,8 @@ class DrivesScreenTest {
             media.operation(done)
             recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, done))
         }
-        compose
-            .onNodeWithText("Earlier mount operation completed", substring = true)
-            .performScrollTo()
-            .assertIsDisplayed()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Earlier mount operation completed", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(2, sent.count { it.command is RemoteCommand.DrivesMount })
             media.receive(
@@ -293,8 +296,7 @@ class DrivesScreenTest {
             )
         }
         compose
-            .onNodeWithText("Another application may be using the drive", substring = true)
-            .performScrollTo()
+            .onNodeWithText("Close files on computer", substring = true)
             .assertIsDisplayed()
     }
 
@@ -310,26 +312,22 @@ class DrivesScreenTest {
             }, { media = it }, recovered.value)
         }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             val done = acceptMount(media, sent.last()).copy(status = OperationStatus.SUCCEEDED)
             media.operation(done)
             recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, done))
             ready = false
         }
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(2, sent.count { it.command is RemoteCommand.DrivesMount })
             assertEquals(recovered.value.single().operation, media.observedOperation)
         }
         compose
-            .onNodeWithText("Mediacenter is not ready for this action", substring = true)
-            .performScrollTo()
+            .onNodeWithText("Try again", substring = true)
             .assertIsDisplayed()
-        compose
-            .onNodeWithText("Earlier mount operation completed", substring = true)
-            .performScrollTo()
-            .assertIsDisplayed()
+        compose.onNodeWithText("Earlier mount operation completed", substring = true).assertDoesNotExist()
     }
 
     @Test fun sameNativeOperationHasOneCanonicalStatusOnlyWhereRecoveryIsRendered() {
@@ -339,18 +337,17 @@ class DrivesScreenTest {
         lateinit var running: OperationState
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             running = acceptMount(media, sent.last())
             recovered.value = listOf(RecoveredDrive(DriveWork.MOUNT, running))
         }
         compose.onNodeWithText("Drive operation running", substring = true).assertDoesNotExist()
-        compose.onAllNodesWithText("Earlier drive operation is still running", substring = true).assertCountEquals(1)
-        compose.onAllNodesWithText("Cancel recovered drive operation").assertCountEquals(1)
-        compose.onNodeWithText("Cancel drive operation").assertDoesNotExist()
+        compose.onAllNodesWithText("Working…").assertCountEquals(1)
+        compose.onAllNodesWithText("Cancel").assertCountEquals(1)
         listOf(MediaDestination.Remote, MediaDestination.Library).forEach { destination ->
             compose.runOnIdle { media.destination(destination) }
-            compose.onNodeWithText("Drive operation running", substring = true).performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Working…").assertIsDisplayed()
             compose.onNodeWithText("Earlier drive operation is still running", substring = true).assertDoesNotExist()
         }
         compose.runOnIdle {
@@ -362,8 +359,8 @@ class DrivesScreenTest {
         }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Drive operation running", substring = true).assertDoesNotExist()
-        compose.onAllNodesWithText("Earlier mount operation completed", substring = true).assertCountEquals(1)
-        compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
+        compose.onAllNodesWithText("Working…").assertCountEquals(0)
+        compose.onNodeWithText("Cancel").assertDoesNotExist()
     }
 
     @Test fun activeControllerCancellationAckKeepsOneCanonicalRecoveredWaitingStatus() {
@@ -372,7 +369,7 @@ class DrivesScreenTest {
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             val waiting = acceptMount(media, sent.last()).copy(cancellationRequested = true)
             media.operation(waiting)
@@ -387,8 +384,8 @@ class DrivesScreenTest {
             assertTrue(media.state.value.busy)
         }
         compose.onNodeWithText("Cancellation requested. Waiting for native completion.").assertDoesNotExist()
-        compose.onAllNodesWithText("waiting", substring = true, ignoreCase = true).assertCountEquals(1)
-        compose.onAllNodesWithText("Cancel recovered drive operation").assertCountEquals(1)
+        compose.onAllNodesWithText("Stopping…").assertCountEquals(1)
+        compose.onAllNodesWithText("Cancel").assertCountEquals(1)
     }
 
     private fun acceptMount(

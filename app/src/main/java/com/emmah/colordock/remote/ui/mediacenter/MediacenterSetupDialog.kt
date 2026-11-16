@@ -51,6 +51,7 @@ fun MediacenterSetupDialog(
     model: @Composable () -> MediacenterViewModel = { viewModel() },
 ) {
     val viewModel = model()
+    val setup by viewModel.ui.collectAsStateWithLifecycle()
     var scanning by remember { mutableStateOf(false) }
     val camera =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -83,7 +84,9 @@ fun MediacenterSetupDialog(
             viewModel.closeSetup()
         }
     }
-    AlertDialog(onDismissRequest = onDismiss, modifier = modifier, title = { Text("Add Mediacenter") }, text = {
+    AlertDialog(onDismissRequest = onDismiss, modifier = modifier, title = {
+        Text(if (setup.saved) "Connection" else "Add computer")
+    }, text = {
         MediacenterDialogContent(viewModel, scanning, { scanning = it }, { permission ->
             when (permission) {
                 MediacenterSetupPermission.Camera -> camera.launch(Manifest.permission.CAMERA)
@@ -133,7 +136,7 @@ private fun MediacenterDialogContent(
                 TextButton(onClick = { onScanningChange(false) }) { Text("Pair manually") }
             }
 
-            else -> {
+            !ui.saved || ui.observation != null -> {
                 MediacenterManualSetup(
                     ui,
                     onPermission,
@@ -144,8 +147,8 @@ private fun MediacenterDialogContent(
             }
         }
         if (!ui.lanGranted) MediacenterLanSettings()
-        if (ui.busy) Text(if (ui.forgetting) "Removing saved Mediacenter…" else "Connecting securely…")
-        if (ui.status.isNotEmpty()) Text(ui.status)
+        if (ui.busy) androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth())
+        SetupNotice(ui, connection)
         MediacenterConnectionStatus(connection)
         val browsingSetup = ui.observation == null && !scanning
         val hasSavedAction = ui.saved || ui.forgetFailed
@@ -163,13 +166,21 @@ private fun MediacenterNetworkOptions(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
-        Text("Choose your local Wi-Fi network", style = MaterialTheme.typography.titleMedium)
+        Text("Wi-Fi", style = MaterialTheme.typography.titleMedium)
         networks.forEach { network ->
             TextButton(onClick = { onSelect(network) }, enabled = !ui.busy) {
-                Text(if (ui.networkName == network.label) "✓ ${network.label}" else network.label)
+                Text(
+                    if (ui.networkName ==
+                        network.label
+                    ) {
+                        "✓ ${network.label.substringBefore(" (")}"
+                    } else {
+                        network.label.substringBefore(" (")
+                    },
+                )
             }
         }
-        if (ui.lanGranted && networks.isEmpty()) Text("Connect your phone to Wi-Fi, then reopen this screen.")
+        if (ui.lanGranted && networks.isEmpty()) Text("Connect to Wi-Fi")
     }
 }
 
@@ -191,47 +202,47 @@ private fun MediacenterConnectionStatus(
     val message =
         when (connection) {
             MediacenterConnectionState.Connected -> {
-                "Connected to Mediacenter"
+                "Connected"
             }
 
             MediacenterConnectionState.Connecting -> {
-                "Connecting to Mediacenter…"
+                "Connecting…"
             }
 
             MediacenterConnectionState.Synchronizing -> {
-                "Refreshing Mediacenter state…"
+                "Connecting…"
             }
 
             MediacenterConnectionState.Reconnecting -> {
-                "Reconnecting to Mediacenter…"
+                "Connecting…"
             }
 
             MediacenterConnectionState.IdentityChanged -> {
-                "Mediacenter identity changed. Check the computer and pair again explicitly."
+                "Computer changed. Pair again."
             }
 
             MediacenterConnectionState.VersionMismatch -> {
-                "Update Remote or Mediacenter to use compatible versions."
+                "Update Remote and Mediacenter"
             }
 
             MediacenterConnectionState.NetworkUnavailable -> {
-                "The selected Wi-Fi is unavailable. Select your local Wi-Fi again."
+                "Choose Wi-Fi"
             }
 
             MediacenterConnectionState.Failed -> {
-                "Connection failed. Check Wi-Fi and the computer's Remote control settings, then retry."
+                "Couldn't connect"
             }
 
             MediacenterConnectionState.PairingRequired -> {
-                "This phone was revoked. Pair with Mediacenter again."
+                "Pair again"
             }
 
             MediacenterConnectionState.ResyncRequired -> {
-                "Reconnect Mediacenter to refresh its state."
+                "Reconnect"
             }
 
             MediacenterConnectionState.PermissionRequired -> {
-                "Allow local network access and select Wi-Fi again."
+                "Allow Wi-Fi access"
             }
 
             else -> {
@@ -250,14 +261,14 @@ private fun MediacenterConnectionActions(
 ) {
     Column(modifier) {
         if (canReconnect) {
-            TextButton(onClick = { connections.connect() }) { Text("Retry Mediacenter") }
-            TextButton(onClick = connections::find) { Text("Find paired Mediacenter") }
+            TextButton(onClick = { connections.connect() }) { Text("Reconnect") }
+            TextButton(onClick = connections::find) { Text("Find computer") }
             candidates.forEach { endpoint ->
-                TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect at ${endpoint.address}") }
+                TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect") }
             }
         }
         TextButton(onClick = connections::forget) {
-            Text(if (canReconnect) "Forget on this phone" else "Retry forgetting on this phone")
+            Text(if (canReconnect) "Remove computer" else "Try again")
         }
     }
 }
@@ -295,13 +306,13 @@ private fun ManualVerification(
 ) {
     var code by remember(observation) { mutableStateOf("") }
     Column(modifier.verticalScroll(rememberScrollState())) {
-        Text("Compare these six words with the words on your computer or TV.")
+        Text("Match the words on the computer")
         Text(observation.phrase.joinToString(" "), style = MaterialTheme.typography.titleLarge)
         if (ui.codeReady) {
             OutlinedTextField(
                 code,
                 { code = it.uppercase(Locale.ROOT).take(MANUAL_CODE_LENGTH) },
-                label = { Text("One-use code") },
+                label = { Text("Code") },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
             )
@@ -312,11 +323,11 @@ private fun ManualVerification(
                     actions.pair(submitted)
                 },
                 enabled = !ui.busy && code.matches(Regex("[A-Z2-7]{12}")),
-            ) { Text("Pair Mediacenter") }
+            ) { Text("Connect") }
         } else {
             Button(onClick = { actions.confirm(observation) }, enabled = !ui.busy) { Text("These words match") }
         }
-        TextButton(onClick = actions.reject) { Text("Words do not match") }
+        TextButton(onClick = actions.reject) { Text("Cancel") }
     }
 }
 
@@ -345,3 +356,15 @@ private fun MediacenterCameraPreview(
 }
 
 private const val MANUAL_CODE_LENGTH = 12
+
+@Composable
+private fun SetupNotice(
+    ui: MediacenterSetupState,
+    connection: MediacenterConnectionState,
+) {
+    if (ui.forgetFailed) {
+        Text("Couldn't remove computer")
+    } else if (!ui.saved && !ui.busy) {
+        if (ui.status.isNotEmpty() && connection != MediacenterConnectionState.Connected) Text("Try again")
+    }
+}

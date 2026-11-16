@@ -75,20 +75,21 @@ class SettingsScreenTest {
                 scale.floatValue = font
                 section.value = SettingsSection.VPN
             }
-            compose.onNodeWithText("Connect VPN…").performScrollTo().performClick()
+            compose.onNodeWithText("Connect").performScrollTo().performClick()
             assertTrue(sent.last() is RemoteCommand.VpnPrepareChange)
             compose.onNodeWithContentDescription("Require VPN for Netflix").performScrollTo().performClick()
             assertEquals(false, (sent.last() as RemoteCommand.VpnRequirementSet).params.required)
             compose.runOnIdle { section.value = SettingsSection.Devices }
-            compose.onNodeWithText("Revoke Sofa phone").performScrollTo().performClick()
+            compose.onNodeWithContentDescription("Phone options for Sofa phone").performScrollTo().performClick()
+            compose.onNodeWithText("Remove").performClick()
             assertEquals("phone", (sent.last() as RemoteCommand.DevicesRevoke).params.deviceId)
-            compose.onNodeWithText("Pair another phone").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Add phone").performScrollTo().assertIsDisplayed()
         }
         compose.runOnIdle {
             state.value = state.value.copy(snapshot = null)
             section.value = SettingsSection.VPN
         }
-        compose.onNodeWithText("Connect VPN…").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Connect").performScrollTo().assertIsNotEnabled()
         assertTrue(
             state.value.settings.native
                 ?.servicePreferences
@@ -97,25 +98,19 @@ class SettingsScreenTest {
         )
     }
 
-    @Test fun connectionGuidanceUsesObservedVersionAndReadOnlyHelpWithoutSendingCommands() {
-        val state = mutableStateOf(settingsScreenState())
+    @Test fun advancedHasOrdinaryControlsAndNoDiagnosticHelp() {
         val sent = mutableListOf<RemoteCommand>()
         compose.setContent {
             RemoteTheme {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    SettingsScreen(state.value, RoutineSettingsActions({ sent.add(it) }, {}, {}))
+                    SettingsScreen(settingsScreenState(), RoutineSettingsActions({ sent.add(it) }, {}, {}))
                 }
             }
         }
-        compose.onNodeWithText("Installed NordVPN version: 3.20.1").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("nordvpn set lan-discovery --help").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("nordvpn allowlist --help").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("NordVPN Linux setup guide").performScrollTo().assertIsDisplayed()
-        compose.runOnIdle {
-            state.value = state.value.copy(snapshot = null, settings = RoutineSettingsState())
-        }
-        compose.onNodeWithText("Installed NordVPN version: unknown").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("nordvpn --version").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Start automatically").assertIsDisplayed()
+        compose.onNodeWithText("Stop playback").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("3.20.1", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("nordvpn", substring = true).assertDoesNotExist()
         assertTrue(sent.isEmpty())
     }
 
@@ -125,15 +120,14 @@ class SettingsScreenTest {
         compose.setContent { RemoteTheme { PairingDisplay(value.value, { hidden = true }) } }
         compose
             .onNodeWithText(
-                "This computer did not provide a pairing QR code. " +
-                    "Update Mediacenter and prepare a new pairing window.",
+                "QR code unavailable",
             ).assertIsDisplayed()
         compose.runOnIdle { value.value = PairingDisplayState("attempt", List(21) { "0".repeat(21) }) }
         compose
             .onNodeWithText(
-                "Scan with the other phone within two minutes. This code works once.",
+                "Scan with the other phone",
             ).assertIsDisplayed()
-        compose.onNodeWithText("Hide code").performClick()
+        compose.onNodeWithText("Close").performClick()
         assertTrue(hidden)
         assertFalse(value.value.toString().contains("000000000000000000000"))
         assertFalse(validPairingRows(List(21) { "1".repeat(22) }))

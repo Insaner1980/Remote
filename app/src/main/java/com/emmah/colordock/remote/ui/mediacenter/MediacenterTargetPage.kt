@@ -205,7 +205,7 @@ internal fun MediacenterTargetContent(
     }
     Column(modifier.fillMaxSize()) {
         Column(
-            Modifier.weight(1f).verticalScroll(contentScroll).padding(horizontal = 20.dp),
+            Modifier.padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             MediacenterPageHeading(state.destination, settingsNavigation.section, backToSettings) {
@@ -213,11 +213,16 @@ internal fun MediacenterTargetContent(
                     model.feedback.pending,
                     model.feedback.uncertain,
                     model.feedback.recoveryAvailable,
-                    message = state.message,
+                    notice = state.notice,
                 )
             }
             header()
             InlineMediaStatus(model, settingsNavigation.section)
+        }
+        Column(
+            Modifier.weight(1f).verticalScroll(contentScroll).padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             when (state.destination) {
                 MediaDestination.Remote -> TargetRemote(model, controllers)
                 MediaDestination.Library -> TargetLibrary(model, controllers, thumbnail, navigation)
@@ -315,13 +320,6 @@ private fun ColumnScope.TargetRemote(
             }
         }
     }
-    if (state.snapshot?.activity?.mode == ActivityMode.IDLE) {
-        Text("Browse your videos, music and photos, or choose a streaming service.")
-        Button(onClick = {
-            media.destination(MediaDestination.Library)
-            controllers.library.search("", libraryState.kind)
-        }, modifier = Modifier.fillMaxWidth()) { Text("Browse library") }
-    }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(
             onClick = {
@@ -331,16 +329,21 @@ private fun ColumnScope.TargetRemote(
             enabled =
                 state.snapshot != null && !state.busy,
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Show menus on computer") }
+        ) { Text("Menu") }
         if (state.snapshot?.activity?.sessionId != null) {
             OutlinedButton(
                 onClick = { media.command(RemoteCommand.ActivityShowPlayback(Empty)) },
                 enabled =
                     !state.busy,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Show current playback") }
+            ) { Text("Playback") }
         }
     }
+    StreamingServices(
+        model.streaming,
+        !state.busy && state.preview == null && model.sound.preview == null,
+        { media.openBrowser(model.streaming, it) },
+    )
     val browser = controllers.browser
     if (browserActive && !state.showingMenus && browser != null) {
         val enabled = state.browserInputVisible() && model.sound.preview == null
@@ -348,11 +351,6 @@ private fun ColumnScope.TargetRemote(
     } else {
         RendererControls(state.snapshot, renderer)
     }
-    StreamingServices(
-        model.streaming,
-        !state.busy && state.preview == null && model.sound.preview == null,
-        { media.openBrowser(model.streaming, it) },
-    )
 }
 
 @Composable

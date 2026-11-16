@@ -45,8 +45,7 @@ class SimpleSettingsNavigationTest {
             compose
                 .onNodeWithContentDescription(
                     "Back to settings",
-                ).performScrollTo()
-                .assertIsDisplayed()
+                ).assertIsDisplayed()
                 .performClick()
         }
         compose.onNodeWithText("nordvpn --version").assertDoesNotExist()
@@ -78,9 +77,9 @@ class SimpleSettingsNavigationTest {
     @Test fun offlineOverviewAndBackRemainUsableAtDoubleTextSize() {
         showSettings(offline = true, largeText = true)
         compose.onNodeWithTag("settings-section-Advanced").performScrollTo().performClick()
-        compose.onNodeWithContentDescription("Back to settings").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Back to settings").performClick()
         compose.onNodeWithTag("settings-section-VPN").performScrollTo().performClick()
-        compose.onNodeWithText("Connect VPN…").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Connect").performScrollTo().assertIsNotEnabled()
         compose
             .onNodeWithTag("media-nav-Remote")
             .assertIsDisplayed()

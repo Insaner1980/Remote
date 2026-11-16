@@ -26,13 +26,26 @@ class ThemeSettingsTest {
             compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithContentDescription("Settings").performScrollTo().performClick()
-        compose.onNodeWithText("App theme").assertIsDisplayed()
+        compose.onNodeWithText("Appearance").assertIsDisplayed()
     }
 
     private fun choose(theme: AppTheme) {
-        compose.onNodeWithText(theme.label).performScrollTo().performClick()
+        compose.onNodeWithText(if (theme == AppTheme.SoftDark) "Dark" else "Light").performScrollTo().performClick()
         compose.waitUntil(5_000) {
-            compose.onAllNodes(hasText(theme.label) and isSelected()).fetchSemanticsNodes().size == 1
+            compose
+                .onAllNodes(
+                    hasText(
+                        if (theme ==
+                            AppTheme.SoftDark
+                        ) {
+                            "Dark"
+                        } else {
+                            "Light"
+                        },
+                    ) and isSelected(),
+                ).fetchSemanticsNodes()
+                .size ==
+                1
         }
     }
 
@@ -43,7 +56,17 @@ class ThemeSettingsTest {
             compose.onNodeWithText("Done").performClick()
             compose.activityRule.scenario.recreate()
             settings()
-            compose.onNodeWithText(theme.label).performScrollTo().assertIsSelected()
+            compose
+                .onNodeWithText(
+                    if (theme ==
+                        AppTheme.SoftDark
+                    ) {
+                        "Dark"
+                    } else {
+                        "Light"
+                    },
+                ).performScrollTo()
+                .assertIsSelected()
         }
         compose.onNodeWithText("Done").performClick()
     }
@@ -52,11 +75,11 @@ class ThemeSettingsTest {
         settings()
         choose(AppTheme.WarmLight)
         Espresso.pressBack()
-        compose.onNodeWithText("App theme").assertDoesNotExist()
+        compose.onNodeWithText("Appearance").assertDoesNotExist()
         for (tab in listOf("Wallpapers", "Color Dock", "Remote")) {
             compose.onNodeWithText(tab, useUnmergedTree = true).performClick()
             settings()
-            compose.onNodeWithText("Warm light").performScrollTo().assertIsSelected()
+            compose.onNodeWithText("Light").performScrollTo().assertIsSelected()
             compose.onNodeWithText("Done").performClick()
         }
     }

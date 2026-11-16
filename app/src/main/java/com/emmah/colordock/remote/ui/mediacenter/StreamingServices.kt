@@ -1,21 +1,24 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.emmah.colordock.remote.mediacenter.protocol.SupportedState
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 
 @Composable
 internal fun StreamingServices(
@@ -26,44 +29,51 @@ internal fun StreamingServices(
 ) {
     val catalog = streaming.capabilities ?: return
     if (catalog.services.isEmpty()) return
-    var showing by remember { mutableStateOf(false) }
     Column(modifier) {
-        OutlinedButton(onClick = {
-            showing = true
-        }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Streaming services") }
-        if (showing && enabled) {
-            AlertDialog(
-                onDismissRequest = { showing = false },
-                title = { Text("Streaming services") },
-                text = {
-                    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-                        if (!catalog.browserBridge) {
-                            Text("Open the enrolled Chrome profile on the computer to use streaming controls.")
-                        }
-                        catalog.services.forEach { service ->
-                            val serviceId = service.serviceId
-                            TextButton(
-                                enabled = streaming.canLaunch(serviceId),
-                                onClick = {
-                                    showing = false
-                                    open(serviceId)
+        if (catalog.services.none { streaming.canLaunch(it.serviceId) }) Text("Apps unavailable")
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            catalog.services.forEach { service ->
+                val id = service.serviceId
+                OutlinedButton(
+                    onClick = { open(id) },
+                    enabled = enabled && streaming.canLaunch(id),
+                    modifier = Modifier.size(64.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(6.dp),
+                ) {
+                    Image(
+                        painterResource(serviceIcon(id)),
+                        contentDescription = "Open ${serviceLabel(id)}",
+                        modifier =
+                            Modifier.fillMaxSize().alpha(
+                                if (enabled &&
+                                    streaming.canLaunch(id)
+                                ) {
+                                    1f
+                                } else {
+                                    DISABLED_APP_ALPHA
                                 },
-                            ) { Text(serviceLabel(serviceId)) }
-                            val limitation =
-                                service.limitation ?: when (service.support) {
-                                    SupportedState.UNSUPPORTED -> "Unavailable from Remote"
-                                    SupportedState.PARTIAL -> "Website controls"
-                                    SupportedState.SUPPORTED -> null
-                                }
-                            if (limitation != null) Text(limitation, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                },
-                confirmButton = { TextButton(onClick = { showing = false }) { Text("Done") } },
-            )
+                            ),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
+            }
         }
     }
 }
+
+private fun serviceIcon(id: String): Int =
+    when (id) {
+        "netflix" -> R.drawable.tv_app_netflix
+        "youtube" -> R.drawable.tv_app_youtube
+        "hbo_max" -> R.drawable.tv_app_hbo_max
+        "viaplay" -> R.drawable.tv_app_viaplay
+        "mtv_katsomo" -> R.drawable.tv_app_mtv_katsomo
+        "ruutu" -> R.drawable.tv_app_ruutu
+        "yle_areena" -> R.drawable.tv_app_yle_areena
+        "plex" -> R.drawable.tv_app_plex
+        else -> R.drawable.ic_grid_view
+    }
 
 internal fun serviceLabel(serviceId: String): String =
     when (serviceId) {
@@ -77,3 +87,5 @@ internal fun serviceLabel(serviceId: String): String =
         "plex" -> "Plex"
         else -> serviceId.replace('_', ' ').replaceFirstChar(Char::titlecase)
     }
+
+private const val DISABLED_APP_ALPHA = .38f

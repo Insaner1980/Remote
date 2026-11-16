@@ -90,7 +90,6 @@ fun AppShelfScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text("Edit app shelf", style = MaterialTheme.typography.headlineSmall)
-        Text("Choose the order of your Color Dock apps.")
         ShelfPreview(order, hidden)
         order.forEachIndexed { index, id ->
             ShelfAppRow(index, id, order, hidden, saving, { order = it }, { hidden = it }, { localError = it })

@@ -16,6 +16,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
@@ -37,22 +39,16 @@ internal fun NowPlayingControls(
     queue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val snapshot = state.snapshot
-    val player = snapshot?.player
-    val session = player?.sessionId
+    val snapshot = state.snapshot ?: return
+    val player = snapshot.player
+    val session = player.sessionId
     val enabled = session != null && !state.busy
+    val idle = snapshot.activity.mode == ActivityMode.IDLE
+    val hasQueue = (snapshot.queueSummary.count.toLongOrNull() ?: 0) > 0
+    if (idle && session == null && !hasQueue) return
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        val title =
-            snapshot?.activity?.title ?: when (snapshot?.activity?.mode) {
-                ActivityMode.VIDEO -> "Video"
-                ActivityMode.MUSIC -> "Music"
-                ActivityMode.PHOTOS -> "Photos"
-                ActivityMode.BROWSER -> "Streaming"
-                ActivityMode.IDLE -> "Ready to play"
-                null -> "Connect to Mediacenter"
-            }
-        Text(title, style = MaterialTheme.typography.titleLarge)
-        if (session != null) Text(player.phase.wire.replaceFirstChar(Char::titlecase))
+        val title = snapshot.activity.title ?: activityTitle(snapshot.activity.mode)
+        if (!idle) Text(mediaTitle(title), style = MaterialTheme.typography.titleLarge)
         Row {
             if (session != null) {
                 TextButton(onClick = {
@@ -62,19 +58,19 @@ internal fun NowPlayingControls(
                 }
                 TextButton(onClick = { command(RemoteCommand.PlayerStop(PlayerStopParams(session))) }) { Text("Stop") }
             }
-            if (snapshot != null) TextButton(onClick = queue) { Text("Queue") }
+            if (hasQueue || session != null) TextButton(onClick = queue) { Text("Queue") }
         }
 
-        if (snapshot?.queueSummary?.sessionId != null) {
+        if (snapshot.queueSummary.sessionId != null) {
             Row {
                 TextButton(
                     onClick = { command(RemoteCommand.QueuePrevious(Empty)) },
                     enabled = enabled,
-                ) { Text("Previous track") }
+                ) { Text("Previous") }
                 TextButton(
                     onClick = { command(RemoteCommand.QueueNext(Empty)) },
                     enabled = enabled,
-                ) { Text("Next track") }
+                ) { Text("Next") }
             }
         }
         PlayerAdjustments(state, command)
@@ -94,15 +90,25 @@ private fun ColumnScope.PlayerAdjustments(
             PlayerSeekControl(player, session, enabled, command)
         }
         var volume by remember(session, player.volume) { mutableFloatStateOf(player.volume.toFloat()) }
-        Text("Mediacenter volume ${volume.toInt()}")
-        Slider(volume, {
-            volume = it
-        }, enabled = enabled, valueRange = 0f..100f, onValueChangeFinished = {
-            command(RemoteCommand.PlayerVolume(PlayerVolumeParams(session, volume.toDouble())))
-        })
+        Text("Volume")
+        Slider(
+            volume,
+            {
+                volume = it
+            },
+            modifier =
+                Modifier.semantics {
+                    contentDescription = "Volume"
+                },
+            enabled = enabled,
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                command(RemoteCommand.PlayerVolume(PlayerVolumeParams(session, volume.toDouble())))
+            },
+        )
         TextButton(onClick = {
             command(RemoteCommand.PlayerMute(PlayerMuteParams(session, !player.muted)))
-        }, enabled = enabled) { Text(if (player.muted) "Unmute Mediacenter" else "Mute Mediacenter") }
+        }, enabled = enabled) { Text(if (player.muted) "Unmute" else "Mute") }
         var tracks by remember { mutableStateOf(false) }
         TextButton(onClick = { tracks = !tracks }) { Text("Audio & subtitles") }
         if (tracks) {
@@ -133,11 +139,12 @@ private fun ColumnScope.PlayerSeekControl(
     val duration = player.durationSeconds
     if (duration != null && duration > 0) {
         var draft by remember { mutableStateOf<Float?>(null) }
-        Text("${player.positionSeconds.toInt()} / ${duration.toInt()} seconds")
+        Text("${playbackTime(player.positionSeconds)} / ${playbackTime(duration)}")
         Slider(
             (draft ?: player.positionSeconds.toFloat()).coerceIn(0f, duration.toFloat()),
             { draft = it },
             enabled = enabled,
+            modifier = Modifier.semantics { contentDescription = "Playback position" },
             valueRange = 0f..duration.toFloat(),
             onValueChangeFinished = {
                 val selected = draft
@@ -149,3 +156,12 @@ private fun ColumnScope.PlayerSeekControl(
         )
     }
 }
+
+private fun activityTitle(mode: ActivityMode): String =
+    when (mode) {
+        ActivityMode.VIDEO -> "Video"
+        ActivityMode.MUSIC -> "Music"
+        ActivityMode.PHOTOS -> "Photos"
+        ActivityMode.BROWSER -> "Streaming"
+        ActivityMode.IDLE -> ""
+    }

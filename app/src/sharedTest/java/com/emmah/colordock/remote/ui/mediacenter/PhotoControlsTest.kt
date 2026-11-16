@@ -37,12 +37,12 @@ class PhotoControlsTest {
                 }
             }
         }
-        compose.onNodeWithText("Next photo").performClick()
+        compose.onNodeWithText("Next").performClick()
         assertEquals("photos", (sent.single() as RemoteCommand.PhotosNext).params.sessionId)
-        compose.onNodeWithText("Interval (1–60 seconds)").performScrollTo().performTextReplacement("61")
-        compose.onNodeWithText("Start filtered slideshow").performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithText("Interval (1–60 seconds)").performScrollTo().performTextReplacement("60")
-        compose.onNodeWithText("Start filtered slideshow").performScrollTo().performClick()
+        compose.onNodeWithText("Seconds").performScrollTo().performTextReplacement("61")
+        compose.onNodeWithText("Start slideshow").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Seconds").performScrollTo().performTextReplacement("60")
+        compose.onNodeWithText("Start slideshow").performScrollTo().performClick()
         assertEquals("complete-selection", selected)
     }
 }

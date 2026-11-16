@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.espresso.Espresso
@@ -55,13 +57,12 @@ class AudioSettingsComposeTest {
         compose.onNodeWithText("Requested: TV").assertDoesNotExist()
         compose.onNodeWithText("Sound").performClick()
         compose.runOnIdle { assertEquals(0, mutations) }
-        compose.onNodeWithText("Requested: TV").assertIsDisplayed()
-        compose.onNodeWithText("Confirmed: Laptop speakers").assertIsDisplayed()
+        compose.onNodeWithText("TV").assertIsDisplayed().assertIsSelected()
+        assertEquals("laptop", state.value.outputs?.effectiveOutputId)
+        compose.onNodeWithText("Laptop speakers").assertIsDisplayed()
         compose.runOnIdle { state.value = AudioSettingsState() }
-        compose.onNodeWithText("Requested: Not confirmed").assertIsDisplayed()
-        compose.onNodeWithText("Confirmed: Not confirmed").assertIsDisplayed()
-        compose.onNodeWithText("Retry").assertIsNotEnabled()
-        compose.onAllNodesWithText("Test sound").assertCountEquals(0)
+        compose.onNodeWithText("No sound outputs").assertIsDisplayed()
+        compose.onNodeWithText("Test sound").assertIsNotEnabled()
         compose.runOnIdle {
             assertEquals(1, reads)
             assertEquals(0, mutations)
@@ -128,14 +129,14 @@ class AudioSettingsComposeTest {
             }
         }
         compose.onNodeWithText("Sound").performClick()
-        compose.onNodeWithText("No playback stream has been confirmed.").assertIsDisplayed()
+        compose.onNodeWithText("No playback stream has been confirmed.").assertDoesNotExist()
         compose.onNodeWithText("Audio output unavailable. Retry or choose a sound output.").assertDoesNotExist()
         compose.runOnIdle { controller.observe("epoch", nativeAudioProjection("preference")) }
-        compose.onNodeWithText("Sound preference saved; no playback stream has been confirmed.").assertIsDisplayed()
+        compose.onNodeWithText("Sound preference saved; no playback stream has been confirmed.").assertDoesNotExist()
         compose.onNodeWithText("Audio output unavailable. Retry or choose a sound output.").assertDoesNotExist()
         compose.runOnIdle { controller.observe("epoch", nativeAudioProjection("returnedWithoutStream")) }
-        compose.onNodeWithText("Audio output unavailable").assertIsDisplayed()
-        compose.onNodeWithText("Audio output unavailable. Retry or choose a sound output.").assertIsDisplayed()
+        compose.onNodeWithText("Output unavailable").assertIsDisplayed()
+        compose.onNodeWithText("Audio output unavailable. Retry or choose a sound output.").assertDoesNotExist()
     }
 
     @Test fun desktopResolutionClosesTheRenderedServerSheet() {

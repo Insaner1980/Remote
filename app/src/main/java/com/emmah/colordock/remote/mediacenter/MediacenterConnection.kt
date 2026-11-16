@@ -120,10 +120,14 @@ internal class MediacenterConnection(
                     transport(MediacenterConnectionState.ResyncRequired)
                 }
             }
-        }.onFailure { transport(MediacenterConnectionState.ResyncRequired) }
+        }.onFailure {
+            protocolTrace("Inbound rejected", it)
+            transport(MediacenterConnectionState.ResyncRequired)
+        }
     }
 
     private fun transport(next: MediacenterConnectionState) {
+        protocolTrace("Connection $next")
         when (next) {
             MediacenterConnectionState.Connected -> {
                 mutableState.value = MediacenterConnectionState.Synchronizing
@@ -143,7 +147,7 @@ internal class MediacenterConnection(
             }
 
             MediacenterConnectionState.Connecting -> {
-                Unit
+                return
             }
 
             else -> {

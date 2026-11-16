@@ -15,6 +15,7 @@ import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -82,8 +83,8 @@ class FolderBrowserTest {
                 font.floatValue = scale
             }
             compose.waitForIdle()
-            compose.onNodeWithText("Chosen folder: Music").performScrollTo().assertIsDisplayed()
-            compose.onNodeWithText("Review folder selection").performScrollTo().performClick()
+            compose.onAllNodesWithText("Music")[0].performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Add folder").performScrollTo().performClick()
             compose.runOnIdle {
                 assertEquals(width.toFloat(), measured.width.value, pixelInDp)
                 assertEquals(height.toFloat(), measured.height.value, pixelInDp)
@@ -105,6 +106,6 @@ class FolderBrowserTest {
                 )
             }
         }
-        compose.onNodeWithText("Review folder selection").assertIsNotEnabled()
+        compose.onNodeWithText("Add folder").assertIsNotEnabled()
     }
 }

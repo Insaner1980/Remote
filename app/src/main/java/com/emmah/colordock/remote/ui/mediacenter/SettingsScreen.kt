@@ -50,9 +50,8 @@ internal fun SettingsScreen(
             }
 
             SettingsSection.Advanced -> {
-                TextButton(onClick = actions.refresh, enabled = state.snapshot != null) { Text("Refresh settings") }
+                RefreshAction(actions.refresh, enabled = state.snapshot != null)
                 LifetimeSettings(state, ready, actions.send)
-                ConnectionSettings(state)
             }
 
             SettingsSection.Sound, SettingsSection.Media -> {}
@@ -68,13 +67,21 @@ private fun ComputerAppearance(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         state.settings.native?.let { native ->
-            Text("Computer appearance", style = MaterialTheme.typography.titleMedium)
+            Text("Computer", style = MaterialTheme.typography.titleMedium)
             Row {
                 Theme.entries.forEach { theme ->
-                    TextButton(
-                        onClick = { send(RemoteCommand.SettingsThemeSet(SettingsThemeSetParams(theme))) },
-                        enabled = ready && theme != native.theme,
-                    ) { Text(theme.wire.replaceFirstChar { it.uppercase() }) }
+                    androidx.compose.material3.FilterChip(
+                        selected = theme == native.theme,
+                        onClick = {
+                            if (theme !=
+                                native.theme
+                            ) {
+                                send(RemoteCommand.SettingsThemeSet(SettingsThemeSetParams(theme)))
+                            }
+                        },
+                        enabled = ready,
+                        label = { Text(theme.wire.replaceFirstChar { it.uppercase() }) },
+                    )
                 }
             }
         }
@@ -88,7 +95,7 @@ private fun VpnServicePreferences(
     send: (RemoteCommand) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Require VPN before opening", style = MaterialTheme.typography.titleMedium)
+        Text("VPN for apps", style = MaterialTheme.typography.titleMedium)
         state.settings.native?.servicePreferences?.forEach { service ->
             Row(
                 Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -116,63 +123,24 @@ private fun PairedPhones(
     send: (RemoteCommand) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Paired phones", style = MaterialTheme.typography.titleMedium)
         state.settings.devices?.items?.forEach { device ->
-            TextButton(
-                onClick = { send(RemoteCommand.DevicesRevoke(DevicesRevokeParams(deviceId = device.deviceId))) },
-                enabled = ready,
-            ) { Text("Revoke ${device.label}") }
+            androidx.compose.runtime.key(device.deviceId) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(device.label, Modifier.weight(1f))
+                    ItemActions(
+                        "Phone options for ${device.label}",
+                        listOf(
+                            MenuAction("Remove", ready) {
+                                send(RemoteCommand.DevicesRevoke(DevicesRevokeParams(deviceId = device.deviceId)))
+                            },
+                        ),
+                        enabled = ready,
+                    )
+                }
+            }
         }
         TextButton(onClick = { send(RemoteCommand.PairingBegin(PairingBeginParams())) }, enabled = ready) {
-            Text("Pair another phone")
+            Text("Add phone")
         }
-    }
-}
-
-@Composable
-private fun ConnectionSettings(state: MediaSessionState) {
-    Column {
-        Text("Connection")
-        val permission = AndroidMediacenterNetwork.hasLanPermission(LocalContext.current)
-        Text("Phone LAN permission: ${if (permission) "granted" else "required"}")
-        Text("Phone connection: ${if (state.snapshot != null) "connected" else "disconnected"}")
-        Text("Phone discovery delivery: not observed by this screen")
-        state.settings.native?.connectionDiagnostics?.let { diagnostics ->
-            Text("Computer interface: ${diagnostics.selectedInterface ?: "unknown"}")
-            Text("Computer listener: ${diagnostics.listener.wire}")
-            Text("Computer discovery announcement: ${diagnostics.discovery.wire}")
-            Text("An announcement does not confirm that this phone received discovery.")
-        }
-        LanConnectionGuidance(
-            state.settings.native
-                ?.connectionDiagnostics
-                ?.vpnVersion,
-        )
-    }
-}
-
-private const val NORDVPN_LINUX_HELP =
-    "https://support.nordvpn.com/hc/en-us/articles/" +
-        "20196094470929-How-to-install-the-NordVPN-app-on-Linux-distributions"
-
-@Composable
-private fun LanConnectionGuidance(version: String?) {
-    val links = LocalUriHandler.current
-    Column {
-        Text("Installed NordVPN version: ${version ?: "unknown"}")
-        Text("If VPN blocks this phone, open a terminal on the computer and inspect help for its installed version:")
-        Text("nordvpn --version")
-        Text("nordvpn set lan-discovery --help")
-        Text("nordvpn allowlist --help")
-        Text("These commands only display version and help; they do not change network settings.")
-        Text(
-            "On a trusted home network, choose LAN discovery or a narrowly scoped LAN allowlist " +
-                "using that version's help. Keep Kill Switch enabled.",
-        )
-        Text(
-            "After setup, use Retry Mediacenter in Connection settings, then Refresh settings here. " +
-                "The phone never changes LAN access or protection automatically.",
-        )
-        TextButton(onClick = { links.openUri(NORDVPN_LINUX_HELP) }) { Text("NordVPN Linux setup guide") }
     }
 }

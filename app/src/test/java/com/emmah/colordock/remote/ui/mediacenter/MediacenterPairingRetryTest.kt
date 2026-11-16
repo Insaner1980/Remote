@@ -69,8 +69,9 @@ class MediacenterPairingRetryTest {
                     )
                 }
             }
+            compose.onNodeWithText("Enter address").performClick()
             compose.onNodeWithText("Computer address").performTextInput("192.168.1.9")
-            compose.onNodeWithText("Compare verification phrase").performClick()
+            compose.onNodeWithText("Connect").performClick()
             runCurrent()
             val first = fixture.ui.value.observation!!
             compose.onNodeWithText("These words match").performClick()
@@ -79,9 +80,9 @@ class MediacenterPairingRetryTest {
             assertNull(fixture.ui.value.observation)
             assertFalse(fixture.ui.value.codeReady)
             compose.onNodeWithText("These words match").assertDoesNotExist()
-            compose.onNodeWithText("Compare verification phrase").assertIsDisplayed()
+            compose.onNodeWithText("Enter address").assertIsDisplayed().performClick()
             compose.onNodeWithText("Computer address").performTextInput("192.168.1.9")
-            compose.onNodeWithText("Compare verification phrase").performClick()
+            compose.onNodeWithText("Connect").performClick()
             runCurrent()
             val second = fixture.ui.value.observation!!
             assertTrue(first !== second)
@@ -94,8 +95,8 @@ class MediacenterPairingRetryTest {
             runCurrent()
             assertEquals(listOf(first.fingerprint, second.fingerprint), fixture.pins)
             assertTrue(fixture.ui.value.codeReady)
-            compose.onNodeWithText("One-use code").assertIsDisplayed()
-            compose.onNodeWithText("Pair Mediacenter").assertIsNotEnabled()
+            compose.onNodeWithText("Code").assertIsDisplayed()
+            compose.onNodeWithText("Connect").assertIsNotEnabled()
             assertEquals(0, fixture.saved)
             fixture.controller.cancel()
             assertNull(fixture.ui.value.observation)

@@ -2,9 +2,12 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,91 +44,135 @@ internal fun LibraryScreen(
     thumbnail: suspend (String) -> ByteArray?,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
-        Row {
-            MediaKind.entries.forEach { kind ->
-                TextButton(onClick = { actions.search("", kind) }) {
-                    Text(
-                        when (kind) {
-                            MediaKind.VIDEO -> "Videos"
-                            MediaKind.MUSIC -> "Music"
-                            MediaKind.PHOTO -> "Photos"
-                        },
+    Column(
+        modifier,
+        verticalArrangement =
+            androidx.compose.foundation.layout.Arrangement
+                .spacedBy(8.dp),
+    ) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(
+                Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                horizontalArrangement =
+                    androidx.compose.foundation.layout.Arrangement
+                        .spacedBy(8.dp),
+            ) {
+                MediaKind.entries.forEach { kind ->
+                    androidx.compose.material3.FilterChip(
+                        selected = state.kind == kind,
+                        onClick = { actions.search("", kind) },
+                        label = { Text(mediaKindLabel(kind)) },
                     )
                 }
             }
+            RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh library")
         }
-        OutlinedTextField(state.query, {
-            actions.search(it, state.kind)
-        }, label = { Text("Search ${state.kind.wire}") }, singleLine = true)
-        if (state.kind ==
-            MediaKind.MUSIC
-        ) {
+        OutlinedTextField(
+            state.query,
+            { actions.search(it, state.kind) },
+            label = { Text("Search") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (state.kind == MediaKind.MUSIC) {
             TextButton(onClick = actions.playlists, enabled = state.connected) { Text("Playlists") }
         }
-        TextButton(onClick = actions.playback) { Text("Now playing") }
-        if (state.loading) Text("Loading library…")
-        if (state.message.isNotEmpty()) Text(state.message)
-        state.items.forEach { item -> LibraryItemRow(item, state.connected, actions, thumbnail) }
-        Row {
-            TextButton(onClick = actions.previous, enabled = state.connected && state.hasPrevious && !state.loading) {
-                Text("Previous page")
-            }
-            TextButton(
-                onClick = actions.next,
-                enabled = state.connected && state.cursor != null && !state.loading,
-            ) { Text("Next page") }
-            TextButton(
-                onClick = actions.refresh,
-                enabled = state.connected && !state.loading,
-            ) { Text("Refresh library") }
+        LibraryNotice(state)
+        LibraryItems(state, actions, thumbnail)
+        LibraryPages(state, actions)
+    }
+}
+
+@Composable
+private fun LibraryNotice(state: LibraryState) {
+    Column {
+        if (state.loading) {
+            androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth())
+        } else if (!state.connected) {
+            Text("Not connected")
+        } else if (state.notice != null) {
+            Text(state.notice.label)
+        } else if (state.message.isNotEmpty() && state.message != "No matching media.") {
+            Text("Couldn't load library")
+        } else if (state.items.isEmpty()) {
+            Text("No results")
         }
     }
 }
 
 @Composable
-private fun MediaThumbnail(
-    id: String?,
-    load: suspend (String) -> ByteArray?,
-    modifier: Modifier = Modifier,
+private fun LibraryPages(
+    state: LibraryState,
+    actions: LibraryActions,
 ) {
-    val bytes by produceState<ByteArray?>(null, id, load) { value = id?.let { load(it) } }
-    val bitmap = remember(bytes) { bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap() } }
-    bitmap?.let { Image(it, contentDescription = null, modifier = modifier.size(64.dp)) }
+    Row {
+        if (state.hasPrevious) {
+            androidx.compose.material3.IconButton(
+                onClick = actions.previous,
+                enabled = state.connected && !state.loading,
+            ) {
+                com.emmah.colordock.remote.ui.DockIcon(
+                    com.emmah.colordock.remote.R.drawable.ic_keyboard_arrow_left,
+                    label = "Previous page",
+                )
+            }
+        }
+        if (state.cursor != null) {
+            androidx.compose.material3.IconButton(
+                onClick = actions.next,
+                enabled = state.connected && !state.loading,
+            ) {
+                com.emmah.colordock.remote.ui.DockIcon(
+                    com.emmah.colordock.remote.R.drawable.ic_keyboard_arrow_right,
+                    label = "Next page",
+                )
+            }
+        }
+    }
 }
 
+internal fun mediaKindLabel(kind: MediaKind): String =
+    when (kind) {
+        MediaKind.VIDEO -> "Videos"
+        MediaKind.MUSIC -> "Music"
+        MediaKind.PHOTO -> "Photos"
+    }
+
 @Composable
-private fun LibraryItemRow(
-    item: MediaItem,
-    connected: Boolean,
+private fun LibraryItems(
+    state: LibraryState,
     actions: LibraryActions,
     thumbnail: suspend (String) -> ByteArray?,
 ) {
-    Row {
-        MediaThumbnail(item.thumbnailId, thumbnail)
-        Column {
-            TextButton(
-                onClick = { actions.select(item) },
-                enabled =
-                    connected && item.availability == Availability.AVAILABLE,
-            ) { Text(item.name) }
-            if (item.availability != Availability.AVAILABLE) Text("Offline: ${item.availability.wire}")
-            if (item.kind == MediaKind.MUSIC) {
-                var menu by remember(item.id) { mutableStateOf(false) }
-                TextButton(
-                    onClick = { menu = !menu },
-                    enabled = connected,
-                ) { Text("Options for ${item.name}") }
-                if (menu) {
-                    TextButton(onClick = {
-                        actions.enqueue(item)
-                        menu = false
-                    }) { Text("Add to queue") }
-                    TextButton(onClick = {
-                        actions.addPlaylist(item)
-                        menu = false
-                    }) { Text("Add to playlist") }
+    if (state.kind == MediaKind.PHOTO) {
+        state.items.chunked(2).forEachIndexed { rowIndex, pair ->
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    androidx.compose.foundation.layout.Arrangement
+                        .spacedBy(8.dp),
+            ) {
+                pair.forEachIndexed { columnIndex, item ->
+                    androidx.compose.runtime.key(item.id) {
+                        PhotoTile(
+                            IndexedValue(rowIndex * 2 + columnIndex, item),
+                            state.connected,
+                            actions,
+                            thumbnail,
+                            Modifier.weight(1f),
+                        )
+                    }
                 }
+                if (pair.size == 1) {
+                    androidx.compose.foundation.layout
+                        .Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+    } else {
+        state.items.forEach { item ->
+            androidx.compose.runtime.key(item.id) {
+                LibraryItemRow(item, state.connected, actions, thumbnail)
             }
         }
     }

@@ -25,7 +25,7 @@ class LauncherTest {
             compose.onAllNodesWithContentDescription("Settings").fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithContentDescription("Settings").performScrollTo().performClick()
-        compose.onNodeWithText("App theme").assertIsDisplayed()
+        compose.onNodeWithText("Appearance").assertIsDisplayed()
         compose.onNodeWithText("Done").performClick()
     }
 

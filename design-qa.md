@@ -1,50 +1,17 @@
-# Settings design QA
+# Plain Remote design QA
 
 final result: passed
 
-## Visual truth and implementation
+Scope: whole-app text cleanup and original target layouts, including detail screens and dialogs. Full provider/lifecycle release acceptance remains partial.
 
-- Source: `/home/emma/Dev/Mediacenter/.superpowers/sdd/2026-11-16-simple-settings/selected-reference.png`, the exact quiet-list concept attached and selected by the user.
-- Implementation: original native Android Remote, application ID `com.emmah.colordock.remote`, Mediacenter selected, Settings overview, soft dark theme, connected and idle.
-- Final installed screenshot: `/tmp/remote-simple-settings-device/settings-final.png` (also preserved in the private task evidence).
-- Final APK SHA-256: `164b6620fa80d4a56dd68785f445188c87176b649f11155a24682918e0cd1545`.
+The prior overview-only acceptance did not satisfy the user's broader request. This pass uses all17 fresh user screenshots, preserved privately in Mediacenter .superpowers/sdd/2026-11-16-plain-remote/contact-1.png through contact-5.png, plus the previously selected quiet Settings overview. Diagnostic/help paragraphs are removed entirely, including Advanced. Only short ordinary controls, content identities, necessary confirmations/verification and actionable status remain. Icon strips have no captions or dot separators.
 
-## Viewport and comparison evidence
+Final installed original package: com.emmah.colordock.remote, label Remote, UID10450. APK SHA-256: fd3066c7ea2d4753efa6eb61b2a26a89d5c3a97ee54a999b117b2109e24b7438.
 
-Reference: 852 × 1846 pixels. Pixel 9 capture: 1080 × 2424 pixels, density 420 dpi (2.625 px/dp), existing font scale 1.15. Actual Android status bar is 173px and navigation bar 126px; cropped app content is 1080 × 2125px (about 411.43 × 809.52dp). Native app verification has no CSS viewport/deviceScaleFactor.
+Actual Pixel9:1080x2424,420dpi,font1.15. Final installed screenshots in /tmp/remote-plain-device/: settings-final.png, sound-final.png, advanced-final.png, folder-chooser-final.png, photos-final.png, lg-remote-final.png, mc-remote-final.png, queue-final.png and targets-connected-final.png. Settings/Sound/Advanced were opened together in final-controls.png. Other actual inspected pages include VPN top/bottom, Media, Devices, both appearance views, connection and all library kinds. Public nonprivate controls comparison: ../Mediacenter/docs/engineering/evidence/remote-control/plain-remote-2026-11-16/final-controls.png.
 
-Combined comparisons are in Mediacenter `.superpowers/sdd/2026-11-16-simple-settings/`:
+Physical findings fixed before acceptance: long camera filenames, inline folder chooser buried below the source list and the live queue connection failure. The final folder chooser is bounded/scrollable and shows only root/folder choices and actions; Home/Refresh icons replace repeated navigation captions. Back/Close and unchanged native confirmation guards retain normal behavior. No remaining actionable text/layout finding in the reviewed scope. Existing warm charcoal/coral Material3 typography, native system bars, user text scale and the separate LG style are preserved.
 
-- `comparison-final-with-chrome.png`: complete reference and complete installed phone at equal 426px width; real Android bars are explicitly identified.
-- `comparison-final.png`: full reference beside app content with only Android-owned bars removed, both at 426px width, preserving aspect ratios and documenting the different viewport heights.
-- `comparison-final-focus.png`: reference device bar/six rows `(36,243)-(816,1117)` beside actual `(53,363)-(1027,1461)` at equal width. This focused comparison checks readable row text, icons, dividers and spacing without confusing platform chrome with app layout.
+Final validation:464 unit/Compose tests and all static/build gates pass;65 final APK rendered Pixel tests pass in76.240s. Selected fixtures verify actual callbacks and IDs without executing real media, test sounds, source/drive changes, revocation or VPN/theme changes. Actual native queue open/refresh/close now stays usable after correcting covered-topic sequence reconciliation. Same signer, both encrypted pairings and both original preferences preserved in-place. Both targets connected; test runner removed; normal sleep0 and diagnostic log tags restored; font1.15 unchanged.
 
-Both source and final rendered implementation were opened together in these comparison images. The stable final capture contains no transient pressed-state ripple.
-
-## Comparison history and fixes
-
-1. Initial deployed version `b9c4d37`, `settings-first.png`, `comparison-first.png`: [P2] sliders/palette/stacked-video icons differed from the selected gear/brush/play-frame; [P2] overview rows and text were larger than the quiet reference. Result remained blocked.
-2. Replaced those assets with official Material Symbols (`settings`, `brush`, `smart_display`), limited to Mediacenter. Row minimum changed 64→56dp, vertical padding 16→12dp, text 20→18sp. Captured the revised installed app and compared it again in the final combined full/focused evidence. Earlier P2 findings are resolved. No remaining actionable P0/P1/P2 differences.
-
-The source review separately found a constrained recovery dialog and pending work without visible feedback. Both received failing regression tests, scrolling/progress fixes and passing verification.
-
-## Required fidelity surfaces
-
-- Typography: native Android system sans/Material 3. Bold 32sp heading and simple 18sp row labels; the user's 1.15 text scale remains intact. All six labels stay on one line on the real phone; no clipping or overlap. The mock's optical rendering differs slightly from native text, as expected.
-- Spacing/layout: single-line compact device bar, six aligned rows with dividers and persistent three-item bottom navigation. Actual rows are 147px high (56dp), fully visible and enabled; last row ends at y1461, well above the navigation bar at y2088. Native system bars and reference viewport differences are preserved rather than recreated or stretched.
-- Colors: existing warm charcoal/cream/coral theme tokens retained. Flat native surfaces intentionally replace the mock's generated grain; selected navigation uses coral.
-- Assets: sharp existing/official Material vector icons, including matching gear/brush/play-frame. No rasterized screen, generated filler or handcrafted icon drawing. Existing Apache 2 license remains bundled.
-- Content: exact six selected section names. No technical paragraphs or switches on overview, no dot separators, device name once. Recovery attention appears only when status requires it. LG streaming shortcuts remain icon-only with accessible launch descriptions.
-
-## Interactions and actual phone checks
-
-- Latest APK: 29 safe rendered Pixel tests passed in 37.336s; 447 unit/Compose tests pass, zero failures/errors/skips. Detekt, ktlint, Android lint and both APK builds pass. The final unit gate revalidated the fresh completed results as up-to-date with successful exit; it did not rerun unchanged tests.
-- All six sections opened in the original app. Visible back and Android Back return to the overview. Devices opens connection setup; Appearance opens the existing phone-theme dialog and Done returns without changing theme. Remote/Library/Settings navigation works.
-- LG and Mediacenter screens inspected on the real phone. LG connected; Mediacenter reconnected with saved credentials and remains connected. No real media, test tone, VPN switch, source/drive mutation or pairing revocation was triggered during UI verification.
-- Updated in place with matching installed signer and UID10450. Both encrypted credential files and both original preference files matched byte-for-byte before first launch. Test runner removed; only original Remote remains.
-
-## Accepted minor differences and limits
-
-[P3] Native Remote/Library glyph variants differ from the generated pill/leaning-books shapes, but retain the existing icon language and clear meanings. Real Android bars, native typography at user text scale, flat theme surfaces and viewport height differ intentionally from the generated concept. These are not clipping, navigation or readability defects.
-
-This acceptance covers the selected Settings redesign and target UI preservation. Full provider playback and Task21/22 release acceptance remain separate.
+Limits:117 of118 recorded photo originals were absent at their catalogued locations, so photo cards use readable fallbacks where previews cannot load. This task did not restore those files. Streaming enrollment/provider and full lifecycle acceptance remain separate. Raw screenshots with private filenames/content are not published.

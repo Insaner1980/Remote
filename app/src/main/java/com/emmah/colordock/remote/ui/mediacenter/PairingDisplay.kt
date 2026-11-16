@@ -34,21 +34,18 @@ internal fun PairingDisplay(
     AlertDialog(
         onDismissRequest = dismiss,
         modifier = modifier,
-        title = { Text("Pair another phone") },
+        title = { Text("Add phone") },
         text = {
             Column {
                 if (rows == null) {
-                    Text(
-                        "This computer did not provide a pairing QR code. " +
-                            "Update Mediacenter and prepare a new pairing window.",
-                    )
+                    Text("QR code unavailable")
                 } else {
-                    Text("Scan with the other phone within two minutes. This code works once.")
+                    Text("Scan with the other phone")
                     PairingQr(rows)
                 }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("Hide code") } },
+        confirmButton = { TextButton(onClick = dismiss) { Text("Close") } },
     )
 }
 

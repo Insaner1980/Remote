@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -45,10 +46,13 @@ class QueueTest {
             }
         }
         compose.onAllNodesWithTag("queue-editor").assertCountEquals(1)
-        compose.onNodeWithText("Move second up").performScrollTo().performClick()
+        compose.onNodeWithTag("queue-options-entry-b").performScrollTo().performClick()
+        compose.onNodeWithText("Move up").performClick()
         assertEquals(QueueMoveParams("entry-b", "entry-a"), (commands.last() as RemoteCommand.QueueMove).params)
-        compose.onNodeWithText("Remove second").performScrollTo().performClick()
+        compose.onNodeWithTag("queue-options-entry-b").performScrollTo().performClick()
+        compose.onNodeWithText("Remove").performClick()
         assertEquals("entry-b", (commands.last() as RemoteCommand.QueueRemove).params.entryId)
-        compose.onNodeWithText("Save queue as playlist").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Save playlist").performScrollTo().performClick()
+        compose.onNodeWithText("Save").performScrollTo().assertIsNotEnabled()
     }
 }

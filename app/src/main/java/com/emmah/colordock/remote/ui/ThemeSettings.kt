@@ -45,12 +45,10 @@ fun ThemeSettings(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Settings")
+            Text("Appearance")
         },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("App theme", style = MaterialTheme.typography.titleMedium)
-                Text("Choose how Remote looks on this phone.")
                 Column(Modifier.selectableGroup()) {
                     AppTheme.entries.forEach { option ->
                         Row(
@@ -65,7 +63,7 @@ fun ThemeSettings(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             RadioButton(selected = theme == option, onClick = null)
-                            Text(option.label, Modifier.weight(1f))
+                            Text(if (option == AppTheme.SoftDark) "Dark" else "Light", Modifier.weight(1f))
                         }
                     }
                 }

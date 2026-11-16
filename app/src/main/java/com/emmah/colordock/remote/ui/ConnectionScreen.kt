@@ -79,8 +79,6 @@ fun ConnectionScreen(
             }
             SettingsButton(onAppSettings)
         }
-        Text(stringResource(R.string.connect_explanation))
-        Text(stringResource(R.string.permission_explanation), color = MaterialTheme.colorScheme.onSurfaceVariant)
         DiscoveryResults(needsSettings, searching, searched, discovered, busy, onFind, onConnect)
         ConnectionAddress(
             state,
@@ -130,7 +128,7 @@ private fun ColumnScope.DiscoveryResults(
     if (searched && !searching &&
         discovered.isEmpty()
     ) {
-        Text("No TVs found. Check that your phone and TV are on the same network, or enter the TV IP address.")
+        Text("No TVs found")
     }
     discovered.forEach { tv ->
         OutlinedCard(onClick = {

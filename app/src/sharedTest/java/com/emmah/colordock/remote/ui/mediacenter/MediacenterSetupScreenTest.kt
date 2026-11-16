@@ -40,10 +40,11 @@ class MediacenterSetupScreenTest {
             }
         }
         compose.waitForIdle()
-        compose.onNodeWithText("Camera access declined. You can pair manually.").assertIsDisplayed()
+        compose.onNodeWithText("Camera unavailable").assertIsDisplayed()
+        compose.onNodeWithText("Enter address").performScrollTo().performClick()
         compose.onNodeWithText("Computer address").performScrollTo().performTextInput("192.168.1.9")
         compose.waitForIdle()
-        compose.onNodeWithText("Compare verification phrase").performScrollTo().performClick()
+        compose.onNodeWithText("Connect").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals("192.168.1.9:47831", selected)
             assertEquals(0, scans)
@@ -61,8 +62,9 @@ class MediacenterSetupScreenTest {
             }
         }
         compose.waitForIdle()
-        compose.onNodeWithText("Allow local network access").performClick()
+        compose.onNodeWithText("Allow Wi-Fi access").performClick()
         compose.onNodeWithText("Scan code").assertIsNotEnabled()
+        compose.onNodeWithText("Enter address").performClick()
         compose.onNodeWithText("Computer address").performScrollTo().assertIsDisplayed()
         compose.runOnIdle {
             assertEquals(1, lanRequests)

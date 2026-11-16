@@ -44,6 +44,7 @@ internal fun MediaSessionController.driveProgress(value: OperationState) {
                 "Drive operation running. Wait for confirmed completion before unplugging."
             },
             operation = value,
+            notice = if (value.cancellationRequested) ActionNotice.STOPPING else ActionNotice.WORKING,
         )
     }
 }

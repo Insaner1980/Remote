@@ -1,6 +1,8 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,26 +17,24 @@ internal fun ConfirmationSheet(
     busy: Boolean,
     actions: ConfirmationActions,
     modifier: Modifier = Modifier,
-    title: String = "Confirm Mediacenter action?",
+    title: String = "Continue?",
 ) {
     AlertDialog(
         onDismissRequest = { if (!busy) actions.cancel() },
         modifier = modifier,
         title = { Text(confirmationTitle(preview.action, title)) },
         text = {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 preview.browserContext?.let { Text(it.hostname) }
-                preview.affectedLabels.filterNot { it == preview.browserContext?.hostname }.forEach { Text(it) }
-                if (preview.action == ActionKind.APPROVE_BROWSER_ORIGIN) {
-                    Text("This approval applies to the current browser session.")
-                }
-                if (preview.action == ActionKind.REMOVE_SOURCE) Text("Media files stay on the drive.")
-                if (preview.action ==
-                    ActionKind.REATTACH_SOURCE
-                ) {
+                preview.affectedLabels.filterNot { it == preview.browserContext?.hostname }.forEach {
                     Text(
-                        "This drive has no filesystem UUID. Confirm this physical attachment; " +
-                            "saved media kinds and library records are preserved.",
+                        if (preview.action == ActionKind.CHANGE_AUDIO) {
+                            soundOutputName(it)
+                        } else if (preview.action == ActionKind.REPLACE_ACTIVITY) {
+                            mediaTitle(it)
+                        } else {
+                            it
+                        },
                     )
                 }
             }
@@ -49,13 +49,17 @@ private fun confirmationTitle(
     defaultTitle: String,
 ): String =
     when (action) {
-        ActionKind.CHANGE_VPN -> "Change VPN connection?"
-        ActionKind.REVOKE_DEVICE -> "Revoke phone access?"
-        ActionKind.BEGIN_PAIRING -> "Pair another phone?"
-        ActionKind.ADD_SOURCE -> "Add this library folder?"
-        ActionKind.OPEN_BROWSER -> "Open the streaming service?"
-        ActionKind.APPROVE_BROWSER_ORIGIN -> "Allow input on this site?"
-        ActionKind.REMOVE_SOURCE -> "Remove library association?"
-        ActionKind.REATTACH_SOURCE -> "Confirm this drive attachment?"
+        ActionKind.CHANGE_VPN -> "Change VPN?"
+        ActionKind.REVOKE_DEVICE -> "Remove phone?"
+        ActionKind.BEGIN_PAIRING -> "Add phone?"
+        ActionKind.ADD_SOURCE -> "Add folder?"
+        ActionKind.OPEN_BROWSER -> "Open app?"
+        ActionKind.APPROVE_BROWSER_ORIGIN -> "Allow controls on this website?"
+        ActionKind.REMOVE_SOURCE -> "Remove from library?"
+        ActionKind.REATTACH_SOURCE -> "Use this drive?"
+        ActionKind.EJECT_DRIVE -> "Eject drive?"
+        ActionKind.END_SESSION -> "Stop playback?"
+        ActionKind.CHANGE_AUDIO -> "Change sound output?"
+        ActionKind.REPLACE_ACTIVITY -> "Play this instead?"
         else -> defaultTitle
     }

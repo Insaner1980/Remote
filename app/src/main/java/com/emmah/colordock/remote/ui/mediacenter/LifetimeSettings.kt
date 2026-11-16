@@ -22,9 +22,8 @@ internal fun LifetimeSettings(
 ) {
     Column {
         state.settings.native?.let { native ->
-            Text("Remote availability")
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("Start after computer login", Modifier.weight(1f))
+                Text("Start automatically", Modifier.weight(1f))
                 Switch(
                     checked = native.startAtLogin,
                     onCheckedChange = {
@@ -33,15 +32,13 @@ internal fun LifetimeSettings(
                         )
                     },
                     enabled = ready,
-                    modifier = Modifier.semantics { contentDescription = "Start after computer login" },
+                    modifier = Modifier.semantics { contentDescription = "Start automatically" },
                 )
             }
-            Text("Viewing idle inhibition: ${native.idleInhibition?.wire ?: "unavailable"}")
             TextButton(
                 enabled = ready,
                 onClick = { send(RemoteCommand.SettingsEndSession(SettingsEndSessionParams())) },
-            ) { Text("End session") }
-            Text("Stops owned playback after confirmation. Mediacenter stays available for Remote.")
+            ) { Text("Stop playback") }
         }
     }
 }

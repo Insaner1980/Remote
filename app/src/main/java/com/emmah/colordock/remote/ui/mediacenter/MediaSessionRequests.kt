@@ -56,7 +56,7 @@ internal fun MediaSessionController.createRequest(command: RemoteCommand): McReq
         }
     }
     return if (requests.size >= MEDIA_REQUEST_LIMIT) {
-        message("Wait for Mediacenter to respond.")
+        message("Wait for Mediacenter to respond.", notice = ActionNotice.WORKING)
         null
     } else {
         val expected =

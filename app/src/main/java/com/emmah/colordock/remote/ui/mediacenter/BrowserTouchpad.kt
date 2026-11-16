@@ -43,12 +43,6 @@ internal fun BrowserTouchpad(
     canScroll: Boolean = true,
 ) {
     val shape = RoundedCornerShape(20.dp)
-    val directions =
-        listOfNotNull(
-            "Slide to move the pointer",
-            "tap to click".takeIf { canClick },
-            "swipe with two fingers to scroll".takeIf { canScroll },
-        ).joinToString("\n")
     Box(
         modifier
             .fillMaxWidth()
@@ -68,7 +62,8 @@ internal fun BrowserTouchpad(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Text(directions, Modifier.padding(20.dp))
+        com.emmah.colordock.remote.ui
+            .DockIcon(com.emmah.colordock.remote.R.drawable.ic_mouse, label = "Touchpad")
     }
     DisposableEffect(target, controller) { onDispose { controller.endGesture() } }
 }

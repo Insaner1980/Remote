@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -41,7 +42,8 @@ class SourcesScreenTest {
         lateinit var media: MediaSessionController
         compose.setContent { ScanTarget({ sent.add(it) }, capture = { media = it }) }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Scan Music").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Folder options for Music").performScrollTo().performClick()
+        compose.onNodeWithText("Update").performClick()
         compose.runOnIdle {
             val scan = sent.last().id
             media.receive(
@@ -50,7 +52,7 @@ class SourcesScreenTest {
             media.operation(OperationState("scan-op", scan, OperationStatus.RUNNING, cancellationRequested = false))
         }
         compose
-            .onNodeWithText("Cancel scan")
+            .onNodeWithText("Cancel update")
             .performScrollTo()
             .assertIsDisplayed()
             .performClick()
@@ -81,7 +83,7 @@ class SourcesScreenTest {
             ScanTarget({ sent.add(it) }, capture = {}, recovered = scans)
         }
         compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
-        compose.onNodeWithText("Cancel recovered scan").performScrollTo().performClick()
+        compose.onNodeWithText("Cancel update").performScrollTo().performClick()
         compose.runOnIdle {
             val command = sent.single().command as RemoteCommand.SourcesCancelScan
             assertTrue(command.params.operationId == "recovered-op")
@@ -92,7 +94,7 @@ class SourcesScreenTest {
                 ),
             )
         }
-        compose.onNodeWithText("Cancel recovered scan").assertDoesNotExist()
+        compose.onNodeWithText("Cancel update").assertDoesNotExist()
     }
 
     @Composable

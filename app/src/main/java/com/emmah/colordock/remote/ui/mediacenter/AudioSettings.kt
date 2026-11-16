@@ -48,6 +48,7 @@ internal data class AudioSettingsState(
     val preview: ConfirmationPreview? = null,
     val busy: Boolean = false,
     val message: String = "Connect to Mediacenter to choose a sound output.",
+    val notice: ActionNotice? = null,
 )
 
 /** Correlates the server's sheet; confirmed sound comes only from native output observations. */
@@ -104,17 +105,12 @@ internal class AudioSettingsController(
             )
         }
         if (operations.isNotEmpty()) confirmationStatus.refresh()
-        val operation =
-            operations.firstOrNull {
-                (operationId != null && it.operationId == operationId) ||
-                    (requestId != null && it.requestId == requestId)
-            }
-                ?: return
+        val operation = operations.firstOrNull { it.matchesAudioOperation(operationId, requestId) } ?: return
         when (operation.status) {
             OperationStatus.SUCCEEDED -> {
                 operationId = null
                 observedOutcome = operation.status
-                mutable.update { it.copy(busy = false, message = outputStatus(value)) }
+                mutable.update { it.copy(busy = false, message = outputStatus(value), notice = null) }
             }
 
             OperationStatus.FAILED, OperationStatus.CANCELLED, OperationStatus.OUTCOME_UNKNOWN -> {
@@ -124,6 +120,12 @@ internal class AudioSettingsController(
                     it.copy(
                         busy = false,
                         message = "Sound change was not confirmed. Retry or choose a sound output.",
+                        notice =
+                            when (operation.status) {
+                                OperationStatus.OUTCOME_UNKNOWN -> ActionNotice.NOT_CONFIRMED
+                                OperationStatus.FAILED -> errorNotice(operation.errorCode)
+                                else -> null
+                            },
                     )
                 }
             }
@@ -170,9 +172,26 @@ internal class AudioSettingsController(
         if (submitted) {
             requestId = request.id
             observedOutcome = null
-            mutable.update { it.copy(busy = command.delivery == Delivery.DURABLE) }
+            mutable.update {
+                it.copy(
+                    busy = command.delivery == Delivery.DURABLE,
+                    notice =
+                        if (command.delivery ==
+                            Delivery.DURABLE
+                        ) {
+                            null
+                        } else {
+                            it.notice
+                        },
+                )
+            }
         } else if (current != null && idle) {
-            mutable.update { it.copy(message = "Mediacenter is not ready. Reconnect and retry.") }
+            mutable.update {
+                it.copy(
+                    message = "Mediacenter is not ready. Reconnect and retry.",
+                    notice = ActionNotice.RETRY,
+                )
+            }
         }
         return submitted
     }
@@ -187,6 +206,7 @@ internal class AudioSettingsController(
                 mutable.update {
                     it.copy(
                         preview = failurePreview(it.preview, reply.error),
+                        notice = errorNotice(reply.error.code),
                         message =
                             if (reply.error.code ==
                                 WireErrorCode.AUDIO_OUTPUT_UNAVAILABLE
@@ -268,7 +288,7 @@ private fun failurePreview(
         error.code == WireErrorCode.CONFIRMATION_EXPIRED || error.code == WireErrorCode.NOT_FOUND
     }
 
-private fun outputStatus(value: OutputsTopic?): String =
+internal fun outputStatus(value: OutputsTopic?): String =
     when {
         value == null -> {
             "Connect to Mediacenter to choose a sound output."
@@ -336,56 +356,9 @@ internal data class SoundActions(
     val cancel: () -> Unit,
 )
 
-@Composable
-internal fun SoundOptions(
-    state: AudioSettingsState,
-    actions: SoundActions,
-    modifier: Modifier = Modifier,
-    showConfirmation: Boolean = true,
-    initiallyOpen: Boolean = false,
-) {
-    var open by remember { mutableStateOf(initiallyOpen) }
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (!initiallyOpen) {
-            TextButton(onClick = {
-                open = true
-                actions.refresh()
-            }) { Text("Sound") }
-        }
-        if (open) {
-            val outputs = state.outputs
-
-            fun name(id: String?): String = outputs?.outputs?.firstOrNull { it.id == id }?.name ?: id ?: "Not confirmed"
-            Text("Requested: ${name(outputs?.requestedOutputId)}")
-            Text("Confirmed: ${name(outputs?.effectiveOutputId)}")
-            Text(state.message)
-            if (outputs?.unavailable == true) Text("Audio output unavailable. Retry or choose a sound output.")
-            TextButton(onClick = { actions.retry() }, enabled = outputs != null && !state.busy) { Text("Retry") }
-            outputs?.outputs?.forEach { output ->
-                Row {
-                    TextButton(
-                        onClick = { actions.choose(output.id) },
-                        enabled = output.available && !state.busy,
-                    ) { Text(output.name) }
-                    TextButton(
-                        onClick = { actions.test(output.id) },
-                        enabled = output.available && !state.busy,
-                    ) { Text("Test sound") }
-                }
-            }
-        }
-    }
-    if (showConfirmation) {
-        state.preview?.let { preview ->
-            ConfirmationSheet(
-                preview,
-                state.outputs == null || state.busy,
-                ConfirmationActions(
-                    actions.confirm,
-                    actions.cancel,
-                ),
-                title = "Change sound output?",
-            )
-        }
-    }
-}
+private fun OperationState.matchesAudioOperation(
+    operationId: String?,
+    requestId: String?,
+): Boolean =
+    (operationId != null && this.operationId == operationId) ||
+        (requestId != null && this.requestId == requestId)

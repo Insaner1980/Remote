@@ -94,7 +94,7 @@ class ControlTargetLifecycleTest {
         }
         switch(ControlTarget.Mediacenter)
         compose.onNodeWithContentDescription("Action needs attention").performClick()
-        compose.onNodeWithText("Mediacenter is reconciling 1 action(s).").assertIsDisplayed()
+        compose.onNodeWithText("Working…").assertIsDisplayed()
         compose.runOnIdle {
             assertEquals(1, control.sent.count { it.command is RemoteCommand.QueueNext })
             assertEquals(MediacenterConnectionState.Connected, repository.state.value)
@@ -125,9 +125,9 @@ class ControlTargetLifecycleTest {
                 ),
             )
         }
-        compose.onNodeWithText("Change VPN connection?").assertIsDisplayed()
+        compose.onNodeWithText("Change VPN?").assertIsDisplayed()
         switch(ControlTarget.LgTv)
-        compose.onNodeWithText("Change VPN connection?").assertDoesNotExist()
+        compose.onNodeWithText("Change VPN?").assertDoesNotExist()
         compose.waitUntil { control.sent.any { it.command is RemoteCommand.ConfirmationsCancel } }
         compose.runOnIdle {
             val cancel =
@@ -138,17 +138,17 @@ class ControlTargetLifecycleTest {
             assertEquals(initialDisconnects, control.disconnects)
         }
         switch(ControlTarget.Mediacenter)
-        compose.onNodeWithText("Change VPN connection?").assertDoesNotExist()
+        compose.onNodeWithText("Change VPN?").assertDoesNotExist()
     }
 
     @Test fun switchingAwayHidesPairingQrAndReturningNeverIssuesAnotherCandidate() {
         mount()
         showPairingQr()
         switch(ControlTarget.LgTv)
-        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.onNodeWithText("Close").assertDoesNotExist()
         switch(ControlTarget.Mediacenter)
         compose.onNodeWithTag("media-nav-Settings").performClick()
-        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.onNodeWithText("Close").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, control.sent.count { it.command is RemoteCommand.PairingBegin }) }
     }
 
@@ -157,7 +157,7 @@ class ControlTargetLifecycleTest {
         showPairingQr()
         val origin = targets.lease()
         compose.runOnIdle { assertTrue(targets.retireInput(origin) {}) }
-        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.onNodeWithText("Close").assertDoesNotExist()
         compose.onNodeWithTag("media-nav-Settings").assertIsSelected()
         compose.onNodeWithTag("settings-section-Devices").assertIsDisplayed()
         compose.runOnIdle {
@@ -179,7 +179,7 @@ class ControlTargetLifecycleTest {
                 cancelled++
             }, repository::background)
         }
-        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.onNodeWithText("Close").assertDoesNotExist()
         compose.runOnIdle {
             assertEquals(1, cancelled)
             assertFalse(targets.dispatch(old) { throw AssertionError("Stale input resumed") })
@@ -187,7 +187,7 @@ class ControlTargetLifecycleTest {
             assertEquals(1, control.sent.count { it.command is RemoteCommand.PairingBegin })
             repository.foreground()
         }
-        compose.onNodeWithText("Hide code").assertDoesNotExist()
+        compose.onNodeWithText("Close").assertDoesNotExist()
     }
 
     private fun showPairingQr() {
@@ -212,7 +212,7 @@ class ControlTargetLifecycleTest {
         }
         compose.onNodeWithTag("settings-section-Devices").performScrollTo().performClick()
         compose
-            .onNodeWithText("Pair another phone")
+            .onNodeWithText("Add phone")
             .performScrollTo()
             .assertIsEnabled()
             .performClick()
@@ -238,7 +238,7 @@ class ControlTargetLifecycleTest {
                 ),
             )
         }
-        compose.onNodeWithText("Hide code").assertIsDisplayed()
+        compose.onNodeWithText("Close").assertIsDisplayed()
     }
 
     private fun switch(target: ControlTarget) {

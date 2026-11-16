@@ -92,7 +92,7 @@ internal fun WallpaperUploadPreview(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Preview pictures", style = MaterialTheme.typography.headlineSmall)
-        Text("Fill screen may crop the picture. Fit whole picture keeps the complete image.")
+
         if (ui.preparing) LinearProgressIndicator(Modifier.fillMaxWidth())
         for (image in ui.prepared) {
             Text(image.name, style = MaterialTheme.typography.titleMedium)

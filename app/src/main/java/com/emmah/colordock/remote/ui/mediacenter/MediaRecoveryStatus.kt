@@ -24,51 +24,25 @@ import com.emmah.colordock.remote.mediacenter.PendingCommand
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.ui.DockIcon
 
-private const val UNCERTAIN_ACTION_MESSAGE =
-    "An earlier action has an uncertain outcome. " +
-        "Inspect current Mediacenter state before issuing it again."
-
-internal data class MediaFeedbackState(
-    val pending: List<PendingCommand> = emptyList(),
-    val uncertain: Boolean = false,
-    val recoveryAvailable: Boolean = true,
-)
-
 @Composable
 internal fun MediaRecoveryStatus(
     pending: List<PendingCommand>,
     uncertain: Boolean,
     recoveryAvailable: Boolean,
     modifier: Modifier = Modifier,
-    message: String = "",
+    notice: ActionNotice? = null,
 ) {
     val unresolved = pending.count { !it.resolved }
     val unknown = pending.any { it.resolved && it.status == OperationStatus.OUTCOME_UNKNOWN }
-    val needed = unresolved > 0 || unknown || uncertain || !recoveryAvailable || message.isNotBlank()
-    var open by remember { mutableStateOf(false) }
+    val problem = notice != null && notice != ActionNotice.SAFE_TO_UNPLUG
+    val needed = unresolved > 0 || unknown || uncertain || !recoveryAvailable || problem
+    var open by remember(needed) { mutableStateOf(false) }
     if (!needed) return
     IconButton(onClick = { open = true }, modifier = modifier) {
         DockIcon(R.drawable.ic_error, label = "Action needs attention", tint = MaterialTheme.colorScheme.primary)
     }
     if (open) {
-        AlertDialog(
-            onDismissRequest = { open = false },
-            title = { Text("Action status") },
-            text = {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    if (message.isNotBlank()) Text(message)
-                    if (unresolved > 0) Text("Mediacenter is reconciling $unresolved action(s).")
-                    if (unknown) Text(UNCERTAIN_ACTION_MESSAGE)
-                    if (uncertain) Text("Input outcome is uncertain. Inspect the computer before sending again.")
-                    if (!recoveryAvailable) {
-                        Text(
-                            "Command recovery is unavailable. Reconnect after freeing phone storage.",
-                        )
-                    }
-                }
-            },
-            confirmButton = { TextButton(onClick = { open = false }) { Text("Close") } },
-        )
+        RecoveryDialog(unknown || uncertain, recoveryAvailable, unresolved, notice) { open = false }
     }
 }
 
@@ -86,12 +60,35 @@ internal fun InlineMediaStatus(
                     it.operation.operationId == state.messageOperation.operationId
             }
     val relevant = state.messageOperation != null || mediaDetails
-    val showMessage = state.message.isNotBlank() && relevant && !representedDrive
-    if (!state.busy && !showMessage) return
+    val showNotice = state.notice != null && relevant && !representedDrive
+    if (!state.busy && !showNotice) return
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (state.busy) {
-            LinearProgressIndicator(Modifier.fillMaxWidth().testTag("media-action-progress"))
-        }
-        if (showMessage) Text(state.message)
+        if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth().testTag("media-action-progress"))
+        if (showNotice) Text(state.notice.label)
     }
+}
+
+@Composable
+private fun RecoveryDialog(
+    unknown: Boolean,
+    recoveryAvailable: Boolean,
+    unresolved: Int,
+    notice: ActionNotice?,
+    dismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { dismiss() },
+        title = { Text("Action status") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                when {
+                    unknown || notice == ActionNotice.NOT_CONFIRMED -> Text("Not confirmed")
+                    !recoveryAvailable -> Text("Unavailable")
+                    unresolved > 0 -> Text("Working…")
+                    else -> notice?.let { Text(it.label) }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { dismiss() }) { Text("Close") } },
+    )
 }

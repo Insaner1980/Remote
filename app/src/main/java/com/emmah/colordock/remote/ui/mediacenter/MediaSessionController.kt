@@ -28,6 +28,7 @@ internal data class MediaSessionState(
     val message: String = "Connect to Mediacenter.",
     // Only the native operation that produced the current message; local feedback clears this.
     val messageOperation: OperationState? = null,
+    val notice: ActionNotice? = null,
     val resume: MediaItem? = null,
     val preview: ConfirmationPreview? = null,
     val queue: QueuePage? = null,
@@ -145,7 +146,10 @@ internal class MediaSessionController(
                         Delivery.DURABLE
                     ) {
                         handoff = null
-                        message("Acknowledgement missing. Inspect native state; the action will not be replayed.")
+                        message(
+                            "Acknowledgement missing. Inspect native state; the action will not be replayed.",
+                            notice = ActionNotice.NOT_CONFIRMED,
+                        )
                     } else {
                         if (playPlaylistAfterRead && command is RemoteCommand.PlaylistsGet) {
                             playPlaylistAfterRead = false
@@ -163,7 +167,12 @@ internal class MediaSessionController(
             operationCommand = command
             observedOperation = null
             mutable.value =
-                state.value.copy(busy = true, message = "Waiting for Mediacenter…", messageOperation = null)
+                state.value.copy(
+                    busy = true,
+                    message = "Waiting for Mediacenter…",
+                    messageOperation = null,
+                    notice = null,
+                )
         }
     }
 
@@ -179,6 +188,7 @@ internal class MediaSessionController(
                     state.value.copy(
                         busy = false,
                         message = driveSuccess(operationCommand),
+                        notice = driveCompletionNotice(operationCommand),
                         messageOperation = value,
                     )
                 refreshSettingsAfterSuccess(operationCommand)
@@ -200,6 +210,7 @@ internal class MediaSessionController(
                     state.value.copy(
                         busy = false,
                         message = "Action ${value.status.wire}: $detail",
+                        notice = operationNotice(value, operationCommand?.method?.wire?.startsWith("drives.") == true),
                         messageOperation = value,
                     )
                 if (operationCommand?.method?.wire?.startsWith("queue.") == true) refreshQueue()

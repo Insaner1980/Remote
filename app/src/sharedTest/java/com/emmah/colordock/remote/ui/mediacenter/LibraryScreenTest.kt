@@ -23,6 +23,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -89,7 +90,7 @@ class LibraryScreenTest {
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(1)
             compose.onNodeWithTag("media-nav-Library").performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
-            compose.onNodeWithText("Now playing").performScrollTo().performClick()
+            compose.onNodeWithTag("media-nav-Remote").performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(1)
             compose.onNodeWithTag("media-nav-Settings").performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
@@ -120,7 +121,7 @@ class LibraryScreenTest {
                 }
             }
         }
-        compose.onNodeWithText("No matching media.").assertIsDisplayed()
+        compose.onNodeWithText("No results").assertIsDisplayed()
         compose.runOnIdle {
             state.value =
                 state.value.copy(
@@ -129,7 +130,7 @@ class LibraryScreenTest {
                 )
         }
         compose.onNodeWithText("song").assertIsNotEnabled()
-        compose.onNodeWithText("Offline: offline").assertIsDisplayed()
-        compose.onNodeWithText("Refresh library").performScrollTo().assertIsEnabled()
+        compose.onNodeWithText("Offline").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Refresh library").performScrollTo().assertIsEnabled()
     }
 }

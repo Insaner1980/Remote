@@ -30,7 +30,8 @@ class MediaAttentionTest {
         val detail = "Input outcome is uncertain. Inspect the computer before sending again."
         compose.onNodeWithText(detail).assertDoesNotExist()
         compose.onNodeWithContentDescription("Action needs attention").assertIsDisplayed().performClick()
-        compose.onNodeWithText(detail).assertIsDisplayed()
+        compose.onNodeWithText(detail).assertDoesNotExist()
+        compose.onNodeWithText("Not confirmed").assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
         compose.onNodeWithContentDescription("Action needs attention").assertIsDisplayed()
     }
@@ -46,15 +47,15 @@ class MediaAttentionTest {
                 DeviceConfigurationOverride.ForcedSize(DpSize(640.dp, 360.dp)) then
                     DeviceConfigurationOverride.FontScale(2f),
             ) {
-                RemoteTheme { MediaRecoveryStatus(records, true, false, message = "Earlier action needs review.") }
+                RemoteTheme { MediaRecoveryStatus(records, true, false, notice = ActionNotice.RETRY) }
             }
         }
         compose.onNodeWithContentDescription("Action needs attention").performClick()
+        compose.onNodeWithText("Not confirmed").assertIsDisplayed()
         compose
-            .onNodeWithText("Command recovery is unavailable. Reconnect after freeing phone storage.")
-            .performScrollTo()
-            .assertIsDisplayed()
-        compose.onNodeWithText("Earlier action needs review.").performScrollTo().assertIsDisplayed()
+            .onNodeWithText(
+                "Command recovery is unavailable. Reconnect after freeing phone storage.",
+            ).assertDoesNotExist()
         compose.onNodeWithText("Close").assertIsDisplayed().performClick()
     }
 

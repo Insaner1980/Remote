@@ -49,6 +49,7 @@ internal fun MediaSessionController.receiveFailure(
                     },
             message = driveFailure(command, reply.error.code) ?: reply.error.message,
             messageOperation = null,
+            notice = errorNotice(reply.error.code, command.method.wire.startsWith("drives.")),
         )
     if (reply.error.code ==
         WireErrorCode.STALE_STATE
@@ -210,14 +211,19 @@ internal fun MediaSessionController.receiveSourceResult(result: RemoteResult): B
         is RemoteResult.OperationsCancel -> {
             reconcileOperation()
             if (state.value.busy && state.value.messageOperation == null) {
-                message("Cancellation requested. Waiting for native completion.")
+                message("Cancellation requested. Waiting for native completion.", notice = ActionNotice.STOPPING)
             }
             true
         }
 
         is RemoteResult.SourcesCancelScan -> {
             reconcileOperation()
-            if (state.value.busy) message("Cancellation requested. Waiting for the scan to stop.")
+            if (state.value.busy) {
+                message(
+                    "Cancellation requested. Waiting for the scan to stop.",
+                    notice = ActionNotice.STOPPING,
+                )
+            }
             true
         }
 

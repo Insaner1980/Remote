@@ -23,21 +23,24 @@ internal fun FolderBrowser(
 ) {
     var kinds by remember(state.selected?.nodeId) { mutableStateOf(setOf(MediaKind.VIDEO)) }
     Column(modifier.testTag("folder-browser")) {
-        Text("Choose a computer folder")
-        Text("Only authorized media folders and offered removable drives appear here.")
-        TextButton(onClick = { actions.browse(null) }, enabled = state.connected) { Text("Authorized folders") }
-        TextButton(onClick = actions.refresh, enabled = state.connected) { Text("Refresh folders") }
-        if (state.message.isNotEmpty()) Text(state.message)
-        if (state.loading) Text("Loading folders…")
+        Row {
+            androidx.compose.material3.IconButton(onClick = { actions.browse(null) }, enabled = state.connected) {
+                com.emmah.colordock.remote.ui
+                    .DockIcon(com.emmah.colordock.remote.R.drawable.ic_home, label = "Folders")
+            }
+            RefreshAction(actions.refresh, enabled = state.connected, label = "Refresh folders")
+        }
+        if (state.connected && state.message.isNotEmpty()) Text("Try again")
+        if (state.loading) Text("Loading…")
         state.selected?.let { selected ->
-            Text("Chosen folder: ${selected.label}")
+            Text(selected.label)
             MediaKind.entries.forEach { kind ->
                 Row {
                     Checkbox(checked = kind in kinds, onCheckedChange = { checked ->
                         kinds =
                             if (checked) kinds + kind else kinds - kind
                     })
-                    Text(kind.wire.replaceFirstChar { it.uppercase() })
+                    Text(mediaKindLabel(kind))
                 }
             }
             TextButton(
@@ -45,12 +48,12 @@ internal fun FolderBrowser(
                 enabled =
                     state.connected && !busy && !state.loading && kinds.isNotEmpty(),
             ) {
-                Text("Review folder selection")
+                Text("Add folder")
             }
         }
         state.items.forEach { node ->
             TextButton(onClick = { actions.browse(node) }, enabled = !state.loading && !busy) { Text(node.label) }
         }
-        if (state.cursor != null) TextButton(onClick = actions.next, enabled = !state.loading) { Text("More folders") }
+        if (state.cursor != null) TextButton(onClick = actions.next, enabled = !state.loading) { Text("More") }
     }
 }

@@ -70,7 +70,7 @@ fun NumberPadSheet(
                 selected = null
             }
             if (channels.isEmpty()) {
-                Text("The channel list is unavailable. Open Live TV and reconnect to try again.")
+                Text("Channels unavailable")
             } else if (digits.isNotEmpty() && matches.isEmpty()) {
                 Text("No matching channel. Check the channel number.")
             }

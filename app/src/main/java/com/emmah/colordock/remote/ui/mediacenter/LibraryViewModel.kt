@@ -27,6 +27,7 @@ internal data class LibraryState(
     val loading: Boolean = false,
     val connected: Boolean = false,
     val message: String = "Connect to Mediacenter to browse.",
+    val notice: ActionNotice? = null,
 )
 
 /** Cancels obsolete debounce/deadline work; late replies never replace a newer page. */
@@ -65,7 +66,11 @@ internal class LibraryViewModel(
         kind: MediaKind = state.value.kind,
     ) {
         if (value.codePointCount(0, value.length) > MEDIA_QUERY_LIMIT) {
-            mutable.value = state.value.copy(message = "Search accepts at most 200 characters.")
+            mutable.value =
+                state.value.copy(
+                    message = "Search accepts at most 200 characters.",
+                    notice = ActionNotice.SHORTEN_SEARCH,
+                )
             return
         }
         work?.cancel()
@@ -123,10 +128,15 @@ internal class LibraryViewModel(
         if (!send(request)) {
             pending = null
             mutable.value =
-                state.value.copy(loading = false, message = "Mediacenter is not ready. Retry.")
+                state.value.copy(
+                    loading = false,
+                    message = "Mediacenter is not ready. Retry.",
+                    notice = ActionNotice.RETRY,
+                )
             return
         }
-        mutable.value = state.value.copy(loading = true, hasPrevious = previous.isNotEmpty(), message = "")
+        mutable.value =
+            state.value.copy(loading = true, hasPrevious = previous.isNotEmpty(), message = "", notice = null)
         work =
             scope.launch {
                 delay(MEDIA_REQUEST_TIMEOUT_MS)
@@ -135,7 +145,11 @@ internal class LibraryViewModel(
                 ) {
                     pending = null
                     mutable.value =
-                        state.value.copy(loading = false, message = "Library request timed out. Retry.")
+                        state.value.copy(
+                            loading = false,
+                            message = "Library request timed out. Retry.",
+                            notice = ActionNotice.RETRY,
+                        )
                 }
             }
     }
@@ -149,6 +163,7 @@ internal class LibraryViewModel(
                 is McReply.Failure -> {
                     state.value.copy(
                         loading = false,
+                        notice = errorNotice(reply.error.code),
                         message =
                             if (reply.error.code ==
                                 WireErrorCode.SELECTION_TOO_LARGE
@@ -173,6 +188,7 @@ internal class LibraryViewModel(
                             cursor = it.nextCursor,
                             selectionId = it.selectionId,
                             message = if (it.items.isEmpty()) "No matching media." else "",
+                            notice = null,
                         )
                     }
                         ?: state.value.copy(loading = false)

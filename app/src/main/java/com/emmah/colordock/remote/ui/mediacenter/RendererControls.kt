@@ -37,8 +37,18 @@ internal fun RendererControls(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (notice.isNotEmpty()) Text(notice)
-        if (!enabled) Text("Desktop navigation unavailable. Native media controls remain available.")
+        if (notice.isNotEmpty()) {
+            Text(
+                if (notice.contains("uncertain", true) ||
+                    notice.contains("not confirmed", true)
+                ) {
+                    "Not confirmed"
+                } else {
+                    "Try again"
+                },
+            )
+        }
+        if (!enabled) Text("Controls unavailable")
         DirectionPad(
             enabled = enabled,
             onCommand = { command ->

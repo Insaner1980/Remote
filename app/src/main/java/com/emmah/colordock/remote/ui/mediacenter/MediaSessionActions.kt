@@ -26,8 +26,9 @@ internal fun MediaSessionController.destination(value: MediaDestination) {
 internal fun MediaSessionController.message(
     value: String,
     operation: OperationState? = null,
+    notice: ActionNotice = ActionNotice.RETRY,
 ) {
-    mutable.value = state.value.copy(message = value, messageOperation = operation)
+    mutable.value = state.value.copy(message = value, messageOperation = operation, notice = notice)
 }
 
 internal fun MediaSessionController.confirm() {
@@ -134,7 +135,7 @@ internal fun MediaSessionController.sourceProgress(value: OperationState) {
             } else {
                 "Scanning… Waiting for native completion."
             }
-        mutable.value = state.value.copy(busy = true, message = progress, messageOperation = value)
+        mutable.value = state.value.copy(busy = true, message = progress, messageOperation = value, notice = null)
     }
 }
 

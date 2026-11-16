@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -50,9 +51,9 @@ class BrowserScreenTest {
         compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(1)
         compose.onNodeWithText("Keyboard").performScrollTo().performClick()
-        compose.onNodeWithText("Browser keyboard").assertExists()
+        compose.onNodeWithText("Type text").assertExists()
         compose.runOnIdle { streaming.value = streaming.value.copy(target = null, browser = null) }
-        compose.onNodeWithText("Browser keyboard").assertDoesNotExist()
+        compose.onNodeWithText("Type text").assertDoesNotExist()
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(0)
         compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
     }
@@ -65,14 +66,14 @@ class BrowserScreenTest {
                 BrowserTargetForTest(activeStreaming(), onMedia = { media = it }) { sent.add(it) }
             }
         }
-        compose.onNodeWithText("Show menus on computer").performScrollTo().performClick()
+        compose.onNodeWithText("Menu").performScrollTo().performClick()
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(1)
         compose.runOnIdle {
             val request = sent.last()
             media.receive(McReply.Success(request.id, RemoteResult.ActivityShowMenu(ForegroundAck(request.id))))
         }
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(0)
-        compose.onNodeWithText("Show current playback").performScrollTo().performClick()
+        compose.onNodeWithText("Playback").performScrollTo().performClick()
         compose.runOnIdle {
             val request = sent.last()
             assertTrue(request.command is RemoteCommand.ActivityShowPlayback)
@@ -86,10 +87,9 @@ class BrowserScreenTest {
         compose.setContent {
             RemoteTheme { BrowserTargetForTest(activeStreaming()) { sent.add(it) } }
         }
-        compose.onNodeWithText("Streaming services").performScrollTo().performClick()
-        compose.onNodeWithText("HBO Max").assertIsNotEnabled()
-        compose.onNodeWithText("Open the enrolled Chrome profile.").assertExists()
-        compose.onNode(hasText("YouTube") and hasClickAction()).performClick()
+        compose.onNodeWithContentDescription("Open HBO Max").assertIsNotEnabled()
+        compose.onNodeWithText("Open the enrolled Chrome profile.").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Open YouTube").performScrollTo().performClick()
         compose.runOnIdle { assertTrue(sent.single().command is RemoteCommand.BrowserOpen) }
     }
 }

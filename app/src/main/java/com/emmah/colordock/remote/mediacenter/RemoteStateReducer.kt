@@ -52,10 +52,13 @@ internal class RemoteStateReducer(
                 else -> reject(StateReduction.ResyncRequired)
             }
         } catch (failure: StateRejected) {
+            protocolTrace("State rejected", failure)
             reject(failure.reduction)
-        } catch (_: IllegalArgumentException) {
+        } catch (failure: IllegalArgumentException) {
+            protocolTrace("State invalid", failure)
             reject(StateReduction.ResyncRequired)
-        } catch (_: org.json.JSONException) {
+        } catch (failure: org.json.JSONException) {
+            protocolTrace("State JSON", failure)
             reject(StateReduction.ResyncRequired)
         }
 
@@ -111,10 +114,11 @@ internal class RemoteStateReducer(
             val last = counter(previous.getString("sequence"))
             requireState(last != ULong.MAX_VALUE && sequence == last + 1uL)
             val data = source.getJSONObject("data")
-            requireState(
-                counter(data.getString("revision")) > counter(previous.getJSONObject(topic).getString("revision")),
-            )
-            val next = JSONObject(previous.toString()).put("sequence", sequence.toString()).put(topic, data)
+            val next = JSONObject(previous.toString()).put("sequence", sequence.toString())
+            // A snapshot may already cover a queued topic copy; its stream position still advances.
+            if (counter(data.getString("revision")) > counter(previous.getJSONObject(topic).getString("revision"))) {
+                next.put(topic, data)
+            }
             val typed = RemoteJson.parseSnapshot(next.toString())
             requireState(typed.connection.serverDeviceId == serverId, StateReduction.IdentityChanged)
             document = next

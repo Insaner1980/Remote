@@ -180,6 +180,7 @@ class MediacenterClient : MediacenterControl {
                 t: Throwable,
                 response: Response?,
             ) {
+                protocolTrace("Transport failure", t)
                 terminate(
                     owner,
                     if (response?.code ==
@@ -197,6 +198,7 @@ class MediacenterClient : MediacenterControl {
                 code: Int,
                 reason: String,
             ) {
+                protocolTrace("Transport close $code (${if (reason == "resync_required") "resync" else "other"})")
                 terminate(
                     owner,
                     when {

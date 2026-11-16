@@ -34,7 +34,6 @@ internal fun PhotoControls(
     val session = photo?.sessionId
     val enabled = session != null && !state.busy
     Column(modifier) {
-        Text(if (photo?.paused != false) "Photo presentation paused" else "Slideshow playing")
         PhotoTransport(state, command)
         var seconds by remember(photo?.intervalSeconds) {
             mutableStateOf(
@@ -48,7 +47,7 @@ internal fun PhotoControls(
         OutlinedTextField(
             seconds,
             { seconds = it },
-            label = { Text("Interval (1–60 seconds)") },
+            label = { Text("Seconds") },
             isError =
                 interval !in 1..PHOTO_MAX_INTERVAL,
         )
@@ -56,17 +55,17 @@ internal fun PhotoControls(
             onClick = { session?.let { command(RemoteCommand.PhotosInterval(PhotosIntervalParams(it, interval!!))) } },
             enabled =
                 enabled && interval in 1..PHOTO_MAX_INTERVAL,
-        ) { Text("Apply interval") }
+        ) { Text("Apply") }
         TextButton(
             onClick = { start(selection, photo?.currentItemId, interval!!) },
             enabled =
                 state.snapshot != null && !state.busy && selection != null && interval in 1..PHOTO_MAX_INTERVAL,
-        ) { Text("Start filtered slideshow") }
+        ) { Text("Start slideshow") }
         TextButton(onClick = {
             session?.let {
                 command(RemoteCommand.PhotosShuffle(PhotosShuffleParams(it, !photo.shuffle)))
             }
-        }, enabled = enabled) { Text("Photo shuffle: ${photo?.shuffle == true}") }
+        }, enabled = enabled) { Text(if (photo?.shuffle == true) "Shuffle on" else "Shuffle off") }
         TextButton(onClick = {
             session?.let {
                 command(
@@ -84,7 +83,7 @@ internal fun PhotoControls(
                     ),
                 )
             }
-        }, enabled = enabled) { Text("Image size: ${photo?.fit?.wire ?: "fit"}") }
+        }, enabled = enabled) { Text(if (photo?.fit == Fit.ACTUAL) "Original size" else "Fit to screen") }
     }
 }
 
@@ -101,10 +100,10 @@ private fun ColumnScope.PhotoTransport(
             session?.let {
                 command(RemoteCommand.PhotosPrevious(PhotosPreviousParams(it)))
             }
-        }, enabled = enabled) { Text("Previous photo") }
+        }, enabled = enabled) { Text("Previous") }
         TextButton(onClick = {
             session?.let { command(RemoteCommand.PhotosNext(PhotosNextParams(it))) }
-        }, enabled = enabled) { Text("Next photo") }
+        }, enabled = enabled) { Text("Next") }
     }
     Row {
         TextButton(onClick = {
@@ -114,9 +113,9 @@ private fun ColumnScope.PhotoTransport(
                 if (photo?.paused !=
                     false
                 ) {
-                    "Resume slideshow"
+                    "Play"
                 } else {
-                    "Pause slideshow"
+                    "Pause"
                 },
             )
         }
@@ -124,6 +123,6 @@ private fun ColumnScope.PhotoTransport(
             session?.let {
                 command(RemoteCommand.PhotosStop(PhotosStopParams(it)))
             }
-        }, enabled = session != null) { Text("Stop slideshow") }
+        }, enabled = session != null) { Text("Stop") }
     }
 }

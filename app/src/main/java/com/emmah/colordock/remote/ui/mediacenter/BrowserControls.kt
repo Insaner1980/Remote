@@ -33,7 +33,7 @@ internal fun BrowserControls(
         Text(browser?.serviceId?.let(::serviceLabel) ?: "Browser", style = MaterialTheme.typography.titleMedium)
         when {
             target == null || browser == null -> {
-                Text("Browser controls are unavailable. Check the enrolled Chrome profile on the computer.")
+                Text("Controls unavailable")
             }
 
             enabled -> {
@@ -41,9 +41,9 @@ internal fun BrowserControls(
             }
         }
         if (browser?.pendingConfirmation != null) {
-            Text("Browser input is paused. Review the new site before continuing.")
+            Text("Approval needed")
         }
-        if (notice.isNotEmpty()) Text(notice)
+        if (notice.isNotEmpty()) Text(if (notice.contains("uncertain", true)) "Not confirmed" else "Try again")
     }
 }
 
@@ -79,7 +79,7 @@ private fun BrowserActions(
             TextButton(onClick = {
                 controller.endGesture()
                 closeOpen = true
-            }) { Text("Close browser tab") }
+            }) { Text("Close tab") }
         }
     }
     if (keyboardOpen) {
@@ -115,11 +115,7 @@ private fun BrowserNavigation(
         (capabilities.keyboard && streaming.allows(MethodName.BROWSER_KEY)) ||
             (capabilities.text && streaming.allows(MethodName.BROWSER_TEXT))
     Column(modifier) {
-        if (canNavigate) {
-            Text("Use the website’s playback, subtitle and volume controls.")
-        } else {
-            Text("Browser input is temporarily unavailable.")
-        }
+        if (!canNavigate) Text("Controls unavailable")
         Row(Modifier.fillMaxWidth()) {
             if (canNavigate && streaming.allows(MethodName.BROWSER_BACK)) {
                 TextButton(onClick = { controller.back(target) }) { Text("Back") }
@@ -141,7 +137,7 @@ private fun CloseBrowserDialog(
     AlertDialog(
         onDismissRequest = dismiss,
         modifier = modifier,
-        title = { Text("Close the enrolled browser tab?") },
+        title = { Text("Close tab?") },
         confirmButton = { TextButton(onClick = confirm) { Text("Close tab") } },
         dismissButton = { TextButton(onClick = dismiss) { Text("Cancel") } },
     )
@@ -174,7 +170,7 @@ private fun BrowserKeyboard(
         AlertDialog(
             onDismissRequest = dismiss,
             modifier = modifier,
-            title = { Text("Browser keyboard") },
+            title = { Text("Keyboard") },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     browserKeyRows.forEach { group ->
@@ -184,7 +180,7 @@ private fun BrowserKeyboard(
                             }
                         }
                     }
-                    if (hasText) TextButton(onClick = { composing = true }) { Text("Type on computer") }
+                    if (hasText) TextButton(onClick = { composing = true }) { Text("Type text") }
                 }
             },
             confirmButton = { TextButton(onClick = dismiss) { Text("Done") } },

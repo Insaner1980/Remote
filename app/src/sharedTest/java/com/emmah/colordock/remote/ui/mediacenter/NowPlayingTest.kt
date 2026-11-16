@@ -86,7 +86,7 @@ class NowPlayingTest {
         }
         compose.onNodeWithText("Pause").performClick()
         assertEquals("session", (sent.single() as RemoteCommand.PlayerPause).params.sessionId)
-        compose.onNodeWithText("Mute Mediacenter").performScrollTo().performClick()
+        compose.onNodeWithText("Mute").performScrollTo().performClick()
         assertTrue((sent.last() as RemoteCommand.PlayerMute).params.muted)
         compose.runOnIdle { state.value = MediaSessionState() }
         compose.onNodeWithText("Pause").assertDoesNotExist()

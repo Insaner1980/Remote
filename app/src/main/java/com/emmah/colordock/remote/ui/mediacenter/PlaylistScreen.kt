@@ -27,20 +27,20 @@ internal fun PlaylistScreen(
     val contents = state.playlist
     val enabled = state.snapshot != null && !state.busy
     Column(modifier) {
-        TextButton(onClick = actions.back) { Text("Back to Music") }
+        TextButton(onClick = actions.back) { Text("Back") }
         if (contents == null) {
-            OutlinedTextField(state.playlistQuery, actions.search, label = { Text("Search playlists") })
-            Text(if (append == null) "Playlists" else "Choose playlist for ${append.name}")
+            OutlinedTextField(state.playlistQuery, actions.search, label = { Text("Search") })
+            Text(if (append == null) "Playlists" else "Choose playlist")
             state.playlists?.items?.forEach { playlist ->
                 TextButton(
                     onClick = { actions.open(playlist.id, null) },
                     enabled = enabled,
-                ) { Text("${playlist.name} (${playlist.count})") }
+                ) { Text(playlist.name) }
             }
-            if (state.playlists?.items?.isEmpty() == true) Text("No playlists. Save your queue to create one.")
-            TextButton(onClick = { actions.list(null) }, enabled = enabled) { Text("Refresh playlists") }
+            if (state.playlists?.items?.isEmpty() == true) Text("No playlists")
+            TextButton(onClick = { actions.list(null) }, enabled = enabled) { Text("Refresh") }
             state.playlists?.nextCursor?.let { cursor ->
-                TextButton(onClick = { actions.list(cursor) }, enabled = enabled) { Text("Next playlists page") }
+                TextButton(onClick = { actions.list(cursor) }, enabled = enabled) { Text("More") }
             }
         } else {
             PlaylistDetails(state, append, actions)
@@ -56,53 +56,74 @@ private fun ColumnScope.PlaylistDetails(
 ) {
     val contents = state.playlist ?: return
     val enabled = state.snapshot != null && !state.busy
-    Text(contents.playlist.name, style = MaterialTheme.typography.titleLarge)
-    var name by remember(
-        contents.playlist.id,
-        contents.playlist.revision,
-    ) { mutableStateOf(contents.playlist.name) }
-    OutlinedTextField(name, { name = it }, label = { Text("Playlist name") })
-    TextButton(
-        onClick = {
-            actions.command(
-                RemoteCommand.PlaylistsSave(PlaylistsSaveParams.Rename(contents.playlist.id, name)),
-            )
-        },
-        enabled =
-            enabled && name.isNotBlank() && name.length <= 200,
-    ) { Text("Save name") }
-    if (append !=
-        null
-    ) {
+    var editing by remember(contents.playlist.id) { mutableStateOf(false) }
+    androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Text(contents.playlist.name, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+        ItemActions("Playlist options", listOf(MenuAction("Rename", enabled) { editing = !editing }), enabled = enabled)
+    }
+    if (editing) {
+        var name by remember(
+            contents.playlist.id,
+            contents.playlist.revision,
+        ) { mutableStateOf(contents.playlist.name) }
+        OutlinedTextField(name, { name = it.take(MEDIA_QUERY_LIMIT) }, label = { Text("Name") }, singleLine = true)
+        TextButton(
+            onClick = {
+                actions.command(
+                    RemoteCommand.PlaylistsSave(PlaylistsSaveParams.Rename(contents.playlist.id, name)),
+                )
+            },
+            enabled = enabled && name.isNotBlank(),
+        ) { Text("Save") }
+    }
+    if (append != null) {
         TextButton(onClick = {
             actions.command(
-                RemoteCommand.PlaylistsSave(
-                    PlaylistsSaveParams.Append(contents.playlist.id, listOf(append.id)),
-                ),
+                RemoteCommand.PlaylistsSave(PlaylistsSaveParams.Append(contents.playlist.id, listOf(append.id))),
             )
             actions.appended()
-        }, enabled = enabled) { Text("Add ${append.name}") }
+        }, enabled = enabled) { Text("Add to playlist") }
     }
-    TextButton(onClick = actions.play, enabled = enabled) { Text("Play playlist") }
-    contents.entries.items.forEach { entry ->
-        Text(entry.item.name + if (entry.item.availability != Availability.AVAILABLE) "\nOffline" else "")
-        TextButton(onClick = {
-            actions.command(
-                RemoteCommand.PlaylistsSave(
-                    PlaylistsSaveParams.Remove(contents.playlist.id, listOf(entry.entryId)),
-                ),
-            )
-        }, enabled = enabled) { Text("Remove ${entry.item.name}") }
-    }
-    TextButton(
-        onClick = { actions.open(contents.playlist.id, null) },
-        enabled = enabled,
-    ) { Text("Reload playlist / first page") }
+    TextButton(onClick = actions.play, enabled = enabled) { Text("Play") }
+    PlaylistEntries(contents, enabled, actions)
     contents.entries.nextCursor?.let { cursor ->
-        TextButton(
-            onClick = { actions.open(contents.playlist.id, cursor) },
-            enabled = enabled,
-        ) { Text("Next playlist page") }
+        TextButton(onClick = { actions.open(contents.playlist.id, cursor) }, enabled = enabled) { Text("More") }
     }
-    Text(state.message)
+    state.notice?.let { Text(it.label) }
+}
+
+@Composable
+private fun PlaylistEntries(
+    contents: com.emmah.colordock.remote.mediacenter.protocol.PlaylistContents,
+    enabled: Boolean,
+    actions: PlaylistActions,
+) {
+    contents.entries.items.forEach { entry ->
+        androidx.compose.runtime.key(entry.entryId) {
+            androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                val title = mediaTitle(entry.item.name)
+                Text(
+                    title,
+                    Modifier.weight(1f),
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                )
+                ItemActions(
+                    "Options for $title",
+                    listOf(
+                        MenuAction("Remove", enabled) {
+                            actions.command(
+                                RemoteCommand.PlaylistsSave(
+                                    PlaylistsSaveParams.Remove(contents.playlist.id, listOf(entry.entryId)),
+                                ),
+                            )
+                        },
+                    ),
+                    enabled = enabled,
+                )
+            }
+            if (entry.item.availability != Availability.AVAILABLE) Text("Offline")
+        }
+    }
+    RefreshAction({ actions.open(contents.playlist.id, null) }, enabled = enabled, label = "Refresh playlist")
 }
