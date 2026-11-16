@@ -44,6 +44,6 @@ Files: target-page feedback component, shared tests, `design-qa.md`, engineering
 - [x] Format, run unit/Compose tests, Detekt, ktlint, Android lint and build app/test APKs.
 - [x] Obtain one fresh whole-diff review and fix material findings.
 - [x] Update original app in place and verify credential hashes unchanged.
-- [ ] Exercise all sections and 29 focused tests on unlocked Pixel at existing font scale (phone currently locked).
-- [ ] Compare selected reference and actual Settings screenshot in one normalized comparison; fix P0/P1/P2 issues and save passing design QA.
+- [x] Exercise all sections and 29 focused tests on unlocked Pixel at existing font scale.
+- [x] Compare selected reference and actual Settings screenshot in normalized full/focused comparisons; fix P0/P1/P2 issues and save passing design QA.
 - [ ] Inspect LG and Mediacenter on phone, preserve private evidence, archive APK and update engineering checkpoint; commit only task-owned files.

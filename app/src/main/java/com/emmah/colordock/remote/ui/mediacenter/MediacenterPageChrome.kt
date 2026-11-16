@@ -64,7 +64,7 @@ internal fun MediacenterBottomNavigation(
                 when (destination) {
                     MediaDestination.Remote -> R.drawable.ic_settings_remote
                     MediaDestination.Library -> R.drawable.ic_library_books
-                    MediaDestination.Settings -> R.drawable.ic_settings
+                    MediaDestination.Settings -> R.drawable.ic_settings_gear
                 }
             NavigationBarItem(
                 selected = selected == destination,

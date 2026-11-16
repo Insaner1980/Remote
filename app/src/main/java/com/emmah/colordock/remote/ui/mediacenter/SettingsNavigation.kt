@@ -27,10 +27,10 @@ enum class SettingsSection(
 ) {
     Sound(R.drawable.ic_volume_up),
     VPN(R.drawable.ic_shield),
-    Media(R.drawable.ic_video_library),
+    Media(R.drawable.ic_smart_display),
     Devices(R.drawable.ic_devices),
-    Appearance(R.drawable.ic_palette),
-    Advanced(R.drawable.ic_settings),
+    Appearance(R.drawable.ic_brush),
+    Advanced(R.drawable.ic_settings_gear),
 }
 
 internal class SettingsNavigation {
@@ -50,8 +50,8 @@ internal fun SettingsOverview(
                     .fillMaxWidth()
                     .testTag("settings-section-${section.name}")
                     .clickable { onSelect(section) }
-                    .heightIn(min = 64.dp)
-                    .padding(horizontal = 8.dp, vertical = 16.dp),
+                    .heightIn(min = 56.dp)
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
             ) {
@@ -67,7 +67,7 @@ internal fun SettingsOverview(
                 Text(
                     section.name,
                     Modifier.weight(1f),
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     color =
                         if (subdued) {
                             MaterialTheme.colorScheme.onSurfaceVariant

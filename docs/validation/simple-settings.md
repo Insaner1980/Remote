@@ -13,6 +13,8 @@ Verification: 447 unit/Compose tests, zero failures/errors/skips. Detekt, ktlint
 
 Updated `com.emmah.colordock.remote` in place with the installed signer. Both encrypted credential files and both original preference files matched byte-for-byte before first launch. App UID remained 10450. Phone font scale remains 1.15; temporary USB stay-awake restored to 0.
 
-**Physical acceptance remains pending:** the phone is locked. The prior version's physical results do not certify this redesign. See [design QA](../../design-qa.md). No changes to desktop, HDMI, sound volume or VPN settings were needed.
+**Physical acceptance passed:** 29 focused tests on the latest installed APK, all six settings sections, visible/Android back, connection and appearance callbacks, bottom navigation and both target screens. The selected image and actual final screenshot were compared together; icon/row-size differences were fixed and the revised comparison passed. See [design QA](../../design-qa.md). No changes to desktop, HDMI, sound volume or VPN settings were needed.
 
-New icon assets are official Google Material Symbols outlined Android vectors (`devices`, `error`, `library_books`, `palette`, `shield`, `video_library`, `wifi`, `wifi_off`) from `google/material-design-icons`, `symbols/android/<name>/materialsymbolsoutlined/<name>_24px.xml`. The existing bundled Apache 2 license covers Material Symbols.
+New icon assets are official Google Material Symbols outlined Android vectors (`brush`, `devices`, `error`, `library_books`, `settings`, `shield`, `smart_display`, `wifi`, `wifi_off`) from `google/material-design-icons`, `symbols/android/<name>/materialsymbolsoutlined/<name>_24px.xml`. The existing bundled Apache 2 license covers Material Symbols.
+
+Final visual polish uses 18sp row labels and 56dp minimum row height; user font scale remains 1.15. Mediacenter uses `ic_settings_gear` mapped from the official `settings` symbol, preserving the existing LG sliders icon. Final APK SHA-256: `164b6620fa80d4a56dd68785f445188c87176b649f11155a24682918e0cd1545`.
