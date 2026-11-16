@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,10 +29,23 @@ internal fun ItemActions(
         IconButton(onClick = { open = true }, enabled = enabled) { DockIcon(R.drawable.ic_more_vert, label = label) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             actions.forEach { action ->
-                DropdownMenuItem(text = { Text(action.label) }, enabled = action.enabled, onClick = {
-                    open = false
-                    action.run()
-                })
+                DropdownMenuItem(
+                    text = { Text(action.label) },
+                    enabled = action.enabled,
+                    colors =
+                        MenuDefaults.itemColors(
+                            textColor =
+                                if (action.destructive) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                        ),
+                    onClick = {
+                        open = false
+                        action.run()
+                    },
+                )
             }
         }
     }

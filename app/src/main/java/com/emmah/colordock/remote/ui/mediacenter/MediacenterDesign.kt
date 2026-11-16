@@ -68,6 +68,7 @@ internal fun ListRow(
     onClick: (() -> Unit)? = null,
     titleColor: Color = Color.Unspecified,
     enabled: Boolean = true,
+    role: Role = Role.Button,
 ) {
     val shape =
         when (position) {
@@ -82,7 +83,7 @@ internal fun ListRow(
         ) {
             Modifier
         } else {
-            Modifier.clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            Modifier.clickable(enabled = enabled, role = role, onClick = onClick)
         }
     Row(
         modifier
@@ -335,4 +336,34 @@ internal fun PillSearchField(
                 disabledIndicatorColor = Color.Transparent,
             ),
     )
+}
+
+internal fun listRowPosition(
+    index: Int,
+    count: Int,
+): ListRowPosition =
+    when {
+        count == 1 -> ListRowPosition.Single
+        index == 0 -> ListRowPosition.First
+        index == count - 1 -> ListRowPosition.Last
+        else -> ListRowPosition.Middle
+    }
+
+@Composable
+internal fun EmptyListRow(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Text(
+            text,
+            Modifier.heightIn(min = 56.dp).padding(16.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }

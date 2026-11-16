@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 
 @Composable
@@ -23,18 +25,23 @@ internal fun DrivesScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.testTag("drive-settings"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("USB drives", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        SectionLabel("USB drives", trailing = {
             RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh drives")
-        }
-        ListStatus(state.loading, state.connected, state.message, state.items.isEmpty(), "drives")
+        })
+        ListStatus(state.loading, state.connected, state.message, false, "drives")
         RecoveredDriveRows(state, actions)
-        state.items.forEach { drive ->
-            androidx.compose.runtime.key(drive.id) {
-                DriveRow(drive, state.connected && !busy, actions)
+        ListGroup {
+            val loaded = state.connected && !state.loading && state.message.isEmpty()
+            if (loaded && state.items.isEmpty()) {
+                EmptyListRow("No USB drive")
+            }
+            state.items.forEachIndexed { index, drive ->
+                androidx.compose.runtime.key(drive.id) {
+                    DriveRow(drive, state.connected && !busy, actions, listRowPosition(index, state.items.size))
+                }
             }
         }
-        actions.cancel?.let { cancel -> TextButton(onClick = cancel, enabled = state.connected) { Text("Cancel") } }
+        actions.cancel?.let { cancel -> MediaKey("Cancel", null, state.connected, cancel) }
     }
 }
 
@@ -76,10 +83,12 @@ private fun RecoveredDriveRows(
                         },
                     )
                     if (work.running) {
-                        TextButton(
-                            onClick = { actions.cancelRecovered(work.operation.operationId) },
-                            enabled = state.connected && !work.operation.cancellationRequested,
-                        ) { Text("Cancel") }
+                        MediaKey(
+                            "Cancel",
+                            null,
+                            state.connected && !work.operation.cancellationRequested,
+                            { actions.cancelRecovered(work.operation.operationId) },
+                        )
                     }
                 }
             }
@@ -87,32 +96,56 @@ private fun RecoveredDriveRows(
 }
 
 @Composable
-private fun DriveRow(
+private fun ColumnScope.DriveRow(
     drive: com.emmah.colordock.remote.mediacenter.protocol.Drive,
     enabled: Boolean,
     actions: DriveActions,
+    position: ListRowPosition,
 ) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(drive.label, Modifier.weight(1f))
+    val volumes = drive.volumes.filterNot { it.mounted }
+    val headerPosition =
+        if (volumes.isEmpty()) {
+            position
+        } else {
+            when (position) {
+                ListRowPosition.Single -> ListRowPosition.First
+                ListRowPosition.Last -> ListRowPosition.Middle
+                else -> position
+            }
+        }
+    ListRow(drive.label, null, headerPosition, trailing = {
         ItemActions(
             "Drive options for ${drive.label}",
             listOf(
-                MenuAction(
-                    "Eject",
-                    enabled && drive.removable,
-                ) { actions.eject(drive.id) },
+                MenuAction("Eject", enabled && drive.removable) { actions.eject(drive.id) },
             ),
             enabled = enabled,
         )
-    }
-    drive.volumes.filterNot { it.mounted }.forEach { volume ->
+    })
+    volumes.forEachIndexed { index, volume ->
         androidx.compose.runtime.key(volume.id) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (volume.label != drive.label) Text(volume.label, Modifier.weight(1f))
-                TextButton(
+            val rowPosition =
+                if (index == volumes.lastIndex &&
+                    position in listOf(ListRowPosition.Single, ListRowPosition.Last)
+                ) {
+                    ListRowPosition.Last
+                } else {
+                    ListRowPosition.Middle
+                }
+            if (volume.label == drive.label) {
+                ListRow(
+                    "Connect",
+                    null,
+                    rowPosition,
+                    leadingIcon = R.drawable.ic_add,
                     onClick = { actions.mount(volume.id) },
                     enabled = enabled,
-                ) { Text("Connect") }
+                    trailing = {},
+                )
+            } else {
+                ListRow(volume.label, null, rowPosition, trailing = {
+                    MediaKey("Connect", null, enabled, { actions.mount(volume.id) })
+                })
             }
         }
     }

@@ -2,13 +2,18 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,7 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
+import com.emmah.colordock.remote.ui.DockIcon
 
 @Composable
 internal fun SoundOptions(
@@ -33,10 +42,10 @@ internal fun SoundOptions(
     var open by remember { mutableStateOf(initiallyOpen) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (!initiallyOpen) {
-            TextButton(onClick = {
+            MediaKey("Sound", R.drawable.ic_volume_up, true, {
                 open = true
                 actions.refresh()
-            }) { Text("Sound") }
+            })
         }
         if (open) SoundOutputList(state, actions)
     }
@@ -59,40 +68,69 @@ private fun SoundOutputList(
 ) {
     val outputs = state.outputs
     val selected = outputs?.requestedOutputId ?: outputs?.effectiveOutputId
-    val names = soundOutputLabels(outputs?.outputs.orEmpty())
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-        if (outputs?.unavailable == true) Text("Output unavailable")
-        state.notice?.let { Text(it.label) }
-        if (outputs?.outputs.isNullOrEmpty()) Text("No sound outputs")
-        outputs?.outputs?.forEach { output ->
-            androidx.compose.runtime.key(output.id) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 56.dp)
-                        .selectable(
-                            output.id == selected,
-                            enabled = output.available && !state.busy,
-                            role = Role.RadioButton,
-                            onClick = { actions.choose(output.id) },
-                        ).padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(names.getValue(output.id), Modifier.weight(1f))
-                    if (!output.available) Text("Unavailable")
-                    RadioButton(
-                        selected = output.id == selected,
-                        onClick = null,
-                        enabled =
-                            output.available && !state.busy,
+    val items = outputs?.outputs.orEmpty()
+    val names = soundOutputLabels(items)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SoundOutputStatus(state)
+        ListGroup {
+            items.forEachIndexed { index, output ->
+                androidx.compose.runtime.key(output.id) {
+                    ListRow(
+                        names.getValue(output.id),
+                        "Unavailable".takeUnless { output.available },
+                        listRowPosition(index, items.size),
+                        Modifier.semantics { this.selected = output.id == selected },
+                        onClick = { actions.choose(output.id) },
+                        enabled = output.available && !state.busy,
+                        role = Role.RadioButton,
+                        trailing = {
+                            RadioButton(
+                                output.id == selected,
+                                onClick = null,
+                                enabled = output.available && !state.busy,
+                            )
+                        },
                     )
                 }
             }
         }
-        val chosen = outputs?.outputs?.firstOrNull { it.id == selected && it.available }
-        Button(onClick = { chosen?.let { actions.test(it.id) } }, enabled = chosen != null && !state.busy) {
+        val chosen = items.firstOrNull { it.id == selected && it.available }
+        Button(
+            onClick = { chosen?.let { actions.test(it.id) } },
+            enabled = chosen != null && !state.busy,
+            shape = CircleShape,
+        ) {
+            DockIcon(R.drawable.ic_volume_up)
+            Spacer(Modifier.width(8.dp))
             Text("Test sound")
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.SoundOutputStatus(state: AudioSettingsState) {
+    val outputs = state.outputs
+    val items = outputs?.outputs.orEmpty()
+    if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+    if (outputs?.unavailable == true) {
+        Text(
+            "Output unavailable",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    state.notice?.let {
+        Text(
+            it.label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+    if (items.isEmpty()) {
+        Text(
+            "No sound outputs",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }

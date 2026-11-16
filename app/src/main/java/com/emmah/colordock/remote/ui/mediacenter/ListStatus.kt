@@ -3,6 +3,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,9 +20,17 @@ internal fun ListStatus(
         if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
         if (!connected || loading) return@Column
         if (message.isNotEmpty()) {
-            Text("Couldn't load $kind")
+            Text(
+                "Couldn't load $kind",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         } else if (empty) {
-            Text(if (kind == "drives") "No USB drive" else "No folders")
+            Text(
+                if (kind == "drives") "No USB drive" else "No folders",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

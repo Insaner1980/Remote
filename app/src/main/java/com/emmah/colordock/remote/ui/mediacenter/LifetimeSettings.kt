@@ -1,18 +1,20 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SettingsEndSessionParams
 import com.emmah.colordock.remote.mediacenter.protocol.SettingsStartAtLoginSetParams
+import com.emmah.colordock.remote.ui.DockIcon
 
 @Composable
 internal fun LifetimeSettings(
@@ -20,25 +22,33 @@ internal fun LifetimeSettings(
     ready: Boolean,
     send: (RemoteCommand) -> Unit,
 ) {
-    Column {
+    ListGroup {
         state.settings.native?.let { native ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                Text("Start automatically", Modifier.weight(1f))
+            ListRow("Start automatically", null, ListRowPosition.First, trailing = {
                 Switch(
-                    checked = native.startAtLogin,
-                    onCheckedChange = {
-                        send(
-                            RemoteCommand.SettingsStartAtLoginSet(SettingsStartAtLoginSetParams(it)),
-                        )
-                    },
+                    native.startAtLogin,
+                    { send(RemoteCommand.SettingsStartAtLoginSet(SettingsStartAtLoginSetParams(it))) },
                     enabled = ready,
                     modifier = Modifier.semantics { contentDescription = "Start automatically" },
                 )
-            }
-            TextButton(
-                enabled = ready,
+            })
+            val stopColor = MaterialTheme.colorScheme.error.copy(alpha = if (ready) 1f else DISABLED_CONTENT_ALPHA)
+            ListRow(
+                "Stop playback",
+                null,
+                ListRowPosition.Last,
+                titleColor = stopColor,
+                leading = {
+                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                        DockIcon(R.drawable.ic_stop, Modifier.size(20.dp), tint = stopColor)
+                    }
+                },
+                trailing = {},
                 onClick = { send(RemoteCommand.SettingsEndSession(SettingsEndSessionParams())) },
-            ) { Text("Stop playback") }
+                enabled = ready,
+            )
         }
     }
 }
+
+private const val DISABLED_CONTENT_ALPHA = .38f

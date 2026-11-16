@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.Availability
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.mediacenter.protocol.Source
@@ -35,22 +36,35 @@ internal fun SourcesScreen(
 ) {
     var browsing by remember { mutableStateOf(false) }
     Column(modifier.testTag("sources-screen"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Folders", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        SectionLabel("Folders", trailing = {
             RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh folders")
-        }
-        TextButton(onClick = {
-            browsing = true
-            actions.folders.browse(null)
-        }, enabled = state.connected) { Text("Add folder") }
+        })
         ListStatus(state.loading, state.connected, state.message, state.items.isEmpty(), "folders")
-        state.items.forEach {
-            androidx.compose.runtime.key(it.id) {
-                SourceRow(it, state.connected && !busy, actions)
+        ListGroup {
+            ListRow(
+                "Add folder",
+                null,
+                if (state.items.isEmpty()) ListRowPosition.Single else ListRowPosition.First,
+                leadingIcon = R.drawable.ic_add,
+                onClick = {
+                    browsing = true
+                    actions.folders.browse(null)
+                },
+                enabled = state.connected,
+            )
+            state.items.forEachIndexed { index, source ->
+                androidx.compose.runtime.key(source.id) {
+                    SourceRow(
+                        source,
+                        state.connected && !busy,
+                        actions,
+                        listRowPosition(index + 1, state.items.size + 1),
+                    )
+                }
             }
         }
-        if (state.cursor != null) TextButton(onClick = actions.next, enabled = !state.loading) { Text("More") }
-        actions.cancelScan?.let { cancel -> TextButton(onClick = cancel) { Text("Cancel update") } }
+        if (state.cursor != null) MediaKey("More", null, !state.loading, actions.next, Modifier.fillMaxWidth())
+        actions.cancelScan?.let { cancel -> MediaKey("Cancel update", null, true, cancel, Modifier.fillMaxWidth()) }
         RecoveredScanControls(state, actions.cancelRecoveredScan)
         if (browsing) FolderChooser(folders, busy, actions.folders) { browsing = false }
     }
@@ -61,29 +75,26 @@ private fun SourceRow(
     source: Source,
     enabled: Boolean,
     actions: SourceActions,
+    position: ListRowPosition,
 ) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(source.label, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            if (source.scanning) {
-                Text("Updating…", style = MaterialTheme.typography.bodySmall)
-            } else if (source.availability !=
-                Availability.AVAILABLE
-            ) {
-                Text("Offline", style = MaterialTheme.typography.bodySmall)
-            }
+    val supporting =
+        when {
+            source.scanning -> "Updating…"
+            source.availability != Availability.AVAILABLE -> "Offline"
+            else -> null
         }
+    ListRow(source.label, supporting, position, trailing = {
         ItemActions(
             "Folder options for ${source.label}",
             listOf(
                 MenuAction("Update", enabled && !source.scanning && source.availability == Availability.AVAILABLE) {
                     actions.scan(source.id)
                 },
-                MenuAction("Remove", enabled) { actions.remove(source.id) },
+                MenuAction("Remove", enabled, destructive = true) { actions.remove(source.id) },
             ),
             enabled = enabled,
         )
-    }
+    })
 }
 
 @Composable
@@ -101,15 +112,18 @@ private fun RecoveredScanControls(
                     )
             }.forEach { scan ->
                 androidx.compose.runtime.key(scan.operationId) {
-                    Text(if (scan.cancellationRequested) "Stopping…" else operationLabel(scan.status))
+                    Text(
+                        if (scan.cancellationRequested) "Stopping…" else operationLabel(scan.status),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     if (scan.status in listOf(OperationStatus.ACCEPTED, OperationStatus.RUNNING)) {
-                        TextButton(
-                            onClick = { cancel(scan.operationId) },
-                            enabled =
-                                state.connected && !scan.cancellationRequested,
-                        ) {
-                            Text("Cancel update")
-                        }
+                        MediaKey(
+                            "Cancel update",
+                            null,
+                            state.connected && !scan.cancellationRequested,
+                            { cancel(scan.operationId) },
+                        )
                     }
                 }
             }

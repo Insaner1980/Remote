@@ -1,22 +1,31 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.AndroidMediacenterNetwork
 import com.emmah.colordock.remote.mediacenter.protocol.DevicesRevokeParams
 import com.emmah.colordock.remote.mediacenter.protocol.PairingBeginParams
@@ -64,12 +73,12 @@ private fun ComputerAppearance(
     ready: Boolean,
     send: (RemoteCommand) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column {
         state.settings.native?.let { native ->
-            Text("Computer", style = MaterialTheme.typography.titleMedium)
-            Row {
-                Theme.entries.forEach { theme ->
-                    androidx.compose.material3.FilterChip(
+            SectionLabel("Computer")
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                Theme.entries.forEachIndexed { index, theme ->
+                    SegmentedButton(
                         selected = theme == native.theme,
                         onClick = {
                             if (theme !=
@@ -78,6 +87,7 @@ private fun ComputerAppearance(
                                 send(RemoteCommand.SettingsThemeSet(SettingsThemeSetParams(theme)))
                             }
                         },
+                        shape = SegmentedButtonDefaults.itemShape(index, Theme.entries.size),
                         enabled = ready,
                         label = { Text(theme.wire.replaceFirstChar { it.uppercase() }) },
                     )
@@ -93,22 +103,38 @@ private fun VpnServicePreferences(
     ready: Boolean,
     send: (RemoteCommand) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("VPN for apps", style = MaterialTheme.typography.titleMedium)
-        state.settings.native?.servicePreferences?.forEach { service ->
-            Row(
-                Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Text(service.label, Modifier.weight(1f))
-                Switch(
-                    checked = service.vpnRequired,
-                    modifier = Modifier.semantics { contentDescription = "Require VPN for ${service.label}" },
-                    onCheckedChange = {
-                        send(RemoteCommand.VpnRequirementSet(VpnRequirementSetParams(service.serviceId, it)))
+    Column {
+        SectionLabel("VPN for apps")
+        ListGroup {
+            val services =
+                state.settings.native
+                    ?.servicePreferences
+                    .orEmpty()
+            services.forEachIndexed { index, service ->
+                ListRow(
+                    service.label,
+                    null,
+                    listRowPosition(index, services.size),
+                    leading = {
+                        Image(
+                            painterResource(serviceIcon(service.serviceId)),
+                            null,
+                            Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)),
+                        )
                     },
-                    enabled = ready,
+                    trailing = {
+                        Switch(
+                            service.vpnRequired,
+                            {
+                                send(RemoteCommand.VpnRequirementSet(VpnRequirementSetParams(service.serviceId, it)))
+                            },
+                            enabled = ready,
+                            modifier =
+                                Modifier.semantics {
+                                    contentDescription = "Require VPN for ${service.label}"
+                                },
+                        )
+                    },
                 )
             }
         }
@@ -121,25 +147,39 @@ private fun PairedPhones(
     ready: Boolean,
     send: (RemoteCommand) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        state.settings.devices?.items?.forEach { device ->
+    ListGroup {
+        val devices =
+            state.settings.devices
+                ?.items
+                .orEmpty()
+        devices.forEachIndexed { index, device ->
             androidx.compose.runtime.key(device.deviceId) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(device.label, Modifier.weight(1f))
-                    ItemActions(
-                        "Phone options for ${device.label}",
-                        listOf(
-                            MenuAction("Remove", ready) {
-                                send(RemoteCommand.DevicesRevoke(DevicesRevokeParams(deviceId = device.deviceId)))
-                            },
-                        ),
-                        enabled = ready,
-                    )
-                }
+                ListRow(
+                    device.label,
+                    null,
+                    listRowPosition(index, devices.size + 1),
+                    leadingIcon = R.drawable.ic_smartphone,
+                    trailing = {
+                        ItemActions(
+                            "Phone options for ${device.label}",
+                            listOf(
+                                MenuAction("Remove", ready, destructive = true) {
+                                    send(RemoteCommand.DevicesRevoke(DevicesRevokeParams(deviceId = device.deviceId)))
+                                },
+                            ),
+                            enabled = ready,
+                        )
+                    },
+                )
             }
         }
-        TextButton(onClick = { send(RemoteCommand.PairingBegin(PairingBeginParams())) }, enabled = ready) {
-            Text("Add phone")
-        }
+        ListRow(
+            "Add phone",
+            null,
+            if (devices.isEmpty()) ListRowPosition.Single else ListRowPosition.Last,
+            leadingIcon = R.drawable.ic_add,
+            onClick = { send(RemoteCommand.PairingBegin(PairingBeginParams())) },
+            enabled = ready,
+        )
     }
 }
