@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,7 +81,7 @@ internal fun NowPlayingCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
-        modifier.fillMaxWidth(),
+        modifier.fillMaxWidth().testTag("now-playing-card"),
         shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
@@ -96,7 +97,9 @@ internal fun NowPlayingControls(
 ) {
     val snapshot = state.snapshot ?: return
     val idle = snapshot.activity.mode == ActivityMode.IDLE
-    if (idle && !queueAvailable(state)) return
+    val hasTransport = snapshot.player.sessionId != null || snapshot.queueSummary.sessionId != null
+    val showIdleControls = queueAvailable(state) && hasTransport
+    if (idle && !showIdleControls) return
     NowPlayingCard(modifier) {
         val title = snapshot.activity.title ?: activityTitle(snapshot.activity.mode)
         if (!idle) {
