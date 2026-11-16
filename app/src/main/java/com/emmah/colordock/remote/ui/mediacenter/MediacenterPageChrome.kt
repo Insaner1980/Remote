@@ -55,7 +55,7 @@ internal fun MediacenterBottomNavigation(
 ) {
     NavigationBar(
         modifier.testTag("mediacenter-bottom-navigation"),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 0.dp,
         windowInsets = WindowInsets(0),
     ) {

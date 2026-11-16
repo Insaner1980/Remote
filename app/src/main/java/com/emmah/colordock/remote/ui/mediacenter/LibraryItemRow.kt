@@ -99,7 +99,7 @@ internal fun PhotoTile(
             .semantics { contentDescription = "Open $spoken" }
             .clickable(enabled = connected && item.availability == Availability.AVAILABLE) { actions.select(item) },
         shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         MediaThumbnail(item.thumbnailId, thumbnail, Modifier.fillMaxSize(), fallback = title)
     }

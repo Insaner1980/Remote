@@ -113,7 +113,7 @@ internal fun TvAppTile(
                 role = Role.Button
             },
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         if (row) {

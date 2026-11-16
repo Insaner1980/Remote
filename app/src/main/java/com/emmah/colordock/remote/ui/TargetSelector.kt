@@ -97,7 +97,7 @@ private fun CompactTargetSelector(
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
         colors =
             ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ),
     ) {

@@ -302,7 +302,7 @@ private fun WallpaperSourceSelector(
 ) {
     Surface(
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(2.dp), space = 0.dp) {
@@ -322,9 +322,9 @@ private fun WallpaperSourceSelector(
                         ),
                     colors =
                         SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                            activeContainerColor = MaterialTheme.colorScheme.secondary,
+                            activeContentColor = MaterialTheme.colorScheme.onSecondary,
+                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
                     icon = {},
                 ) {

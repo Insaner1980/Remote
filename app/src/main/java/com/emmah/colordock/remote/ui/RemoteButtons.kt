@@ -101,7 +101,7 @@ internal fun AdaptivePair(
 @Composable
 private fun remoteColors() =
     ButtonDefaults.outlinedButtonColors(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = MaterialTheme.colorScheme.onSurface,
     )
 
@@ -173,7 +173,7 @@ internal fun DirectionPad(
     Surface(
         modifier.size(220.dp).testTag("direction-pad"),
         CircleShape,
-        color = colors.surface,
+        color = colors.surfaceContainerHigh,
         border = BorderStroke(1.dp, colors.outlineVariant),
         shadowElevation = 2.dp,
     ) {
@@ -235,7 +235,7 @@ internal fun Rocker(
     Surface(
         modifier,
         RoundedCornerShape(24.dp),
-        MaterialTheme.colorScheme.surface,
+        MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(Modifier.padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {

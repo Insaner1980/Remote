@@ -268,7 +268,7 @@ internal fun ChoiceRow(
                 ),
             colors =
                 ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     contentColor = MaterialTheme.colorScheme.onSurface,
                 ),
         ) {
