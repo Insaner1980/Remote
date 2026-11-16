@@ -2,7 +2,7 @@ package com.emmah.colordock.remote.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -55,7 +55,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -65,6 +64,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.tv.TvChannel
@@ -175,42 +175,35 @@ internal fun DirectionPad(
         CircleShape,
         color = colors.surfaceContainerHigh,
         border = BorderStroke(1.dp, colors.outlineVariant),
-        shadowElevation = 2.dp,
+        shadowElevation = 0.dp,
     ) {
         Box {
-            Canvas(Modifier.fillMaxSize()) {
-                val inset = size.width * DIRECTION_DIVIDER_INSET_FRACTION
-                drawLine(
-                    colors.outlineVariant,
-                    Offset(inset, inset),
-                    Offset(size.width - inset, size.height - inset),
-                    1f,
-                )
-                drawLine(
-                    colors.outlineVariant,
-                    Offset(size.width - inset, inset),
-                    Offset(inset, size.height - inset),
-                    1f,
-                )
-            }
             DirectionKeys(enabled, onCommand, onPress, onRelease)
-            Surface(
-                Modifier.align(Alignment.Center).size(88.dp),
-                CircleShape,
-                colors.primaryContainer,
-                shadowElevation = 2.dp,
+            Box(
+                Modifier
+                    .align(Alignment.Center)
+                    .size(102.dp)
+                    .border(1.dp, colors.outlineVariant, CircleShape),
+                contentAlignment = Alignment.Center,
             ) {
-                TextButton(
-                    {
-                        onCommand(TvCommand.Ok)
-                    },
-                    Modifier.fillMaxSize().semantics {
-                        contentDescription = "OK"
-                    },
-                    enabled = enabled,
-                    colors = ButtonDefaults.textButtonColors(contentColor = colors.onPrimaryContainer),
+                Surface(
+                    Modifier.size(88.dp),
+                    CircleShape,
+                    colors.primaryContainer,
+                    shadowElevation = 0.dp,
                 ) {
-                    Text("OK", style = MaterialTheme.typography.titleLarge)
+                    TextButton(
+                        {
+                            onCommand(TvCommand.Ok)
+                        },
+                        Modifier.fillMaxSize().semantics {
+                            contentDescription = "OK"
+                        },
+                        enabled = enabled,
+                        colors = ButtonDefaults.textButtonColors(contentColor = colors.onPrimaryContainer),
+                    ) {
+                        Text("OK", style = MaterialTheme.typography.titleLarge)
+                    }
                 }
             }
         }
@@ -282,6 +275,8 @@ private fun RemoteKey(
     onPress: (TvCommand) -> Unit,
     onRelease: () -> Unit,
     modifier: Modifier = Modifier,
+    iconSize: Dp = 34.dp,
+    contentColor: Color = Color.Unspecified,
 ) {
     val currentOnPress by rememberUpdatedState(onPress)
     val currentOnRelease by rememberUpdatedState(onRelease)
@@ -318,15 +313,24 @@ private fun RemoteKey(
                     contentDescription = label
                 },
         shape = CircleShape,
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
+        colors =
+            ButtonDefaults.textButtonColors(
+                contentColor =
+                    if (contentColor ==
+                        Color.Unspecified
+                    ) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        contentColor
+                    },
+            ),
         contentPadding = PaddingValues(4.dp),
     ) {
-        DockIcon(icon, modifier = Modifier.size(34.dp))
+        DockIcon(icon, modifier = Modifier.size(iconSize))
     }
 }
 
 private const val LARGE_TEXT_FONT_SCALE = 1.4f
-private const val DIRECTION_DIVIDER_INSET_FRACTION = .147f
 
 @Composable
 private fun BoxScope.DirectionKeys(
@@ -344,6 +348,8 @@ private fun BoxScope.DirectionKeys(
         onPress,
         onRelease,
         Modifier.align(Alignment.TopCenter).size(72.dp, 64.dp),
+        iconSize = 28.dp,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     RemoteKey(
         "Left",
@@ -354,6 +360,8 @@ private fun BoxScope.DirectionKeys(
         onPress,
         onRelease,
         Modifier.align(AbsoluteAlignment.CenterLeft).size(64.dp, 72.dp),
+        iconSize = 28.dp,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     RemoteKey(
         "Right",
@@ -364,6 +372,8 @@ private fun BoxScope.DirectionKeys(
         onPress,
         onRelease,
         Modifier.align(AbsoluteAlignment.CenterRight).size(64.dp, 72.dp),
+        iconSize = 28.dp,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     RemoteKey(
         "Down",
@@ -374,5 +384,7 @@ private fun BoxScope.DirectionKeys(
         onPress,
         onRelease,
         Modifier.align(Alignment.BottomCenter).size(72.dp, 64.dp),
+        iconSize = 28.dp,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
