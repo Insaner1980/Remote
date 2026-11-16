@@ -17,6 +17,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
+import com.emmah.colordock.remote.mediacenter.protocol.PlayerPhase
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.ui.RemoteTheme
 import org.junit.Assert.assertEquals
@@ -28,6 +30,31 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NowPlayingTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun untitledActiveVideoDoesNotClaimNothingIsPlaying() {
+        val initial = phoneMediaSnapshot()
+        val state =
+            mutableStateOf(initial.copy(activity = initial.activity.copy(mode = ActivityMode.VIDEO, title = null)))
+        compose.setContent {
+            RemoteTheme { NowPlayingControls(MediaSessionState(snapshot = state.value), {}, {}) }
+        }
+        compose.onNodeWithText("Video").assertExists()
+        compose.onNodeWithText("Nothing playing").assertDoesNotExist()
+        compose.runOnIdle {
+            state.value =
+                state.value.copy(
+                    player = state.value.player.copy(phase = PlayerPhase.PAUSED),
+                )
+        }
+        compose.onNodeWithText("Video").assertExists()
+        compose.onNodeWithText("Play").assertExists()
+        compose.runOnIdle {
+            state.value =
+                state.value.copy(activity = state.value.activity.copy(title = "Provided title"))
+        }
+        compose.onNodeWithText("Provided title").assertExists()
+        compose.onNodeWithText("Video").assertDoesNotExist()
+    }
 
     @Test fun realTransportUsesCurrentSessionAndDisconnectDisablesIt() {
         val state = mutableStateOf(MediaSessionState(snapshot = phoneMediaSnapshot()))

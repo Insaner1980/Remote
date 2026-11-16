@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerAudioTrackParams
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerMuteParams
@@ -39,7 +40,15 @@ internal fun NowPlayingControls(
     val session = player?.sessionId
     val enabled = session != null && !state.busy
     Column(modifier) {
-        Text(snapshot?.activity?.title ?: "Nothing playing", style = MaterialTheme.typography.titleLarge)
+        val title =
+            snapshot?.activity?.title ?: when (snapshot?.activity?.mode) {
+                ActivityMode.VIDEO -> "Video"
+                ActivityMode.MUSIC -> "Music"
+                ActivityMode.PHOTOS -> "Photos"
+                ActivityMode.BROWSER -> "Streaming"
+                ActivityMode.IDLE, null -> "Nothing playing"
+            }
+        Text(title, style = MaterialTheme.typography.titleLarge)
         Text(player?.phase?.wire ?: "Disconnected")
         Row {
             TextButton(onClick = {
