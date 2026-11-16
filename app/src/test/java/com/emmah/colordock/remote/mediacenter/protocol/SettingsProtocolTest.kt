@@ -8,6 +8,29 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SettingsProtocolTest {
+    @Test fun vpnCatalogKeepsAllOneHundredFiftyCountriesAndRejectsOverLimit() {
+        fun reply(count: Int): String {
+            val countries = org.json.JSONArray()
+            repeat(count) { countries.put(JSONObject().put("id", "Country_$it").put("label", "Country $it")) }
+            return JSONObject()
+                .put("v", 1)
+                .put("id", "countries")
+                .put("ok", true)
+                .put("result", JSONObject().put("items", countries))
+                .toString()
+        }
+        val parsed = RemoteJson.parseReply(MethodName.VPN_COUNTRIES, reply(150)) as McReply.Success
+        val countries = (parsed.result as RemoteResult.VpnCountries).value.items
+        assertEquals(150, countries.size)
+        assertEquals("Country_149", countries.last().id)
+        assertEquals(parsed, RemoteJson.parseReply(MethodName.VPN_COUNTRIES, RemoteJson.encodeReply(parsed)))
+        val atLimit = RemoteJson.parseReply(MethodName.VPN_COUNTRIES, reply(250)) as McReply.Success
+        assertEquals(250, (atLimit.result as RemoteResult.VpnCountries).value.items.size)
+        assertThrows(
+            IllegalArgumentException::class.java,
+        ) { RemoteJson.parseReply(MethodName.VPN_COUNTRIES, reply(251)) }
+    }
+
     private fun fixture(): JSONObject {
         val resource = checkNotNull(javaClass.classLoader?.getResource("mediacenter-v1.json"))
         return JSONObject(resource.readText()).getJSONObject("fixtures")

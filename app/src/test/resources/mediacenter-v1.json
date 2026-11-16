@@ -1,7 +1,7 @@
 {
   "manifest": {
     "protocolMajor": 1,
-    "schemaSha256": "f7231d1864fa77b52ba035dd3418bfae57ec2787924bee9a957e58765695a1a0",
+    "schemaSha256": "03b59eb6974e08f24f93e355deeae0b70e67e9ef835a0ceb1ea933514fbaa0c2",
     "fixturesSha256": "29fa19eda7107f0a6e41b58e673664c69280a3b52a496aa489866fbf3f17c2fc",
     "requestMethods": 88
   },
@@ -5825,7 +5825,7 @@
         "items": {
           "$ref": "#/$defs/VpnCountry"
         },
-        "maxItems": 100
+        "maxItems": 250
       },
       "VpnCountryList": {
         "type": "object",

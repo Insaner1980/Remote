@@ -4692,7 +4692,7 @@ object RemoteJson {
 
     private fun readVpnCountries(value: Any): VpnCountries {
         val source = value as? JSONArray ?: invalid()
-        check(source.length() in 0..100)
+        check(source.length() in 0..250)
         val result = (0 until source.length()).map { readVpnCountry(source.get(it)) }
         return result
     }
