@@ -20,3 +20,5 @@ Optional `RemoteProtocol` Android log-tag tracing records only controlled stages
 The real library currently has missing original photo files. The UI uses short fallback tiles; this text cleanup does not restore missing files. Browser enrollment/provider/lifecycle release acceptance remains separate from this UI pass.
 
 Final installed APK: `fd3066c7ea2d4753efa6eb61b2a26a89d5c3a97ee54a999b117b2109e24b7438`. Final source gates464/0; final rendered Pixel65/0 (76.240s). Actual final folder dialog, generated-photo names, both connected targets and live queue reads inspected. See root design-qa.md and Mediacenter engineering evidence for acceptance and limits.
+
+Immutable implementation revision: `bd41e785b9a209fff0e6659c284680621079247c`. Paired local archive: Mediacenter `releases/remote-device-20261116/plain-remote-bd41e78`; all SHA256SUMS verified. Final records contain no credentials or application data.

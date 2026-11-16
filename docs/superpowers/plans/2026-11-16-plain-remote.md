@@ -54,4 +54,4 @@ Files: connection/pairing dialogs, confirmation/recovery components, status/copy
 
 - [x] Same-signer update; verify encrypted pairs/preferences byte-identical before launch.
 - [x] Focused physical tests and inspect/capture all screenshot-related pages, not just Settings overview. Check actual controls/back and both targets, no real media/test sound autoplay or settings mutations.
-- [ ] Preserve private screenshots/content, archive final APK, update truthful engineering checkpoint and task evidence, remove only test runner, restore phone timeout/font and commit only owned files.
+- [x] Preserve private screenshots/content, archive final APK, update truthful engineering checkpoint and task evidence, remove only test runner, restore phone timeout/font and commit only owned files.
