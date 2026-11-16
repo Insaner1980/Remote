@@ -1,6 +1,8 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,7 +14,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,6 +49,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesCancelScanParams
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesPrepareRemoveParams
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesScanParams
+import com.emmah.colordock.remote.ui.RemoteDimens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 
@@ -101,7 +106,7 @@ private class LibraryNavigation {
 
 /** Navigation survives input-context retirement; confirmations, QR and input controllers do not. */
 class MediacenterNavigation {
-    internal var destination: MediaDestination = MediaDestination.Remote
+    internal var destination by mutableStateOf(MediaDestination.Remote)
 }
 
 /**
@@ -174,8 +179,8 @@ fun MediacenterTargetPage(
     )
 }
 
-// Keep both hoisted UI slots explicit at the target boundary, as on MediacenterTargetPage.
-@Suppress("LongParameterList")
+// Keep navigation, scroll and hoisted slots at their existing target boundary.
+@Suppress("LongParameterList", "LongMethod")
 @Composable
 internal fun MediacenterTargetContent(
     model: MediaTargetState,
@@ -203,24 +208,43 @@ internal fun MediacenterTargetContent(
     BackHandler(state.destination == MediaDestination.Settings && settingsNavigation.section != null) {
         backToSettings()
     }
-    Column(modifier.fillMaxSize()) {
-        Column(
-            Modifier.padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+    val headingColor by animateColorAsState(
+        if (contentScroll.value ==
+            0
         ) {
-            MediacenterPageHeading(state.destination, settingsNavigation.section, backToSettings) {
-                MediaRecoveryStatus(
-                    model.feedback.pending,
-                    model.feedback.uncertain,
-                    model.feedback.recoveryAvailable,
-                    notice = state.notice,
+            MaterialTheme.colorScheme.background
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        },
+        animationSpec = tween(SCROLL_EDGE_ANIMATION_MS),
+        label = "Mediacenter scroll edge",
+    )
+    Column(modifier.fillMaxSize()) {
+        Surface(color = headingColor) {
+            Column(Modifier.padding(horizontal = RemoteDimens.ScreenGutter)) {
+                MediacenterPageHeading(
+                    state.destination,
+                    settingsNavigation.section,
+                    backToSettings,
+                    selector = header,
+                    attention = {
+                        MediaRecoveryStatus(
+                            model.feedback.pending,
+                            model.feedback.uncertain,
+                            model.feedback.recoveryAvailable,
+                            notice = state.notice,
+                        )
+                    },
                 )
+                InlineMediaStatus(model, settingsNavigation.section)
             }
-            header()
-            InlineMediaStatus(model, settingsNavigation.section)
         }
         Column(
-            Modifier.weight(1f).verticalScroll(contentScroll).padding(horizontal = 20.dp, vertical = 12.dp),
+            Modifier
+                .weight(
+                    1f,
+                ).verticalScroll(contentScroll)
+                .padding(horizontal = RemoteDimens.ScreenGutter, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             when (state.destination) {
@@ -571,3 +595,5 @@ private fun ObserveDriveRecovery(
         onDispose { drives.recovery.observe(null, emptyList(), null) }
     }
 }
+
+private const val SCROLL_EDGE_ANIMATION_MS = 150

@@ -68,6 +68,7 @@ import com.emmah.colordock.remote.ui.WallpaperScreen
 import com.emmah.colordock.remote.ui.WallpaperViewModel
 import com.emmah.colordock.remote.ui.asImageFile
 import com.emmah.colordock.remote.ui.displayedTvState
+import com.emmah.colordock.remote.ui.mediacenter.MediaDestination
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterEntry
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterNavigation
 import com.emmah.colordock.remote.ui.mediacenter.MediacenterSetupDialog
@@ -208,7 +209,7 @@ class MainActivity : ComponentActivity() {
                 retireContext {
                     if (targetState.selected == ControlTarget.LgTv) connectionSheet = true else mcSetup = true
                 }
-            })
+            }, compact = mediaNavigation.destination != MediaDestination.Remote)
         }
         TargetAppShell(
             targetState,

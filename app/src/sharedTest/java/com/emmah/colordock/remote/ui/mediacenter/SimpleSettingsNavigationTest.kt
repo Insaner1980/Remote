@@ -61,6 +61,16 @@ class SimpleSettingsNavigationTest {
         compose.onNodeWithTag("media-nav-Remote").performClick().assertIsSelected()
     }
 
+    @Test fun subpageHidesSelectorButKeepsBackAndBottomNavigation() {
+        showSettings()
+        compose.onNodeWithTag("target-selector").assertIsDisplayed()
+        compose.onNodeWithTag("settings-section-Sound").performClick()
+        compose.onNodeWithTag("target-selector").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Back to settings").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("target-selector").assertIsDisplayed()
+        compose.onNodeWithTag("mediacenter-bottom-navigation").assertIsDisplayed()
+    }
+
     @Test fun appearanceAndDevicesKeepExistingPhoneActions() {
         var appearance = false
         var connection = false
