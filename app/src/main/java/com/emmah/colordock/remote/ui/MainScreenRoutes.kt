@@ -23,6 +23,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -237,14 +239,21 @@ internal fun TvConnectionDialog(
         },
         text = {
             Column {
-                Text(if (state.connection == TvConnectionState.Ready) "Connected" else "TV unavailable")
+                Text(
+                    if (state.connection == TvConnectionState.Ready) "Connected" else "TV unavailable",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 TextButton(onClick = {
                     onDismiss()
                     onReconnect()
                 }) {
                     Text("Reconnect")
                 }
-                TextButton(onClick = forgetTv) {
+                TextButton(
+                    onClick = forgetTv,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
                     Text("Forget TV")
                 }
             }

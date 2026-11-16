@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -69,6 +70,45 @@ class PhoneUsabilityTest {
         compose.onNodeWithTag("target-selector").performClick()
         compose.onNodeWithText("Mediacenter", useUnmergedTree = true).performClick()
         compose.runOnIdle { assertEquals(ControlTarget.Mediacenter, selected) }
+    }
+
+    @Test fun mediacenterPickerIsSheetWithoutCloseAndSelectsOnce() {
+        var selected: ControlTarget? = null
+        var calls = 0
+        compose.setContent {
+            RemoteTheme {
+                TargetSelector(
+                    ControlTargetState(selected = ControlTarget.Mediacenter),
+                    "Fixture TV",
+                    {
+                        selected = it
+                        calls++
+                    },
+                    {},
+                )
+            }
+        }
+        compose.onNodeWithTag("target-selector").performClick()
+        compose.onNodeWithText("Control device").assertIsDisplayed()
+        compose.onNodeWithText("Close").assertDoesNotExist()
+        compose.onNodeWithText("LG TV", useUnmergedTree = true).performClick()
+        compose.runOnIdle {
+            assertEquals(ControlTarget.LgTv, selected)
+            assertEquals(1, calls)
+        }
+        compose.onNodeWithText("Control device").assertDoesNotExist()
+    }
+
+    @Test fun lgPickerKeepsCloseAndSelectsOnce() {
+        var calls = 0
+        compose.setContent {
+            RemoteTheme { TargetSelector(ControlTargetState(), "Fixture TV", { calls++ }, {}) }
+        }
+        compose.onNodeWithTag("target-selector").performClick()
+        compose.onNodeWithText("Close").assertIsDisplayed()
+        compose.onNodeWithText("Mediacenter", useUnmergedTree = true).performClick()
+        compose.runOnIdle { assertEquals(1, calls) }
+        compose.onNodeWithText("Control device").assertDoesNotExist()
     }
 
     @Test fun shortcutIsIconOnlyButKeepsItsAccessibleLaunchAction() {

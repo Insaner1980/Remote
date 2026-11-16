@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -261,13 +262,24 @@ private fun MediacenterConnectionActions(
 ) {
     Column(modifier) {
         if (canReconnect) {
-            TextButton(onClick = { connections.connect() }) { Text("Reconnect") }
+            Button(onClick = { connections.connect() }) { Text("Reconnect") }
             TextButton(onClick = connections::find) { Text("Find computer") }
             candidates.forEach { endpoint ->
-                TextButton(onClick = { connections.connect(endpoint) }) { Text("Connect") }
+                Button(onClick = { connections.connect(endpoint) }) { Text("Connect") }
             }
         }
-        TextButton(onClick = connections::forget) {
+        TextButton(
+            onClick = connections::forget,
+            colors =
+                ButtonDefaults.textButtonColors(
+                    contentColor =
+                        if (canReconnect) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        },
+                ),
+        ) {
             Text(if (canReconnect) "Remove computer" else "Try again")
         }
     }
