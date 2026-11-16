@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -115,6 +116,7 @@ class DrivesScreenTest {
         val sent = mutableListOf<McRequest>()
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Safely remove USB").performScrollTo().performClick()
         compose.runOnIdle {
             assertTrue(sent.last().command is RemoteCommand.DrivesPrepareEject)
@@ -148,6 +150,7 @@ class DrivesScreenTest {
         val sent = mutableListOf<McRequest>()
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
         compose.runOnIdle {
             val request = sent.last().id
@@ -178,6 +181,7 @@ class DrivesScreenTest {
             val work by recovery.state.collectAsState()
             DriveTarget({ sent.add(it) }, { media = it }, work)
         }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         val cases =
             listOf(
                 Triple(OperationStatus.SUCCEEDED, null, "Earlier safe-removal operation completed"),
@@ -216,6 +220,7 @@ class DrivesScreenTest {
             val work by recovery.state.collectAsState()
             DriveTarget({ sent.add(it) }, { media = it }, work)
         }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.runOnIdle {
             request = reconnectAcceptedDrive(media, sent, recovery)
             assertTrue(recovery.state.value.isEmpty())
@@ -262,6 +267,7 @@ class DrivesScreenTest {
         val recovered = mutableStateOf(emptyList<RecoveredDrive>())
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
         compose.runOnIdle {
             val request = sent.last().id
@@ -303,6 +309,7 @@ class DrivesScreenTest {
                 ready
             }, { media = it }, recovered.value)
         }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
         compose.runOnIdle {
             val done = acceptMount(media, sent.last()).copy(status = OperationStatus.SUCCEEDED)
@@ -331,6 +338,7 @@ class DrivesScreenTest {
         lateinit var media: MediaSessionController
         lateinit var running: OperationState
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
         compose.runOnIdle {
             running = acceptMount(media, sent.last())
@@ -352,6 +360,7 @@ class DrivesScreenTest {
             assertEquals(running, media.observedOperation)
             assertTrue(media.state.value.busy)
         }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Drive operation running", substring = true).assertDoesNotExist()
         compose.onAllNodesWithText("Earlier mount operation completed", substring = true).assertCountEquals(1)
         compose.onNodeWithText("Cancel recovered drive operation").assertDoesNotExist()
@@ -362,6 +371,7 @@ class DrivesScreenTest {
         val recovered = mutableStateOf(emptyList<RecoveredDrive>())
         lateinit var media: MediaSessionController
         compose.setContent { DriveTarget({ sent.add(it) }, { media = it }, recovered.value) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Mount Movies").performScrollTo().performClick()
         compose.runOnIdle {
             val waiting = acceptMount(media, sent.last()).copy(cancellationRequested = true)

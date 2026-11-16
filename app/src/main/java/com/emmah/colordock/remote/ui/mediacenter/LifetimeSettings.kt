@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,8 +23,8 @@ internal fun LifetimeSettings(
     Column {
         state.settings.native?.let { native ->
             Text("Remote availability")
-            Row {
-                Text("Start after computer login")
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("Start after computer login", Modifier.weight(1f))
                 Switch(
                     checked = native.startAtLogin,
                     onCheckedChange = {

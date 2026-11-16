@@ -222,8 +222,8 @@ class MainActivity : ComponentActivity() {
                     repository,
                     screenModifier,
                     settings = {
-                        TextButton(onClick = openMcSetup) { Text("Mediacenter Connection") }
-                        TextButton(onClick = openSettings) { Text("Phone appearance") }
+                        com.emmah.colordock.remote.ui.mediacenter
+                            .PhoneSettingsEntry(it, openMcSetup, openSettings)
                     },
                     header = { selector() },
                     send = mediaSend,

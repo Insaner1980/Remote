@@ -54,10 +54,7 @@ class AudioSettingsComposeTest {
         compose.waitForIdle()
         compose.onNodeWithText("Requested: TV").assertDoesNotExist()
         compose.onNodeWithText("Sound").performClick()
-        compose
-            .onNodeWithText(
-                "Output selection is optional. Existing sound continues without setup changes.",
-            ).assertIsDisplayed()
+        compose.runOnIdle { assertEquals(0, mutations) }
         compose.onNodeWithText("Requested: TV").assertIsDisplayed()
         compose.onNodeWithText("Confirmed: Laptop speakers").assertIsDisplayed()
         compose.runOnIdle { state.value = AudioSettingsState() }

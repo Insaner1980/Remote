@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -39,6 +40,7 @@ class SourcesScreenTest {
         val sent = mutableListOf<McRequest>()
         lateinit var media: MediaSessionController
         compose.setContent { ScanTarget({ sent.add(it) }, capture = { media = it }) }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Scan Music").performScrollTo().performClick()
         compose.runOnIdle {
             val scan = sent.last().id
@@ -78,6 +80,7 @@ class SourcesScreenTest {
             val scans by recovery.state.collectAsState()
             ScanTarget({ sent.add(it) }, capture = {}, recovered = scans)
         }
+        compose.onNodeWithTag("settings-section-Media").performScrollTo().performClick()
         compose.onNodeWithText("Cancel recovered scan").performScrollTo().performClick()
         compose.runOnIdle {
             val command = sent.single().command as RemoteCommand.SourcesCancelScan

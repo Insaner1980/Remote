@@ -47,6 +47,7 @@ class SettingsScreenTest {
         val dimensions = mutableStateOf(DpSize(360.dp, 640.dp))
         val scale = mutableFloatStateOf(1f)
         val state = mutableStateOf(settingsScreenState())
+        val section = mutableStateOf(SettingsSection.VPN)
         val sent = mutableListOf<RemoteCommand>()
         compose.setContent {
             DeviceConfigurationOverride(
@@ -55,7 +56,11 @@ class SettingsScreenTest {
             ) {
                 RemoteTheme {
                     Column(Modifier.verticalScroll(rememberScrollState())) {
-                        SettingsScreen(state.value, RoutineSettingsActions({ sent.add(it) }, {}, {}))
+                        SettingsScreen(
+                            state.value,
+                            RoutineSettingsActions({ sent.add(it) }, {}, {}),
+                            section = section.value,
+                        )
                     }
                 }
             }
@@ -68,16 +73,21 @@ class SettingsScreenTest {
             compose.runOnIdle {
                 dimensions.value = size
                 scale.floatValue = font
+                section.value = SettingsSection.VPN
             }
             compose.onNodeWithText("Connect VPN…").performScrollTo().performClick()
             assertTrue(sent.last() is RemoteCommand.VpnPrepareChange)
             compose.onNodeWithContentDescription("Require VPN for Netflix").performScrollTo().performClick()
             assertEquals(false, (sent.last() as RemoteCommand.VpnRequirementSet).params.required)
+            compose.runOnIdle { section.value = SettingsSection.Devices }
             compose.onNodeWithText("Revoke Sofa phone").performScrollTo().performClick()
             assertEquals("phone", (sent.last() as RemoteCommand.DevicesRevoke).params.deviceId)
             compose.onNodeWithText("Pair another phone").performScrollTo().assertIsDisplayed()
         }
-        compose.runOnIdle { state.value = state.value.copy(snapshot = null) }
+        compose.runOnIdle {
+            state.value = state.value.copy(snapshot = null)
+            section.value = SettingsSection.VPN
+        }
         compose.onNodeWithText("Connect VPN…").performScrollTo().assertIsNotEnabled()
         assertTrue(
             state.value.settings.native

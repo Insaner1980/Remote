@@ -5,6 +5,8 @@
 - The TV/streaming app shortcut strip shows icons only. Do not add captions beneath them. Preserve meaningful accessible content descriptions.
 - Mediacenter may have a different visual style from the LG Remote view; do not force those styles to match.
 - Target selection must look actionable, show the current device name once and keep text safely inside its rounded bounds.
+- Mediacenter Settings opens with only Sound, VPN, Media, Devices, Appearance and Advanced rows. Put controls on dedicated pages and technical diagnostics/help under Advanced.
+- Mediacenter uses a compact one-line device selector and Remote / Library / Settings bottom navigation.
 - Visually inspect both target screens on the actual phone before reporting UI layout fixes complete.
 
 ## Installation

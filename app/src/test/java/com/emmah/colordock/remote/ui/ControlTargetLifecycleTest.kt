@@ -6,7 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -90,6 +93,7 @@ class ControlTargetLifecycleTest {
             assertEquals(initialDisconnects, control.disconnects)
         }
         switch(ControlTarget.Mediacenter)
+        compose.onNodeWithContentDescription("Action needs attention").performClick()
         compose.onNodeWithText("Mediacenter is reconciling 1 action(s).").assertIsDisplayed()
         compose.runOnIdle {
             assertEquals(1, control.sent.count { it.command is RemoteCommand.QueueNext })
@@ -143,7 +147,7 @@ class ControlTargetLifecycleTest {
         switch(ControlTarget.LgTv)
         compose.onNodeWithText("Hide code").assertDoesNotExist()
         switch(ControlTarget.Mediacenter)
-        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("media-nav-Settings").performClick()
         compose.onNodeWithText("Hide code").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, control.sent.count { it.command is RemoteCommand.PairingBegin }) }
     }
@@ -154,7 +158,8 @@ class ControlTargetLifecycleTest {
         val origin = targets.lease()
         compose.runOnIdle { assertTrue(targets.retireInput(origin) {}) }
         compose.onNodeWithText("Hide code").assertDoesNotExist()
-        compose.onNodeWithText("Mediacenter settings").assertIsDisplayed()
+        compose.onNodeWithTag("media-nav-Settings").assertIsSelected()
+        compose.onNodeWithTag("settings-section-Devices").assertIsDisplayed()
         compose.runOnIdle {
             assertEquals(ControlTarget.Mediacenter, targets.state.value.selected)
             assertFalse(targets.retireInput(origin) { throw AssertionError("Stale setup opener ran") })
@@ -186,7 +191,7 @@ class ControlTargetLifecycleTest {
     }
 
     private fun showPairingQr() {
-        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("media-nav-Settings").performClick()
         compose.waitUntil { control.sent.any { it.command is RemoteCommand.SettingsGet } }
         val settingsRequest = control.sent.last { it.command is RemoteCommand.SettingsGet }
         compose.runOnIdle {
@@ -205,6 +210,7 @@ class ControlTargetLifecycleTest {
                 ),
             )
         }
+        compose.onNodeWithTag("settings-section-Devices").performScrollTo().performClick()
         compose
             .onNodeWithText("Pair another phone")
             .performScrollTo()

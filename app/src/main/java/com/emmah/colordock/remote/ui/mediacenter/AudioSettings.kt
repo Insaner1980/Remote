@@ -342,16 +342,17 @@ internal fun SoundOptions(
     actions: SoundActions,
     modifier: Modifier = Modifier,
     showConfirmation: Boolean = true,
+    initiallyOpen: Boolean = false,
 ) {
-    var open by remember { mutableStateOf(false) }
+    var open by remember { mutableStateOf(initiallyOpen) }
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        TextButton(onClick = {
-            open = true
-            actions.refresh()
-        }) { Text("Sound") }
+        if (!initiallyOpen) {
+            TextButton(onClick = {
+                open = true
+                actions.refresh()
+            }) { Text("Sound") }
+        }
         if (open) {
-            Text("Mediacenter sound", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-            Text("Output selection is optional. Existing sound continues without setup changes.")
             val outputs = state.outputs
 
             fun name(id: String?): String = outputs?.outputs?.firstOrNull { it.id == id }?.name ?: id ?: "Not confirmed"

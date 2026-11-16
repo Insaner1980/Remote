@@ -5,8 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -42,28 +45,32 @@ internal fun TargetSelector(
             ControlTarget.Mediacenter.label
         }
     Column(modifier) {
-        OutlinedButton(
-            onClick = { open = true },
-            modifier = Modifier.fillMaxWidth().testTag("target-selector"),
-            shape = RoundedCornerShape(16.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Change device", style = MaterialTheme.typography.labelMedium)
-                Text(
-                    name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    if (state.ready(state.selected)) "Connected" else "Not connected",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        if (state.selected == ControlTarget.Mediacenter) {
+            CompactTargetSelector(name, state.ready(state.selected), { open = true })
+        } else {
+            OutlinedButton(
+                onClick = { open = true },
+                modifier = Modifier.fillMaxWidth().testTag("target-selector"),
+                shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("Change device", style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        if (state.ready(state.selected)) "Connected" else "Not connected",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                DockIcon(R.drawable.ic_keyboard_arrow_down)
             }
-            DockIcon(R.drawable.ic_keyboard_arrow_down)
         }
         if (open) {
             TargetSelectionDialog(state, { target ->
@@ -73,6 +80,45 @@ internal fun TargetSelector(
                 open = false
                 onConnection()
             }, { open = false })
+        }
+    }
+}
+
+@Composable
+private fun CompactTargetSelector(
+    name: String,
+    connected: Boolean,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("target-selector"),
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ),
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            DockIcon(R.drawable.ic_tv, tint = MaterialTheme.colorScheme.primary)
+            Text(
+                name,
+                Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            DockIcon(
+                if (connected) R.drawable.ic_wifi else R.drawable.ic_wifi_off,
+                label = if (connected) "Connected" else "Not connected",
+            )
+            DockIcon(R.drawable.ic_keyboard_arrow_down)
         }
     }
 }

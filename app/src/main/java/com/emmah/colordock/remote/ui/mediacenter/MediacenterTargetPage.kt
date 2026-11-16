@@ -1,7 +1,7 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -13,8 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -93,6 +91,7 @@ internal data class MediaTargetState(
     val sources: SourcesState = SourcesState(),
     val drives: DrivesState = DrivesState(),
     val streaming: StreamingState = StreamingState(),
+    val feedback: MediaFeedbackState = MediaFeedbackState(),
 )
 
 private class LibraryNavigation {
@@ -114,7 +113,7 @@ class MediacenterNavigation {
 fun MediacenterTargetPage(
     repository: MediacenterRepository,
     modifier: Modifier = Modifier,
-    settings: @Composable () -> Unit = {},
+    settings: @Composable (SettingsSection) -> Unit = {},
     header: @Composable () -> Unit = {},
     send: (McRequest) -> Boolean = repository::send,
     navigation: MediacenterNavigation? = null,
@@ -156,77 +155,80 @@ fun MediacenterTargetPage(
     ObserveSourceRecovery(repository, sources)
     ObserveDriveRecovery(repository, drives)
     val thumbnail = rememberMediacenterThumbnails(repository, state.snapshot)
-    Column(modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) { header() }
-        MediaRecoveryStatus(pending, uncertain, recoveryAvailable)
-        MediacenterTargetContent(
-            MediaTargetState(
-                state,
-                libraryState,
-                sound,
-                folderState,
-                sourceState.copy(recoveredScans = recoveredScans),
-                driveState.copy(recovered = recoveredDrives),
-                streamState,
-            ),
-            controllers,
-            thumbnail,
-            settings = settings,
-        )
-    }
+    MediacenterTargetContent(
+        MediaTargetState(
+            state,
+            libraryState,
+            sound,
+            folderState,
+            sourceState.copy(recoveredScans = recoveredScans),
+            driveState.copy(recovered = recoveredDrives),
+            streamState,
+            MediaFeedbackState(pending, uncertain, recoveryAvailable),
+        ),
+        controllers,
+        thumbnail,
+        modifier,
+        settings = settings,
+        header = header,
+    )
 }
 
+// Keep both hoisted UI slots explicit at the target boundary, as on MediacenterTargetPage.
+@Suppress("LongParameterList")
 @Composable
 internal fun MediacenterTargetContent(
     model: MediaTargetState,
     controllers: MediaTargetControllers,
     thumbnail: suspend (String) -> ByteArray?,
     modifier: Modifier = Modifier,
-    settings: @Composable () -> Unit = {},
+    settings: @Composable (SettingsSection) -> Unit = {},
+    header: @Composable () -> Unit = {},
 ) {
     val state = model.media
     val libraryState = model.library
     val media = controllers.media
     val renderer = controllers.renderer
     val contentScroll = rememberScrollState()
-    LaunchedEffect(state.destination, libraryState.items.firstOrNull()?.id) { contentScroll.scrollTo(0) }
+    val settingsNavigation = remember { SettingsNavigation() }
+    LaunchedEffect(state.destination, libraryState.items.firstOrNull()?.id, settingsNavigation.section) {
+        contentScroll.scrollTo(0)
+        if (state.destination != MediaDestination.Settings) settingsNavigation.section = null
+    }
     val navigation = remember { LibraryNavigation() }
+    val backToSettings = {
+        media.dismissPairing()
+        settingsNavigation.section = null
+    }
+    BackHandler(state.destination == MediaDestination.Settings && settingsNavigation.section != null) {
+        backToSettings()
+    }
     Column(modifier.fillMaxSize()) {
-        PrimaryScrollableTabRow(selectedTabIndex = state.destination.ordinal, edgePadding = 16.dp) {
-            MediaDestination.entries.forEach { destination ->
-                Tab(selected = state.destination == destination, onClick = {
-                    renderer.stop()
-                    controllers.browser?.endGesture()
-                    media.destination(destination)
-                }, text = { Text(destination.name) })
-            }
-        }
         Column(
-            Modifier.weight(1f).verticalScroll(contentScroll).padding(16.dp),
+            Modifier.weight(1f).verticalScroll(contentScroll).padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            val representedDriveMessage =
-                state.destination == MediaDestination.Settings &&
-                    model.drives.recovered.any {
-                        it.operation.requestId == state.messageOperation?.requestId &&
-                            it.operation.operationId == state.messageOperation.operationId
-                    }
-            if (state.message.isNotEmpty() && !representedDriveMessage) Text(state.message)
-            if (state.snapshot == null) Text("Reconnect using Mediacenter Connection settings, then refresh.")
+            MediacenterPageHeading(state.destination, settingsNavigation.section, backToSettings) {
+                MediaRecoveryStatus(
+                    model.feedback.pending,
+                    model.feedback.uncertain,
+                    model.feedback.recoveryAvailable,
+                    message = state.message,
+                )
+            }
+            header()
+            InlineMediaStatus(model, settingsNavigation.section)
             when (state.destination) {
-                MediaDestination.Remote -> {
-                    TargetRemote(model, controllers)
-                }
-
-                MediaDestination.Library -> {
-                    TargetLibrary(model, controllers, thumbnail, navigation)
-                }
-
-                MediaDestination.Settings -> {
-                    TargetSettings(model, controllers, settings)
-                }
+                MediaDestination.Remote -> TargetRemote(model, controllers)
+                MediaDestination.Library -> TargetLibrary(model, controllers, thumbnail, navigation)
+                MediaDestination.Settings -> TargetSettings(model, controllers, settingsNavigation, settings)
             }
         }
+        MediacenterBottomNavigation(state.destination, { destination ->
+            renderer.stop()
+            controllers.browser?.endGesture()
+            media.destination(destination)
+        })
     }
     TargetDialogs(model, controllers)
 }

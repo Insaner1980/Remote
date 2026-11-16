@@ -54,16 +54,16 @@ class MediacenterUsabilityTest {
         compose.waitUntil(5_000) { sent.any { it.command is RemoteCommand.LibraryQuery } }
         compose.runOnIdle { sent.clear() }
         compose.onNodeWithText("Browse library").performClick()
-        compose.onNodeWithText("Library").assertIsSelected()
+        compose.onNodeWithTag("media-nav-Library").assertIsSelected()
         compose.waitUntil(5_000) { sent.any { it.command is RemoteCommand.LibraryQuery } }
         compose.runOnIdle { assertTrue(sent.none { it.command is RemoteCommand.PlayerPause }) }
     }
 
     @Test fun currentNavigationDestinationIsMarkedAndChangesOnSelection() {
         compose.setContent { IdleTarget { true } }
-        compose.onNodeWithText("Remote").assertIsSelected()
-        compose.onNodeWithText("Settings").performClick()
-        compose.onNodeWithText("Settings").assertIsSelected()
+        compose.onNodeWithTag("media-nav-Remote").assertIsSelected()
+        compose.onNodeWithTag("media-nav-Settings").performClick()
+        compose.onNodeWithTag("media-nav-Settings").assertIsSelected()
     }
 
     @Composable

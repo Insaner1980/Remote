@@ -23,6 +23,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -79,18 +80,18 @@ class LibraryScreenTest {
                 size.value = width to height
                 font.floatValue = scale
             }
-            compose.onNodeWithText("Remote", useUnmergedTree = true).performClick()
+            compose.onNodeWithTag("media-nav-Remote").performClick()
             compose.runOnIdle {
                 assertEquals(width.toFloat(), configured.width.value, 1f)
                 assertEquals(height.toFloat(), configured.height.value, 1f)
                 assertEquals(scale, configuredFont, 0.01f)
             }
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(1)
-            compose.onNodeWithText("Library", useUnmergedTree = true).performClick()
+            compose.onNodeWithTag("media-nav-Library").performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
             compose.onNodeWithText("Now playing").performScrollTo().performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(1)
-            compose.onNodeWithText("Settings", useUnmergedTree = true).performClick()
+            compose.onNodeWithTag("media-nav-Settings").performClick()
             compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
             compose.onNodeWithText("Sound").performScrollTo().assertIsDisplayed()
         }

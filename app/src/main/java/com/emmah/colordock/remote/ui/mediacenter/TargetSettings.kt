@@ -10,32 +10,54 @@ import androidx.compose.runtime.getValue
 internal fun ColumnScope.TargetSettings(
     model: MediaTargetState,
     controllers: MediaTargetControllers,
-    settings: @Composable () -> Unit,
+    navigation: SettingsNavigation,
+    settings: @Composable (SettingsSection) -> Unit,
 ) {
+    val section = navigation.section
+    LaunchedEffect(
+        section,
+        model.media.settings.pairing
+            ?.attemptId,
+    ) {
+        if (section != SettingsSection.Devices) controllers.media.dismissPairing()
+    }
+    if (section == null) {
+        SettingsOverview({ navigation.section = it })
+        return
+    }
     val state = model.media
     val sound = model.sound
     val media = controllers.media
     val audio = controllers.audio
-    SoundOptions(
-        sound,
-        SoundActions({
-            audio.retry(true)
-        }, {
-            audio.retry()
-        }, {
-            audio.choose(
-                it,
-            )
-        }, { audio.test(it) }, { audio.confirm() }, { audio.cancel() }),
-        showConfirmation = false,
-    )
+    if (section == SettingsSection.Sound) {
+        SoundOptions(
+            sound,
+            SoundActions({
+                audio.retry(true)
+            }, {
+                audio.retry()
+            }, {
+                audio.choose(
+                    it,
+                )
+            }, { audio.test(it) }, { audio.confirm() }, { audio.cancel() }),
+            showConfirmation = false,
+            initiallyOpen = true,
+        )
+    }
     SettingsScreen(
         state,
         RoutineSettingsActions({ media.command(it) }, media::refreshSettings, media::dismissPairing),
+        section = section,
     )
-    TargetSources(model, controllers)
-    TargetDrives(model, controllers)
-    settings()
+    if (section == SettingsSection.Media) {
+        TargetSources(model, controllers)
+        TargetDrives(model, controllers)
+    }
+    settings(section)
+    LaunchedEffect(section) {
+        if (section == SettingsSection.Sound) audio.retry(true)
+    }
 }
 
 @Composable

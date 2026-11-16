@@ -60,10 +60,11 @@ class ControlTargetTest {
             assertTrue(mcSent.single().command is RemoteCommand.PlayerPause)
             assertTrue(tvSent.isEmpty())
         }
-        compose.onNodeWithText("Library").performClick()
+        compose.onNodeWithTag("media-nav-Library").performClick()
         compose.onNodeWithTag("transport-controls").assertDoesNotExist()
-        compose.onNodeWithText("Settings").performClick()
+        compose.onNodeWithTag("media-nav-Settings").performClick()
         compose.onNodeWithTag("transport-controls").assertDoesNotExist()
+        compose.onNodeWithTag("settings-section-Devices").performClick()
         compose.onNodeWithText("Mediacenter Connection").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Wallpapers").assertDoesNotExist()
         compose.onNodeWithText("Color Dock").assertDoesNotExist()
