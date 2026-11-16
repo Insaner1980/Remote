@@ -180,7 +180,6 @@ class PlainSettingsTest {
                 NowPlayingControls(
                     MediaSessionState(snapshot = phoneMediaSnapshot()),
                     {},
-                    {},
                 )
             }
         }

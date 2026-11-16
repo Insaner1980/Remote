@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -37,7 +38,7 @@ class PhotoControlsTest {
                 }
             }
         }
-        compose.onNodeWithText("Next").performClick()
+        compose.onNodeWithContentDescription("Next").performClick()
         assertEquals("photos", (sent.single() as RemoteCommand.PhotosNext).params.sessionId)
         compose.onNodeWithText("Seconds").performScrollTo().performTextReplacement("61")
         compose.onNodeWithText("Start slideshow").performScrollTo().assertIsNotEnabled()

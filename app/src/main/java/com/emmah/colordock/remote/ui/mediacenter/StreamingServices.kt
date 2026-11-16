@@ -4,21 +4,33 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
+import com.emmah.colordock.remote.ui.DockIcon
 
 @Composable
 internal fun StreamingServices(
@@ -30,39 +42,42 @@ internal fun StreamingServices(
     val catalog = streaming.capabilities ?: return
     if (catalog.services.isEmpty()) return
     Column(modifier) {
-        if (catalog.services.none { streaming.canLaunch(it.serviceId) }) Text("Apps unavailable")
-        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (catalog.services.none { streaming.canLaunch(it.serviceId) }) {
+            Row(
+                Modifier.padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DockIcon(R.drawable.ic_error, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    "Apps unavailable",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Row(
+            Modifier
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        Brush.horizontalGradient(FADE_START to Color.Black, 1f to Color.Transparent),
+                        blendMode = BlendMode.DstIn,
+                    )
+                }.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             catalog.services.forEach { service ->
                 val id = service.serviceId
-                OutlinedButton(
-                    onClick = { open(id) },
-                    enabled = enabled && streaming.canLaunch(id),
-                    modifier = Modifier.size(64.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(6.dp),
-                ) {
-                    Image(
-                        painterResource(serviceIcon(id)),
-                        contentDescription = "Open ${serviceLabel(id)}",
-                        modifier =
-                            Modifier.fillMaxSize().alpha(
-                                if (enabled &&
-                                    streaming.canLaunch(id)
-                                ) {
-                                    1f
-                                } else {
-                                    DISABLED_APP_ALPHA
-                                },
-                            ),
-                        contentScale = ContentScale.Fit,
-                    )
-                }
+                StreamingServiceTile(id, enabled && streaming.canLaunch(id), open)
             }
+            Spacer(Modifier.width(16.dp))
         }
     }
 }
 
-private fun serviceIcon(id: String): Int =
+internal fun serviceIcon(id: String): Int =
     when (id) {
         "netflix" -> R.drawable.tv_app_netflix
         "youtube" -> R.drawable.tv_app_youtube
@@ -89,3 +104,35 @@ internal fun serviceLabel(serviceId: String): String =
     }
 
 private const val DISABLED_APP_ALPHA = .38f
+
+private const val FADE_START = .85f
+
+@Composable
+private fun StreamingServiceTile(
+    id: String,
+    enabled: Boolean,
+    open: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = { open(id) },
+        enabled = enabled,
+        modifier = modifier.size(64.dp),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Image(
+            painterResource(serviceIcon(id)),
+            contentDescription = "Open ${serviceLabel(id)}",
+            modifier =
+                Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)).alpha(
+                    if (enabled) {
+                        1f
+                    } else {
+                        DISABLED_APP_ALPHA
+                    },
+                ),
+            contentScale = ContentScale.Fit,
+        )
+    }
+}

@@ -4,11 +4,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterRepository
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
@@ -49,6 +53,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesCancelScanParams
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesPrepareRemoveParams
 import com.emmah.colordock.remote.mediacenter.protocol.SourcesScanParams
+import com.emmah.colordock.remote.ui.AdaptivePair
 import com.emmah.colordock.remote.ui.RemoteDimens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -227,6 +232,11 @@ internal fun MediacenterTargetContent(
                     settingsNavigation.section,
                     backToSettings,
                     selector = header,
+                    actions = {
+                        if (state.destination == MediaDestination.Remote) {
+                            RemoteQueueAction(state, { media.queue(true) })
+                        }
+                    },
                     attention = {
                         MediaRecoveryStatus(
                             model.feedback.pending,
@@ -239,18 +249,20 @@ internal fun MediacenterTargetContent(
                 InlineMediaStatus(model, settingsNavigation.section)
             }
         }
-        Column(
-            Modifier
-                .weight(
-                    1f,
-                ).verticalScroll(contentScroll)
-                .padding(horizontal = RemoteDimens.ScreenGutter, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            when (state.destination) {
-                MediaDestination.Remote -> TargetRemote(model, controllers)
-                MediaDestination.Library -> TargetLibrary(model, controllers, thumbnail, navigation)
-                MediaDestination.Settings -> TargetSettings(model, controllers, settingsNavigation, settings)
+        BoxWithConstraints(Modifier.weight(1f)) {
+            val viewportHeight = (maxHeight - 24.dp).coerceAtLeast(0.dp)
+            Column(
+                Modifier
+                    .verticalScroll(contentScroll)
+                    .padding(horizontal = RemoteDimens.ScreenGutter, vertical = 12.dp)
+                    .heightIn(min = if (state.destination == MediaDestination.Remote) viewportHeight else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                when (state.destination) {
+                    MediaDestination.Remote -> TargetRemote(model, controllers)
+                    MediaDestination.Library -> TargetLibrary(model, controllers, thumbnail, navigation)
+                    MediaDestination.Settings -> TargetSettings(model, controllers, settingsNavigation, settings)
+                }
             }
         }
         MediacenterBottomNavigation(state.destination, { destination ->
@@ -317,63 +329,6 @@ private fun ObserveMediaTarget(
             controllers.drives?.observe(null, null, null)
             renderer.stop()
         }
-    }
-}
-
-@Composable
-private fun ColumnScope.TargetRemote(
-    model: MediaTargetState,
-    controllers: MediaTargetControllers,
-) {
-    val state = model.media
-    val libraryState = model.library
-    val media = controllers.media
-    val renderer = controllers.renderer
-
-    val browserActive = state.snapshot?.activity?.mode == ActivityMode.BROWSER
-    if (!browserActive) {
-        Column(Modifier.testTag("transport-controls")) {
-            if (state.snapshot?.activity?.mode == ActivityMode.PHOTOS) {
-                Text(state.snapshot.activity.title ?: "Photos")
-                PhotoControls(state, libraryState.selectionId, { media.command(it) }, media::slideshow)
-                TextButton(
-                    onClick = { media.queue(true) },
-                ) { Text("Queue") }
-            } else {
-                NowPlayingControls(state, { media.command(it) }, { media.queue(true) })
-            }
-        }
-    }
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(
-            onClick = {
-                controllers.browser?.endGesture()
-                media.command(RemoteCommand.ActivityShowMenu(Empty))
-            },
-            enabled =
-                state.snapshot != null && !state.busy,
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text("Menu") }
-        if (state.snapshot?.activity?.sessionId != null) {
-            OutlinedButton(
-                onClick = { media.command(RemoteCommand.ActivityShowPlayback(Empty)) },
-                enabled =
-                    !state.busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text("Playback") }
-        }
-    }
-    StreamingServices(
-        model.streaming,
-        !state.busy && state.preview == null && model.sound.preview == null,
-        { media.openBrowser(model.streaming, it) },
-    )
-    val browser = controllers.browser
-    if (browserActive && !state.showingMenus && browser != null) {
-        val enabled = state.browserInputVisible() && model.sound.preview == null
-        BrowserControls(model.streaming, browser, enabled = enabled)
-    } else {
-        RendererControls(state.snapshot, renderer)
     }
 }
 

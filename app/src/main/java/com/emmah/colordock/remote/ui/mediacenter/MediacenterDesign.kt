@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -310,34 +311,28 @@ internal fun PillSearchField(
     )
 }
 
-@Suppress("UnusedPrivateMember")
-@Preview(name = "Mediacenter components dark", showBackground = true)
 @Composable
-private fun DarkComponentsPreview() {
-    RemoteTheme(AppTheme.SoftDark) { ComponentsPreview() }
-}
-
-@Suppress("UnusedPrivateMember")
-@Preview(name = "Mediacenter components light", showBackground = true)
-@Composable
-private fun LightComponentsPreview() {
-    RemoteTheme(AppTheme.WarmLight) { ComponentsPreview() }
-}
-
-@Composable
-private fun ComponentsPreview() {
-    Surface {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            DeviceSelector("Mediacenter", true, SelectorSize.Large, {})
-            DeviceSelector("Mediacenter", true, SelectorSize.Compact, {})
-            SectionLabel("Sound")
-            ListGroup {
-                ListRow("TV (HDMI)", "Connected", ListRowPosition.First, leadingIcon = R.drawable.ic_tv, onClick = {})
-                ListRow("Speakers", null, ListRowPosition.Last, leadingIcon = R.drawable.ic_tv, onClick = {})
-            }
-            MediaKey("Menu", R.drawable.ic_settings, true, {})
-            MediaIconButton(R.drawable.ic_settings, "Settings", {}, true, emphasized = true)
-            PillSearchField("", {}, "Search")
-        }
-    }
+internal fun PillSearchField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+) {
+    TextField(
+        value,
+        onValueChange,
+        modifier.fillMaxWidth().heightIn(min = 56.dp),
+        shape = CircleShape,
+        singleLine = true,
+        placeholder = { Text(placeholder) },
+        leadingIcon = { DockIcon(R.drawable.ic_search) },
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent,
+            ),
+    )
 }

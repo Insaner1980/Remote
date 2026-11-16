@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.BrowserKey
 import com.emmah.colordock.remote.mediacenter.protocol.MethodName
 
@@ -76,10 +79,10 @@ private fun BrowserActions(
             keyboardOpen = true
         }
         if (allowClose) {
-            TextButton(onClick = {
+            MediaKey("Close tab", R.drawable.ic_close, true, {
                 controller.endGesture()
                 closeOpen = true
-            }) { Text("Close tab") }
+            })
         }
     }
     if (keyboardOpen) {
@@ -116,14 +119,14 @@ private fun BrowserNavigation(
             (capabilities.text && streaming.allows(MethodName.BROWSER_TEXT))
     Column(modifier) {
         if (!canNavigate) Text("Controls unavailable")
-        Row(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (canNavigate && streaming.allows(MethodName.BROWSER_BACK)) {
-                TextButton(onClick = { controller.back(target) }) { Text("Back") }
+                MediaIconButton(R.drawable.ic_undo, "Back", { controller.back(target) }, true)
             }
             if (canNavigate && streaming.allows(MethodName.BROWSER_RELOAD)) {
-                TextButton(onClick = { controller.reload(target) }) { Text("Reload") }
+                MediaIconButton(R.drawable.ic_refresh, "Reload", { controller.reload(target) }, true)
             }
-            if (keyboard) TextButton(onClick = showKeyboard) { Text("Keyboard") }
+            if (keyboard) MediaKey("Keyboard", null, true, showKeyboard)
         }
     }
 }
@@ -176,11 +179,11 @@ private fun BrowserKeyboard(
                     browserKeyRows.forEach { group ->
                         Row {
                             group.forEach { (button, label) ->
-                                TextButton(onClick = { actions.key(button) }) { Text(label) }
+                                MediaKey(label, null, true, { actions.key(button) }, Modifier.weight(1f))
                             }
                         }
                     }
-                    if (hasText) TextButton(onClick = { composing = true }) { Text("Type text") }
+                    if (hasText) MediaKey("Type text", null, true, { composing = true })
                 }
             },
             confirmButton = { TextButton(onClick = dismiss) { Text("Done") } },

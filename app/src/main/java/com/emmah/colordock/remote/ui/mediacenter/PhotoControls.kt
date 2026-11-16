@@ -1,17 +1,24 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.Fit
 import com.emmah.colordock.remote.mediacenter.protocol.PhotosFitParams
 import com.emmah.colordock.remote.mediacenter.protocol.PhotosIntervalParams
@@ -33,7 +40,7 @@ internal fun PhotoControls(
     val photo = state.snapshot?.slideshow
     val session = photo?.sessionId
     val enabled = session != null && !state.busy
-    Column(modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         PhotoTransport(state, command)
         var seconds by remember(photo?.intervalSeconds) {
             mutableStateOf(
@@ -48,81 +55,91 @@ internal fun PhotoControls(
             seconds,
             { seconds = it },
             label = { Text("Seconds") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             isError =
                 interval !in 1..PHOTO_MAX_INTERVAL,
         )
-        TextButton(
-            onClick = { session?.let { command(RemoteCommand.PhotosInterval(PhotosIntervalParams(it, interval!!))) } },
-            enabled =
-                enabled && interval in 1..PHOTO_MAX_INTERVAL,
-        ) { Text("Apply") }
-        TextButton(
-            onClick = { start(selection, photo?.currentItemId, interval!!) },
-            enabled =
-                state.snapshot != null && !state.busy && selection != null && interval in 1..PHOTO_MAX_INTERVAL,
-        ) { Text("Start slideshow") }
-        TextButton(onClick = {
-            session?.let {
-                command(RemoteCommand.PhotosShuffle(PhotosShuffleParams(it, !photo.shuffle)))
-            }
-        }, enabled = enabled) { Text(if (photo?.shuffle == true) "Shuffle on" else "Shuffle off") }
-        TextButton(onClick = {
-            session?.let {
-                command(
-                    RemoteCommand.PhotosFit(
-                        PhotosFitParams(
-                            it,
-                            if (photo.fit ==
-                                Fit.FIT
-                            ) {
-                                Fit.ACTUAL
-                            } else {
-                                Fit.FIT
-                            },
-                        ),
-                    ),
-                )
-            }
-        }, enabled = enabled) { Text(if (photo?.fit == Fit.ACTUAL) "Original size" else "Fit to screen") }
+        MediaKey("Apply", null, enabled && interval in 1..PHOTO_MAX_INTERVAL, {
+            session?.let { command(RemoteCommand.PhotosInterval(PhotosIntervalParams(it, interval!!))) }
+        }, Modifier.fillMaxWidth())
+        MediaKey(
+            "Start slideshow",
+            null,
+            state.snapshot != null && !state.busy && selection != null && interval in 1..PHOTO_MAX_INTERVAL,
+            { start(selection, photo?.currentItemId, interval!!) },
+            Modifier.fillMaxWidth(),
+        )
+        PhotoDisplayOptions(state, command)
     }
 }
 
 @Composable
-private fun ColumnScope.PhotoTransport(
+private fun PhotoTransport(
     state: MediaSessionState,
     command: (RemoteCommand) -> Unit,
 ) {
     val photo = state.snapshot?.slideshow
     val session = photo?.sessionId
     val enabled = session != null && !state.busy
-    Row {
-        TextButton(onClick = {
-            session?.let {
-                command(RemoteCommand.PhotosPrevious(PhotosPreviousParams(it)))
-            }
-        }, enabled = enabled) { Text("Previous") }
-        TextButton(onClick = {
-            session?.let { command(RemoteCommand.PhotosNext(PhotosNextParams(it))) }
-        }, enabled = enabled) { Text("Next") }
-    }
-    Row {
-        TextButton(onClick = {
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        MediaIconButton(R.drawable.ic_skip_previous, "Previous", {
+            session?.let { command(RemoteCommand.PhotosPrevious(PhotosPreviousParams(it))) }
+        }, enabled)
+        PlaybackToggle(photo?.paused != false, enabled, {
             session?.let { command(RemoteCommand.PhotosPause(PhotosPauseParams(it, !photo.paused))) }
-        }, enabled = enabled) {
-            Text(
-                if (photo?.paused !=
-                    false
-                ) {
-                    "Play"
-                } else {
-                    "Pause"
-                },
-            )
+        })
+        MediaIconButton(R.drawable.ic_skip_next, "Next", {
+            session?.let { command(RemoteCommand.PhotosNext(PhotosNextParams(it))) }
+        }, enabled)
+        MediaIconButton(R.drawable.ic_stop, "Stop", {
+            session?.let { command(RemoteCommand.PhotosStop(PhotosStopParams(it))) }
+        }, session != null)
+    }
+}
+
+@Composable
+private fun PhotoDisplayOptions(
+    state: MediaSessionState,
+    command: (RemoteCommand) -> Unit,
+) {
+    val photo = state.snapshot?.slideshow
+    val session = photo?.sessionId
+    val enabled = session != null && !state.busy
+    ListGroup {
+        val shuffle = {
+            session?.let { command(RemoteCommand.PhotosShuffle(PhotosShuffleParams(it, !photo.shuffle))) }
+            Unit
         }
-        TextButton(onClick = {
-            session?.let {
-                command(RemoteCommand.PhotosStop(PhotosStopParams(it)))
-            }
-        }, enabled = session != null) { Text("Stop") }
+        ListRow(
+            if (photo?.shuffle == true) "Shuffle on" else "Shuffle off",
+            null,
+            ListRowPosition.First,
+            onClick = shuffle,
+            enabled = enabled,
+            trailing = { Switch(photo?.shuffle == true, { shuffle() }, enabled = enabled) },
+        )
+        ListRow(
+            if (photo?.fit == Fit.ACTUAL) "Original size" else "Fit to screen",
+            null,
+            ListRowPosition.Last,
+            onClick = {
+                session?.let {
+                    command(
+                        RemoteCommand.PhotosFit(
+                            PhotosFitParams(
+                                it,
+                                if (photo.fit == Fit.FIT) Fit.ACTUAL else Fit.FIT,
+                            ),
+                        ),
+                    )
+                }
+            },
+            enabled = enabled,
+        )
     }
 }

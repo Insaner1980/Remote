@@ -3,10 +3,8 @@ package com.emmah.colordock.remote.ui.mediacenter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -29,6 +27,7 @@ internal fun RendererControls(
     snapshot: RemoteSnapshot?,
     controller: RendererController,
     modifier: Modifier = Modifier,
+    bottom: @Composable () -> Unit = {},
 ) {
     val enabled = snapshot?.ui?.available == true
     val notice by controller.notice.collectAsState()
@@ -37,18 +36,15 @@ internal fun RendererControls(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (notice.isNotEmpty()) {
+        val status = rendererStatus(notice, enabled)
+        if (status != null) {
             Text(
-                if (notice.contains("uncertain", true) ||
-                    notice.contains("not confirmed", true)
-                ) {
-                    "Not confirmed"
-                } else {
-                    "Try again"
-                },
+                status,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
             )
         }
-        if (!enabled) Text("Controls unavailable")
         DirectionPad(
             enabled = enabled,
             onCommand = { command ->
@@ -61,14 +57,10 @@ internal fun RendererControls(
             onPress = { nativeDirection(it)?.let(controller::press) },
             onRelease = controller::release,
         )
-        OutlinedButton(
-            onClick = { controller.back() },
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text("Back") }
+        bottom()
         if (snapshot?.ui?.route in listOf(Route.VIDEOS, Route.MUSIC, Route.PHOTOS) && enabled) {
             var value by remember(snapshot.serverEpoch, snapshot.ui.route) { mutableStateOf(TextFieldValue()) }
-            OutlinedTextField(value, { next ->
+            PillSearchField(value, { next ->
                 value = next
                 if (next.composition ==
                     null
@@ -77,7 +69,7 @@ internal fun RendererControls(
                 } else {
                     controller.composing()
                 }
-            }, label = { Text("Search on computer") })
+            }, placeholder = "Search on computer")
         }
     }
     DisposableEffect(controller) { onDispose { controller.stop() } }
@@ -90,4 +82,26 @@ private fun nativeDirection(command: TvCommand): Direction? =
         TvCommand.Left -> Direction.LEFT
         TvCommand.Right -> Direction.RIGHT
         else -> null
+    }
+
+private fun rendererStatus(
+    notice: String,
+    enabled: Boolean,
+): String? =
+    when {
+        notice.isNotEmpty() -> {
+            if (notice.contains("uncertain", true) || notice.contains("not confirmed", true)) {
+                "Not confirmed"
+            } else {
+                "Try again"
+            }
+        }
+
+        !enabled -> {
+            "Controls unavailable"
+        }
+
+        else -> {
+            null
+        }
     }

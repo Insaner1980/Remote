@@ -55,7 +55,7 @@ class ControlTargetTest {
         compose.setContent { Fixture() }
         choose("Mediacenter")
         compose.onNodeWithTag("bottom-navigation").assertDoesNotExist()
-        compose.onNodeWithText("Pause").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Pause").performScrollTo().performClick()
         compose.runOnIdle {
             assertTrue(mcSent.single().command is RemoteCommand.PlayerPause)
             assertTrue(tvSent.isEmpty())
@@ -74,7 +74,7 @@ class ControlTargetTest {
         targets.observe(TvConnectionState.Ready, MediacenterConnectionState.Disconnected)
         compose.setContent { Fixture() }
         choose("Mediacenter")
-        compose.onNodeWithText("Pause").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Pause").assertDoesNotExist()
         choose("LG TV")
         compose.onNodeWithContentDescription("TV volume up").performScrollTo().performClick()
         compose.runOnIdle {

@@ -12,6 +12,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -42,10 +43,15 @@ class NowPlayingTest {
             )
         var opened = 0
         compose.setContent {
-            RemoteTheme { NowPlayingControls(MediaSessionState(snapshot = stopped), {}, { opened++ }) }
+            RemoteTheme {
+                Column {
+                    RemoteQueueAction(MediaSessionState(snapshot = stopped), { opened++ })
+                    NowPlayingControls(MediaSessionState(snapshot = stopped), {})
+                }
+            }
         }
-        compose.onNodeWithText("Pause").assertDoesNotExist()
-        compose.onNodeWithText("Queue").assertIsEnabled().performClick()
+        compose.onNodeWithContentDescription("Pause").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Queue").assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(1, opened) }
     }
 
@@ -54,7 +60,7 @@ class NowPlayingTest {
         val state =
             mutableStateOf(initial.copy(activity = initial.activity.copy(mode = ActivityMode.VIDEO, title = null)))
         compose.setContent {
-            RemoteTheme { NowPlayingControls(MediaSessionState(snapshot = state.value), {}, {}) }
+            RemoteTheme { NowPlayingControls(MediaSessionState(snapshot = state.value), {}) }
         }
         compose.onNodeWithText("Video").assertExists()
         compose.onNodeWithText("Nothing playing").assertDoesNotExist()
@@ -65,7 +71,7 @@ class NowPlayingTest {
                 )
         }
         compose.onNodeWithText("Video").assertExists()
-        compose.onNodeWithText("Play").assertExists()
+        compose.onNodeWithContentDescription("Play").assertExists()
         compose.runOnIdle {
             state.value =
                 state.value.copy(activity = state.value.activity.copy(title = "Provided title"))
@@ -81,15 +87,15 @@ class NowPlayingTest {
             RemoteTheme {
                 Column(
                     Modifier.verticalScroll(rememberScrollState()),
-                ) { NowPlayingControls(state.value, { sent.add(it) }, {}) }
+                ) { NowPlayingControls(state.value, { sent.add(it) }) }
             }
         }
-        compose.onNodeWithText("Pause").performClick()
+        compose.onNodeWithContentDescription("Pause").performClick()
         assertEquals("session", (sent.single() as RemoteCommand.PlayerPause).params.sessionId)
         compose.onNodeWithText("Mute").performScrollTo().performClick()
         assertTrue((sent.last() as RemoteCommand.PlayerMute).params.muted)
         compose.runOnIdle { state.value = MediaSessionState() }
-        compose.onNodeWithText("Pause").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Pause").assertDoesNotExist()
     }
 
     @Test fun seekDraftSurvivesNativePositionUpdateDuringPointerDrag() {
@@ -98,7 +104,7 @@ class NowPlayingTest {
         compose.setContent {
             RemoteTheme {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    NowPlayingControls(state.value, { sent.add(it) }, {})
+                    NowPlayingControls(state.value, { sent.add(it) })
                 }
             }
         }
@@ -126,7 +132,7 @@ class NowPlayingTest {
         compose.setContent {
             RemoteTheme {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    NowPlayingControls(state.value, { sent.add(it) }, {})
+                    NowPlayingControls(state.value, { sent.add(it) })
                 }
             }
         }
