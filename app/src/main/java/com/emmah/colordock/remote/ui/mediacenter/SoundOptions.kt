@@ -61,9 +61,6 @@ private fun SoundOutputList(
     val selected = outputs?.requestedOutputId ?: outputs?.effectiveOutputId
     val names = soundOutputLabels(outputs?.outputs.orEmpty())
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            RefreshAction(actions.refresh, enabled = !state.busy, label = "Refresh sound outputs")
-        }
         if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
         if (outputs?.unavailable == true) Text("Output unavailable")
         state.notice?.let { Text(it.label) }

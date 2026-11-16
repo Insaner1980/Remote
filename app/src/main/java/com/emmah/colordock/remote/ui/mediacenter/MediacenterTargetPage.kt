@@ -233,9 +233,7 @@ internal fun MediacenterTargetContent(
                     backToSettings,
                     selector = header,
                     actions = {
-                        if (state.destination == MediaDestination.Remote) {
-                            RemoteQueueAction(state, { media.queue(true) })
-                        }
+                        MediacenterHeadingActions(model, controllers, settingsNavigation.section)
                     },
                     attention = {
                         MediaRecoveryStatus(

@@ -98,7 +98,7 @@ class LibraryScreenTest {
         }
     }
 
-    @Test fun offlineEmptyAndErrorAreRenderedWithActionableRefresh() {
+    @Test fun offlineEmptyAndErrorLeaveRefreshToPageHeading() {
         val state = mutableStateOf(LibraryState(connected = true, message = "No matching media."))
         compose.setContent {
             RemoteTheme {
@@ -131,6 +131,6 @@ class LibraryScreenTest {
         }
         compose.onNodeWithText("song").assertIsNotEnabled()
         compose.onNodeWithText("Offline").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Refresh library").performScrollTo().assertIsEnabled()
+        compose.onNodeWithContentDescription("Refresh library").assertDoesNotExist()
     }
 }

@@ -22,7 +22,7 @@ internal fun ColumnScope.TargetSettings(
         if (section != SettingsSection.Devices) controllers.media.dismissPairing()
     }
     if (section == null) {
-        SettingsOverview({ navigation.section = it })
+        SettingsOverview({ navigation.section = it }, summaries = settingsSummaries(model))
         return
     }
     val state = model.media
@@ -66,4 +66,33 @@ internal fun ObserveRoutineSettings(media: MediaSessionController) {
     LaunchedEffect(state.destination, state.snapshot?.serverEpoch, state.snapshot?.connection?.serverDeviceId) {
         if (state.destination == MediaDestination.Settings && state.snapshot != null) media.refreshSettings()
     }
+}
+
+internal fun settingsSummaries(model: MediaTargetState): SettingsSummaries {
+    val settings = model.media.settings
+    val outputs = model.sound.outputs
+    val selected = outputs?.requestedOutputId ?: outputs?.effectiveOutputId
+    val sound = soundOutputLabels(outputs?.outputs.orEmpty())[selected]
+    val folders =
+        model.media.snapshot
+            ?.sourcesSummary
+            ?.count
+            ?.toLongOrNull()
+            ?.takeIf { it >= 0 }
+    return SettingsSummaries(
+        sound = sound,
+        vpn = vpnStateLabel(settings.vpn?.state),
+        media = folders?.let { if (it == 1L) "1 folder" else "$it folders" },
+        devices =
+            settings.devices
+                ?.items
+                ?.size
+                ?.let { if (it == 1) "1 phone" else "$it phones" },
+        appearance =
+            settings.native
+                ?.theme
+                ?.wire
+                ?.replaceFirstChar { it.uppercase() },
+        advanced = "Starts automatically".takeIf { settings.native?.startAtLogin == true },
+    )
 }

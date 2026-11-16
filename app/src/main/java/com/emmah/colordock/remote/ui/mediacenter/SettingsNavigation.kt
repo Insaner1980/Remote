@@ -36,47 +36,45 @@ internal class SettingsNavigation {
     var section by mutableStateOf<SettingsSection?>(null)
 }
 
+internal data class SettingsSummaries(
+    val sound: String? = null,
+    val vpn: String? = null,
+    val media: String? = null,
+    val devices: String? = null,
+    val appearance: String? = null,
+    val advanced: String? = null,
+) {
+    fun forSection(section: SettingsSection): String? =
+        when (section) {
+            SettingsSection.Sound -> sound
+            SettingsSection.VPN -> vpn
+            SettingsSection.Media -> media
+            SettingsSection.Devices -> devices
+            SettingsSection.Appearance -> appearance
+            SettingsSection.Advanced -> advanced
+        }
+}
+
 @Composable
 internal fun SettingsOverview(
     onSelect: (SettingsSection) -> Unit,
     modifier: Modifier = Modifier,
+    summaries: SettingsSummaries = SettingsSummaries(),
 ) {
-    Column(modifier.fillMaxWidth().padding(top = 12.dp)) {
-        SettingsSection.entries.forEach { section ->
-            val subdued = section == SettingsSection.Advanced
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .testTag("settings-section-${section.name}")
-                    .clickable { onSelect(section) }
-                    .heightIn(min = 56.dp)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                DockIcon(
-                    section.icon,
-                    tint =
-                        if (subdued) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        },
-                )
-                Text(
-                    section.name,
-                    Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
-                    color =
-                        if (subdued) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.onBackground
-                        },
-                )
-                DockIcon(R.drawable.ic_keyboard_arrow_right, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    ListGroup(modifier.fillMaxWidth()) {
+        SettingsSection.entries.forEachIndexed { index, section ->
+            ListRow(
+                section.name,
+                summaries.forSection(section),
+                when (index) {
+                    0 -> ListRowPosition.First
+                    SettingsSection.entries.lastIndex -> ListRowPosition.Last
+                    else -> ListRowPosition.Middle
+                },
+                Modifier.testTag("settings-section-${section.name}"),
+                leadingIcon = section.icon,
+                onClick = { onSelect(section) },
+            )
         }
     }
 }

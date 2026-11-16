@@ -65,7 +65,6 @@ internal fun LibraryScreen(
                     )
                 }
             }
-            RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh library")
         }
         OutlinedTextField(
             state.query,

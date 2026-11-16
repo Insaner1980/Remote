@@ -50,7 +50,6 @@ internal fun SettingsScreen(
             }
 
             SettingsSection.Advanced -> {
-                RefreshAction(actions.refresh, enabled = state.snapshot != null)
                 LifetimeSettings(state, ready, actions.send)
             }
 

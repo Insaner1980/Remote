@@ -4,12 +4,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -53,6 +58,20 @@ class SimpleSettingsNavigationTest {
         compose.onNodeWithText("Require VPN before opening").assertDoesNotExist()
     }
 
+    @Test fun overviewShowsAvailableSummaryWithoutSeparatorsOrPlaceholderText() {
+        showSettings()
+        compose.onNodeWithText("1 folder", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("Unavailable").assertDoesNotExist()
+        val texts =
+            compose
+                .onAllNodes(
+                    SemanticsMatcher.keyIsDefined(SemanticsProperties.Text),
+                    useUnmergedTree = true,
+                ).fetchSemanticsNodes()
+                .flatMap { it.config[SemanticsProperties.Text] }
+        assertTrue(texts.none { it.text.contains('·') || it.text.contains('•') })
+    }
+
     @Test fun deviceSelectorIsCompactAndSettingsNavigationLivesAtBottom() {
         showSettings()
         compose.onNodeWithText("Change device", useUnmergedTree = true).assertDoesNotExist()
@@ -69,6 +88,29 @@ class SimpleSettingsNavigationTest {
         compose.onNodeWithContentDescription("Back to settings").assertIsDisplayed().performClick()
         compose.onNodeWithTag("target-selector").assertIsDisplayed()
         compose.onNodeWithTag("mediacenter-bottom-navigation").assertIsDisplayed()
+    }
+
+    @Test fun pageRefreshActionsBelongToHeading() {
+        showSettings()
+        compose.onNodeWithTag("settings-section-Sound").performClick()
+        compose
+            .onNode(
+                hasContentDescription("Refresh sound outputs") and
+                    hasAnyAncestor(hasTestTag("mediacenter-page-heading")),
+            ).assertIsDisplayed()
+        compose.onNodeWithContentDescription("Back to settings").performClick()
+        compose.onNodeWithTag("settings-section-Advanced").performScrollTo().performClick()
+        compose
+            .onNode(
+                hasContentDescription("Refresh") and
+                    hasAnyAncestor(hasTestTag("mediacenter-page-heading")),
+            ).assertIsDisplayed()
+        compose.onNodeWithTag("media-nav-Library").performClick()
+        compose
+            .onNode(
+                hasContentDescription("Refresh library") and
+                    hasAnyAncestor(hasTestTag("mediacenter-page-heading")),
+            ).assertIsDisplayed()
     }
 
     @Test fun appearanceAndDevicesKeepExistingPhoneActions() {

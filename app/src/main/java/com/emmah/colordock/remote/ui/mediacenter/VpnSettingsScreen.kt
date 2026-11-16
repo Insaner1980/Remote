@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.VpnAction
 import com.emmah.colordock.remote.mediacenter.protocol.VpnPrepareChangeParams
+import com.emmah.colordock.remote.mediacenter.protocol.VpnState
 
 @Composable
 internal fun VpnSettings(
@@ -31,13 +32,7 @@ internal fun VpnSettings(
             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
         ) {
             Text(
-                when (state.vpn?.state) {
-                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.CONNECTED -> "Connected"
-                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.CONNECTING -> "Connecting…"
-                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.DISCONNECTED -> "Disconnected"
-                    com.emmah.colordock.remote.mediacenter.protocol.VpnState.FAILED -> "Couldn't connect"
-                    else -> "Unavailable"
-                },
+                vpnStateLabel(state.vpn?.state) ?: "Unavailable",
             )
             state.vpn?.country?.let { Text(it) }
         }
@@ -66,3 +61,12 @@ internal fun VpnSettings(
         ) { Text("Disconnect") }
     }
 }
+
+internal fun vpnStateLabel(state: VpnState?): String? =
+    when (state) {
+        VpnState.CONNECTED -> "Connected"
+        VpnState.CONNECTING -> "Connecting…"
+        VpnState.DISCONNECTED -> "Disconnected"
+        VpnState.FAILED -> "Couldn't connect"
+        else -> null
+    }

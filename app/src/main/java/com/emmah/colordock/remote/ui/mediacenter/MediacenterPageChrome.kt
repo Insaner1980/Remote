@@ -44,7 +44,11 @@ internal fun MediacenterPageHeading(
     val deviceSelector = remember { movableContentOf { currentSelector() } }
     val subpage = destination == MediaDestination.Settings && section != null
     Row(
-        modifier.fillMaxWidth().heightIn(min = 64.dp).padding(vertical = 8.dp),
+        modifier
+            .testTag("mediacenter-page-heading")
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
