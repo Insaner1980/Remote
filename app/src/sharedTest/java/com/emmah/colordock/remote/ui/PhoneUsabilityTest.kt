@@ -111,6 +111,55 @@ class PhoneUsabilityTest {
         compose.onNodeWithText("Control device").assertDoesNotExist()
     }
 
+    @Test fun fallbackPhotoTitleStaysInsideItsTile() {
+        val item =
+            com.emmah.colordock.remote.mediacenter.protocol.MediaItem(
+                "photo",
+                "source",
+                com.emmah.colordock.remote.mediacenter.protocol.MediaKind.PHOTO,
+                "A beautiful long holiday sunset by the sea.jpg",
+                com.emmah.colordock.remote.mediacenter.protocol.Availability.AVAILABLE,
+            )
+        val actions =
+            com.emmah.colordock.remote.ui.mediacenter.LibraryActions(
+                { _, _ -> },
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+                {},
+            )
+        compose.setContent {
+            RemoteTheme {
+                com.emmah.colordock.remote.ui.mediacenter.PhotoTile(
+                    IndexedValue(0, item),
+                    true,
+                    actions,
+                    { null },
+                    Modifier.width(120.dp),
+                )
+            }
+        }
+        val tile =
+            compose
+                .onNodeWithContentDescription(
+                    "Open A beautiful long holiday sunset by the sea, photo 1",
+                ).fetchSemanticsNode()
+                .boundsInRoot
+        val title =
+            compose
+                .onNodeWithText(
+                    "A beautiful long holiday sunset by the sea",
+                    useUnmergedTree = true,
+                ).fetchSemanticsNode()
+                .boundsInRoot
+        assertTrue("Fallback title needs a start inset", title.left > tile.left)
+        assertTrue("Fallback title needs an end inset", title.right < tile.right)
+    }
+
     @Test fun shortcutIsIconOnlyButKeepsItsAccessibleLaunchAction() {
         var opened = ""
         compose.setContent {

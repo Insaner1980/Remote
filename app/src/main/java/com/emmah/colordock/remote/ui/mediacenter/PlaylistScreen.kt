@@ -29,7 +29,7 @@ internal fun PlaylistScreen(
     Column(modifier) {
         TextButton(onClick = actions.back) { Text("Back") }
         if (contents == null) {
-            OutlinedTextField(state.playlistQuery, actions.search, label = { Text("Search") })
+            PillSearchField(state.playlistQuery, actions.search, "Search")
             Text(if (append == null) "Playlists" else "Choose playlist")
             state.playlists?.items?.forEach { playlist ->
                 TextButton(

@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -22,6 +23,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
@@ -47,20 +49,37 @@ internal fun LibraryItemRow(
         Row(
             Modifier.weight(1f).clickable(enabled = enabled) { actions.select(item) }.padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (item.thumbnailId != null) MediaThumbnail(item.thumbnailId, thumbnail, Modifier.size(64.dp))
-            Column {
+            MediaThumbnail(
+                item.thumbnailId,
+                thumbnail,
+                Modifier.size(96.dp, 54.dp).clip(RoundedCornerShape(12.dp)),
+                fallbackIcon =
+                    if (item.kind ==
+                        MediaKind.MUSIC
+                    ) {
+                        R.drawable.ic_queue_music
+                    } else {
+                        R.drawable.ic_smart_display
+                    },
+            )
+            Column(Modifier.weight(1f)) {
                 Text(
                     title,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (item.availability !=
                     Availability.AVAILABLE
                 ) {
-                    Text("Offline", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        "Offline",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
@@ -98,8 +117,7 @@ internal fun PhotoTile(
             .aspectRatio(1f)
             .semantics { contentDescription = "Open $spoken" }
             .clickable(enabled = connected && item.availability == Availability.AVAILABLE) { actions.select(item) },
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         MediaThumbnail(item.thumbnailId, thumbnail, Modifier.fillMaxSize(), fallback = title)
     }
@@ -111,23 +129,45 @@ private fun MediaThumbnail(
     load: suspend (String) -> ByteArray?,
     modifier: Modifier = Modifier,
     fallback: String? = null,
+    fallbackIcon: Int = R.drawable.ic_image,
 ) {
     val bytes by produceState<ByteArray?>(null, id, load) { value = id?.let { load(it) } }
     val bitmap = remember(bytes) { bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap() } }
-    androidx.compose.foundation.layout.Box(modifier, contentAlignment = Alignment.Center) {
-        if (bitmap !=
-            null
-        ) {
-            Image(
-                bitmap,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
-        } else {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                DockIcon(R.drawable.ic_image, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                fallback?.let { Text(it, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+    Surface(
+        modifier,
+        color =
+            if (fallback ==
+                null
+            ) {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            } else {
+                MaterialTheme.colorScheme.surfaceContainer
+            },
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            if (bitmap != null) {
+                Image(
+                    bitmap,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                DockIcon(
+                    fallbackIcon,
+                    Modifier.size(if (fallback == null) 20.dp else 22.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (fallback == null) 1f else .7f),
+                )
+                fallback?.let {
+                    Text(
+                        it,
+                        Modifier.align(Alignment.BottomStart).padding(8.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
