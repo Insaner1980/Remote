@@ -84,8 +84,15 @@ internal fun TargetAppShell(
 ) {
     key(target.selected, target.generation) {
         when (target.selected) {
-            ControlTarget.LgTv -> RemoteAppShell(selected, onSelect, content = television)
-            ControlTarget.Mediacenter -> mediacenter(Modifier)
+            ControlTarget.LgTv -> {
+                RemoteAppShell(selected, onSelect, content = television)
+            }
+
+            ControlTarget.Mediacenter -> {
+                Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+                    mediacenter(Modifier.padding(padding))
+                }
+            }
         }
     }
 }
