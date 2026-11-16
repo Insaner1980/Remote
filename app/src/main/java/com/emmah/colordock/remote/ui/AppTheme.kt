@@ -1,12 +1,21 @@
 package com.emmah.colordock.remote.ui
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.emmah.colordock.remote.R
 
 enum class AppTheme(
     val label: String,
@@ -116,10 +125,8 @@ fun RemoteTheme(
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        typography =
-            Typography().let {
-                it.copy(headlineSmall = it.headlineSmall.copy(fontWeight = FontWeight.SemiBold))
-            },
+        typography = RemoteTypography,
+        shapes = RemoteShapes,
         colorScheme = if (theme == AppTheme.WarmLight) WarmLightColors else SoftDarkColors,
         content = content,
     )
@@ -155,3 +162,110 @@ private const val LIGHT_CONTAINER_HIGHEST_ARGB = 0xFFDED7CB
 private const val LIGHT_ON_SURFACE_VARIANT_ARGB = 0xFF5E5952
 private const val LIGHT_SECONDARY_CONTAINER_ARGB = 0xFFFFDBCC
 private const val LIGHT_ON_SECONDARY_CONTAINER_ARGB = 0xFF5C1F05
+
+@OptIn(ExperimentalTextApi::class)
+private fun flex(
+    weight: Int,
+    width: Float = NORMAL_FONT_WIDTH,
+) = Font(
+    R.font.roboto_flex,
+    weight = FontWeight(weight),
+    variationSettings = FontVariation.Settings(FontVariation.weight(weight), FontVariation.width(width)),
+)
+
+private const val NORMAL_FONT_WIDTH = 100f
+private const val HEADLINE_FONT_WIDTH = 112f
+private val RobotoFlex =
+    FontFamily(flex(FontWeight.Normal.weight), flex(FontWeight.Medium.weight), flex(FontWeight.SemiBold.weight))
+private val RobotoFlexWide =
+    FontFamily(
+        flex(FontWeight.Medium.weight, HEADLINE_FONT_WIDTH),
+        flex(FontWeight.SemiBold.weight, HEADLINE_FONT_WIDTH),
+    )
+private val BaseTypography = Typography()
+private val RemoteTypography =
+    Typography(
+        displayLarge = BaseTypography.displayLarge.copy(fontFamily = RobotoFlex),
+        displayMedium = BaseTypography.displayMedium.copy(fontFamily = RobotoFlex),
+        displaySmall = BaseTypography.displaySmall.copy(fontFamily = RobotoFlex),
+        headlineLarge = BaseTypography.headlineLarge.copy(fontFamily = RobotoFlex),
+        headlineMedium = BaseTypography.headlineMedium.copy(fontFamily = RobotoFlex),
+        headlineSmall =
+            BaseTypography.headlineSmall.copy(
+                fontFamily = RobotoFlexWide,
+                fontSize = 24.sp,
+                lineHeight = 32.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+        titleLarge =
+            BaseTypography.titleLarge.copy(
+                fontFamily = RobotoFlexWide,
+                fontSize = 22.sp,
+                lineHeight = 28.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+        titleMedium =
+            BaseTypography.titleMedium.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+        titleSmall =
+            BaseTypography.titleSmall.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+            ),
+        bodyLarge =
+            BaseTypography.bodyLarge.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Normal,
+            ),
+        bodyMedium =
+            BaseTypography.bodyMedium.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Normal,
+            ),
+        bodySmall =
+            BaseTypography.bodySmall.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Normal,
+            ),
+        labelLarge =
+            BaseTypography.labelLarge.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 15.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+        labelMedium =
+            BaseTypography.labelMedium.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+        labelSmall =
+            BaseTypography.labelSmall.copy(
+                fontFamily = RobotoFlex,
+                fontSize = 11.sp,
+                lineHeight = 16.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+    )
+private val RemoteShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(16.dp),
+        large = RoundedCornerShape(22.dp),
+        extraLarge = RoundedCornerShape(28.dp),
+    )

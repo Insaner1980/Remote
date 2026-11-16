@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.DockIcon
 
@@ -67,7 +66,7 @@ internal fun SettingsOverview(
                 Text(
                     section.name,
                     Modifier.weight(1f),
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     color =
                         if (subdued) {
                             MaterialTheme.colorScheme.onSurfaceVariant

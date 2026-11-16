@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.DockIcon
@@ -40,8 +39,7 @@ internal fun MediacenterPageHeading(
         Text(
             if (destination == MediaDestination.Settings) section?.name ?: "Settings" else destination.name,
             Modifier.weight(1f),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.headlineSmall,
         )
         attention()
     }
