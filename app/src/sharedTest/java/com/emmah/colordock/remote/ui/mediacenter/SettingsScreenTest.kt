@@ -9,10 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
 import androidx.compose.ui.test.ForcedSize
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -42,6 +46,30 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun vpnRowsFit56DpAtPhoneScaleAndToggleOnce() {
+        val sent = mutableListOf<RemoteCommand>()
+        compose.setContent {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.FontScale(1.15f)) {
+                RemoteTheme {
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
+                        SettingsScreen(
+                            settingsScreenState(),
+                            RoutineSettingsActions({ sent.add(it) }, {}, {}),
+                            section = SettingsSection.VPN,
+                        )
+                    }
+                }
+            }
+        }
+        compose.onNodeWithTag("vpn-service-netflix").performScrollTo().assertHeightIsEqualTo(56.dp)
+        compose.onAllNodesWithContentDescription("Require VPN for Netflix").assertCountEquals(1)
+        compose.onNodeWithContentDescription("Require VPN for Netflix").performClick()
+        compose.runOnIdle {
+            assertEquals(1, sent.size)
+            assertEquals(false, (sent.single() as RemoteCommand.VpnRequirementSet).params.required)
+        }
+    }
 
     @Test fun settingsRemainReachableAcrossSizesAndNeverOptimisticallyChangePreferences() {
         val dimensions = mutableStateOf(DpSize(360.dp, 640.dp))

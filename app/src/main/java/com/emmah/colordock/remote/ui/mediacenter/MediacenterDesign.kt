@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.AppTheme
@@ -69,6 +70,7 @@ internal fun ListRow(
     titleColor: Color = Color.Unspecified,
     enabled: Boolean = true,
     role: Role = Role.Button,
+    verticalPadding: Dp = 12.dp,
 ) {
     val shape =
         when (position) {
@@ -92,7 +94,7 @@ internal fun ListRow(
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .then(click)
             .heightIn(min = if (supporting == null) 56.dp else RemoteDimens.RowMinHeight)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = verticalPadding),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
