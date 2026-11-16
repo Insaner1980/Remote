@@ -109,7 +109,7 @@ private fun LibraryItemRow(
                 enabled =
                     connected && item.availability == Availability.AVAILABLE,
             ) { Text(item.name) }
-            if (item.availability != Availability.AVAILABLE) Text("Offline · ${item.availability.wire}")
+            if (item.availability != Availability.AVAILABLE) Text("Offline: ${item.availability.wire}")
             if (item.kind == MediaKind.MUSIC) {
                 var menu by remember(item.id) { mutableStateOf(false) }
                 TextButton(

@@ -24,7 +24,7 @@ internal fun DrivesScreen(
         state.items.forEach { drive ->
             Text(drive.label)
             drive.volumes.forEach { volume ->
-                Text("${volume.label} · ${if (volume.mounted) "Mounted" else "Not mounted"}")
+                Text("${volume.label}\n${if (volume.mounted) "Mounted" else "Not mounted"}")
                 if (!volume.mounted) {
                     TextButton(onClick = { actions.mount(volume.id) }, enabled = state.connected && !busy) {
                         Text("Mount ${volume.label}")

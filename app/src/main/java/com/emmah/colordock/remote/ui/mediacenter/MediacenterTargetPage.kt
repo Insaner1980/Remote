@@ -1,13 +1,20 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -150,7 +157,7 @@ fun MediacenterTargetPage(
     ObserveDriveRecovery(repository, drives)
     val thumbnail = rememberMediacenterThumbnails(repository, state.snapshot)
     Column(modifier.fillMaxSize()) {
-        header()
+        Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) { header() }
         MediaRecoveryStatus(pending, uncertain, recoveryAvailable)
         MediacenterTargetContent(
             MediaTargetState(
@@ -185,16 +192,19 @@ internal fun MediacenterTargetContent(
     LaunchedEffect(state.destination, libraryState.items.firstOrNull()?.id) { contentScroll.scrollTo(0) }
     val navigation = remember { LibraryNavigation() }
     Column(modifier.fillMaxSize()) {
-        Row {
+        PrimaryScrollableTabRow(selectedTabIndex = state.destination.ordinal, edgePadding = 16.dp) {
             MediaDestination.entries.forEach { destination ->
-                TextButton(onClick = {
+                Tab(selected = state.destination == destination, onClick = {
                     renderer.stop()
                     controllers.browser?.endGesture()
                     media.destination(destination)
-                }) { Text(destination.name) }
+                }, text = { Text(destination.name) })
             }
         }
-        Column(Modifier.weight(1f).verticalScroll(contentScroll).padding(16.dp)) {
+        Column(
+            Modifier.weight(1f).verticalScroll(contentScroll).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             val representedDriveMessage =
                 state.destination == MediaDestination.Settings &&
                     model.drives.recovered.any {
@@ -303,20 +313,31 @@ private fun ColumnScope.TargetRemote(
             }
         }
     }
-    Row {
-        TextButton(
+    if (state.snapshot?.activity?.mode == ActivityMode.IDLE) {
+        Text("Browse your videos, music and photos, or choose a streaming service.")
+        Button(onClick = {
+            media.destination(MediaDestination.Library)
+            controllers.library.search("", libraryState.kind)
+        }, modifier = Modifier.fillMaxWidth()) { Text("Browse library") }
+    }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(
             onClick = {
                 controllers.browser?.endGesture()
                 media.command(RemoteCommand.ActivityShowMenu(Empty))
             },
             enabled =
                 state.snapshot != null && !state.busy,
+            modifier = Modifier.fillMaxWidth(),
         ) { Text("Show menus on computer") }
-        TextButton(
-            onClick = { media.command(RemoteCommand.ActivityShowPlayback(Empty)) },
-            enabled =
-                state.snapshot?.activity?.sessionId != null && !state.busy,
-        ) { Text("Show current playback") }
+        if (state.snapshot?.activity?.sessionId != null) {
+            OutlinedButton(
+                onClick = { media.command(RemoteCommand.ActivityShowPlayback(Empty)) },
+                enabled =
+                    !state.busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Show current playback") }
+        }
     }
     val browser = controllers.browser
     if (browserActive && !state.showingMenus && browser != null) {

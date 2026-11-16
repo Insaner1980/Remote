@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
 import com.emmah.colordock.remote.mediacenter.protocol.Empty
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerAudioTrackParams
@@ -39,45 +41,30 @@ internal fun NowPlayingControls(
     val player = snapshot?.player
     val session = player?.sessionId
     val enabled = session != null && !state.busy
-    Column(modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val title =
             snapshot?.activity?.title ?: when (snapshot?.activity?.mode) {
                 ActivityMode.VIDEO -> "Video"
                 ActivityMode.MUSIC -> "Music"
                 ActivityMode.PHOTOS -> "Photos"
                 ActivityMode.BROWSER -> "Streaming"
-                ActivityMode.IDLE, null -> "Nothing playing"
+                ActivityMode.IDLE -> "Ready to play"
+                null -> "Connect to Mediacenter"
             }
         Text(title, style = MaterialTheme.typography.titleLarge)
-        Text(player?.phase?.wire ?: "Disconnected")
+        if (session != null) Text(player.phase.wire.replaceFirstChar(Char::titlecase))
         Row {
-            TextButton(onClick = {
-                session?.let {
-                    command(
-                        RemoteCommand.PlayerPause(
-                            PlayerPauseParams(
-                                it,
-                                player.phase != PlayerPhase.PAUSED,
-                            ),
-                        ),
-                    )
+            if (session != null) {
+                TextButton(onClick = {
+                    command(RemoteCommand.PlayerPause(PlayerPauseParams(session, player.phase != PlayerPhase.PAUSED)))
+                }, enabled = enabled) {
+                    Text(if (player.phase == PlayerPhase.PAUSED) "Play" else "Pause")
                 }
-            }, enabled = enabled) {
-                Text(
-                    if (player?.phase ==
-                        PlayerPhase.PAUSED
-                    ) {
-                        "Play"
-                    } else {
-                        "Pause"
-                    },
-                )
+                TextButton(onClick = { command(RemoteCommand.PlayerStop(PlayerStopParams(session))) }) { Text("Stop") }
             }
-            TextButton(onClick = {
-                session?.let { command(RemoteCommand.PlayerStop(PlayerStopParams(it))) }
-            }, enabled = session != null) { Text("Stop") }
-            TextButton(onClick = queue, enabled = snapshot != null) { Text("Queue") }
+            if (snapshot != null) TextButton(onClick = queue) { Text("Queue") }
         }
+
         if (snapshot?.queueSummary?.sessionId != null) {
             Row {
                 TextButton(

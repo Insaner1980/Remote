@@ -24,7 +24,7 @@ class AndroidMediacenterNetwork(
 ) : MediacenterNetwork {
     private val application = context.applicationContext
     private val manager = application.getSystemService(ConnectivityManager::class.java)
-    val label: String get() = "Wi-Fi · $interfaceName"
+    val label: String get() = "Wi-Fi ($interfaceName)"
     override val socketFactory: SocketFactory get() = network.socketFactory
 
     override fun permissionGranted(): Boolean = hasLanPermission(application)

@@ -48,7 +48,7 @@ internal fun BrowserTouchpad(
             "Slide to move the pointer",
             "tap to click".takeIf { canClick },
             "swipe with two fingers to scroll".takeIf { canScroll },
-        ).joinToString(" · ")
+        ).joinToString("\n")
     Box(
         modifier
             .fillMaxWidth()

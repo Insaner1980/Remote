@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,7 +28,9 @@ internal fun StreamingServices(
     if (catalog.services.isEmpty()) return
     var showing by remember { mutableStateOf(false) }
     Column(modifier) {
-        TextButton(onClick = { showing = true }, enabled = enabled) { Text("Streaming services") }
+        OutlinedButton(onClick = {
+            showing = true
+        }, enabled = enabled, modifier = Modifier.fillMaxWidth()) { Text("Streaming services") }
         if (showing && enabled) {
             AlertDialog(
                 onDismissRequest = { showing = false },

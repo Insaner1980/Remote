@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -30,6 +31,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NowPlayingTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun stoppedPlaybackKeepsExistingQueueAccessible() {
+        val base = phoneMediaSnapshot()
+        val stopped =
+            base.copy(
+                activity = base.activity.copy(mode = ActivityMode.IDLE, title = null, sessionId = null),
+                player = base.player.copy(phase = PlayerPhase.IDLE, sessionId = null, itemId = null),
+                queueSummary = base.queueSummary.copy(count = "2", sessionId = null),
+            )
+        var opened = 0
+        compose.setContent {
+            RemoteTheme { NowPlayingControls(MediaSessionState(snapshot = stopped), {}, { opened++ }) }
+        }
+        compose.onNodeWithText("Pause").assertDoesNotExist()
+        compose.onNodeWithText("Queue").assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, opened) }
+    }
 
     @Test fun untitledActiveVideoDoesNotClaimNothingIsPlaying() {
         val initial = phoneMediaSnapshot()
@@ -71,7 +89,7 @@ class NowPlayingTest {
         compose.onNodeWithText("Mute Mediacenter").performScrollTo().performClick()
         assertTrue((sent.last() as RemoteCommand.PlayerMute).params.muted)
         compose.runOnIdle { state.value = MediaSessionState() }
-        compose.onNodeWithText("Pause").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Pause").assertDoesNotExist()
     }
 
     @Test fun seekDraftSurvivesNativePositionUpdateDuringPointerDrag() {

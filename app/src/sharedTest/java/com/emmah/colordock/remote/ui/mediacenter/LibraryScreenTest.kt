@@ -128,7 +128,7 @@ class LibraryScreenTest {
                 )
         }
         compose.onNodeWithText("song").assertIsNotEnabled()
-        compose.onNodeWithText("Offline · offline").assertIsDisplayed()
+        compose.onNodeWithText("Offline: offline").assertIsDisplayed()
         compose.onNodeWithText("Refresh library").performScrollTo().assertIsEnabled()
     }
 }

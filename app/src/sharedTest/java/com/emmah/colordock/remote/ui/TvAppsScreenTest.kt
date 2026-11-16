@@ -157,14 +157,17 @@ class TvAppsScreenTest {
 
     @Test fun layoutAt320dpAnd200Percent() = layout(320, 2f)
 
-    @Test fun authenticFallbackAndPlainNameShareOneLaunchAction() {
+    @Test fun accessibleIconOnlyShortcutsShareOneLaunchAction() {
         show()
         compose.onNodeWithTag("app-shortcuts").performScrollTo()
         compose.onNodeWithTag("app-artwork-netflix", useUnmergedTree = true).assertExists()
         compose.onNodeWithContentDescription("Open Netflix on TV").performClick()
-        compose.onNodeWithTag("app-shortcuts").performScrollToNode(hasText(apps.last().title))
-        compose.onNodeWithText(apps.last().title).assertIsDisplayed().performClick()
-        compose.onNodeWithTag("app-artwork-status", useUnmergedTree = true).assertDoesNotExist()
+        compose
+            .onNodeWithTag(
+                "app-shortcuts",
+            ).performScrollToNode(hasContentDescription("Open ${apps.last().title} on TV"))
+        compose.onNodeWithContentDescription("Open ${apps.last().title} on TV").assertIsDisplayed().performClick()
+        compose.onNodeWithText(apps.last().title, useUnmergedTree = true).assertDoesNotExist()
         compose.runOnIdle {
             assertEquals(listOf("netflix", "status"), opened)
         }

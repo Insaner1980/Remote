@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -79,6 +80,7 @@ internal fun TvAppTile(
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
     row: Boolean = false,
+    iconOnly: Boolean = false,
 ) {
     val description = stringResource(R.string.open_tv_app, app.title)
     val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, file) {
@@ -87,12 +89,18 @@ internal fun TvAppTile(
     }
     val fallback = tvAppFallback(app.id)
     val artwork: @Composable () -> Unit = {
-        val imageModifier = Modifier.size(if (row) 48.dp else 64.dp).testTag("app-artwork-${app.id}")
-        if (bitmap != null) {
-            Image(requireNotNull(bitmap), null, imageModifier, contentScale = ContentScale.Fit)
-        } else if (fallback != null) {
-            Image(painterResource(fallback), null, imageModifier, contentScale = ContentScale.Fit)
-        }
+        val imageModifier =
+            Modifier
+                .size(
+                    if (iconOnly) {
+                        56.dp
+                    } else if (row) {
+                        48.dp
+                    } else {
+                        64.dp
+                    },
+                ).testTag("app-artwork-${app.id}")
+        TvAppArtwork(bitmap, fallback, iconOnly, imageModifier)
     }
     Surface(
         onClick = {
@@ -124,7 +132,7 @@ internal fun TvAppTile(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 artwork()
-                Text(app.title, style = MaterialTheme.typography.labelMedium)
+                if (!iconOnly) Text(app.title, style = MaterialTheme.typography.labelMedium)
             }
         }
     }
@@ -141,12 +149,21 @@ private fun AppItem(
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
     row: Boolean = false,
+    iconOnly: Boolean = false,
 ) {
     val currentOnLoadIcon by rememberUpdatedState(onLoadIcon)
     LaunchedEffect(app.id, app.iconUrl, state.sessionGeneration, state.catalogRevision) {
         currentOnLoadIcon(app.id)
     }
-    TvAppTile(app, images[app.id].asImageFile(), state.connected && state.launchingId == null, onOpen, modifier, row)
+    TvAppTile(
+        app,
+        images[app.id].asImageFile(),
+        state.connected && state.launchingId == null,
+        onOpen,
+        modifier,
+        row,
+        iconOnly,
+    )
 }
 
 // Explicit state and callbacks preserve the hoisted Compose API.
@@ -165,12 +182,11 @@ internal fun TvAppsStrip(
         if (showStatus && (state.hasCatalogStatus || state.hasLaunchStatus)) {
             TvAppsStatus(state, onRefresh, onOpen)
         }
-        val width = if (LocalDensity.current.fontScale > APP_ROW_FONT_SCALE) 112.dp else 80.dp
         LazyRow(Modifier.fillMaxWidth().testTag("app-shortcuts"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(state.apps, key = {
                 it.id
             }) { app ->
-                AppItem(app, state, images, onLoadIcon, onOpen, Modifier.width(width))
+                AppItem(app, state, images, onLoadIcon, onOpen, Modifier.size(72.dp), iconOnly = true)
             }
         }
     }

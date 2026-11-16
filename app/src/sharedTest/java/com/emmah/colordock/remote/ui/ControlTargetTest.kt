@@ -53,7 +53,7 @@ class ControlTargetTest {
     @Test fun connectedMediacenterWorksWithoutTvAndOwnsOnlyThreeDestinations() {
         targets.observe(TvConnectionState.Disconnected, MediacenterConnectionState.Connected)
         compose.setContent { Fixture() }
-        choose("Mediacenter · Connected")
+        choose("Mediacenter")
         compose.onNodeWithTag("bottom-navigation").assertDoesNotExist()
         compose.onNodeWithText("Pause").performScrollTo().performClick()
         compose.runOnIdle {
@@ -72,9 +72,9 @@ class ControlTargetTest {
     @Test fun connectedTvStillWorksWhenMediacenterIsDisconnected() {
         targets.observe(TvConnectionState.Ready, MediacenterConnectionState.Disconnected)
         compose.setContent { Fixture() }
-        choose("Mediacenter · Unavailable")
-        compose.onNodeWithText("Pause").assertIsNotEnabled()
-        choose("LG TV · Connected")
+        choose("Mediacenter")
+        compose.onNodeWithText("Pause").assertDoesNotExist()
+        choose("LG TV")
         compose.onNodeWithContentDescription("TV volume up").performScrollTo().performClick()
         compose.runOnIdle {
             assertEquals(listOf(TvCommand.VolumeUp), tvSent)

@@ -85,7 +85,7 @@ private fun ColumnScope.PlaylistDetails(
     }
     TextButton(onClick = actions.play, enabled = enabled) { Text("Play playlist") }
     contents.entries.items.forEach { entry ->
-        Text(entry.item.name + if (entry.item.availability != Availability.AVAILABLE) " · Offline" else "")
+        Text(entry.item.name + if (entry.item.availability != Availability.AVAILABLE) "\nOffline" else "")
         TextButton(onClick = {
             actions.command(
                 RemoteCommand.PlaylistsSave(
