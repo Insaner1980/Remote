@@ -3,6 +3,9 @@ package com.emmah.colordock.remote.mediacenter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emmah.colordock.remote.R
+import com.emmah.colordock.remote.mediacenter.protocol.ManualChallengeMode
+import com.emmah.colordock.remote.mediacenter.protocol.ManualChallengeRequest
+import com.emmah.colordock.remote.mediacenter.protocol.RemoteJson
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -36,12 +39,24 @@ class PhysicalMediacenterProbeTest {
                 val network = withTimeout(5_000) { networks.networks.first { it.isNotEmpty() }.first() }
                 assertTrue(network.available())
                 network.socketFactory.createSocket().use {
-                    it.connect(InetSocketAddress(endpoint.literal, port), 3_000)
+                    it.connect(InetSocketAddress(network.resolve(endpoint).first(), port), 3_000)
                     assertTrue(it.isConnected)
                 }
                 val observation = MediacenterTransport.probe(endpoint, network, words)
                 assertEquals(6, observation.phrase.size)
                 assertTrue(observation.fingerprint.matches(Regex("[a-f0-9]{64}")))
+                // The harness must independently compare this pin with the native
+                // desktop phrase and open a fresh pairing window before opting in.
+                args.getString("expectedFingerprint")?.let { expected ->
+                    assertEquals(expected, observation.fingerprint)
+                    val body =
+                        RemoteJson.encodeManualChallengeRequest(
+                            ManualChallengeRequest(1, ManualChallengeMode.MANUAL_CHALLENGE),
+                        )
+                    val response = MediacenterTransport(endpoint, network, expected).use { it.post(body) }
+                    val challenge = RemoteJson.parseManualChallengeResponse(response)
+                    assertEquals(1, challenge.v)
+                }
             }
         } finally {
             networks.close()
