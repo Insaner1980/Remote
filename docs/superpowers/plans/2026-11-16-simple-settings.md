@@ -46,4 +46,4 @@ Files: target-page feedback component, shared tests, `design-qa.md`, engineering
 - [x] Update original app in place and verify credential hashes unchanged.
 - [x] Exercise all sections and 29 focused tests on unlocked Pixel at existing font scale.
 - [x] Compare selected reference and actual Settings screenshot in normalized full/focused comparisons; fix P0/P1/P2 issues and save passing design QA.
-- [ ] Inspect LG and Mediacenter on phone, preserve private evidence, archive APK and update engineering checkpoint; commit only task-owned files.
+- [x] Inspect LG and Mediacenter on phone, preserve private evidence, archive APK and update engineering checkpoint; commit only task-owned files.
