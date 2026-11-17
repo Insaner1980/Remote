@@ -1,6 +1,7 @@
 package com.emmah.colordock.remote.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -8,7 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.test.assertHasClickAction
@@ -159,6 +162,19 @@ class TvAppsScreenTest {
     @Test fun layoutAt200Percent() = layout(400, 2f)
 
     @Test fun layoutAt320dpAnd200Percent() = layout(320, 2f)
+
+    @Test fun webOsMediaPlayerHasAnOpaqueBackplateInLightTheme() {
+        val appId = "com.webos.app.mediadiscovery"
+        compose.setContent {
+            RemoteTheme(AppTheme.WarmLight) {
+                Surface {
+                    TvAppArtwork(appId, ImageBitmap(16, 16), null, iconOnly = true, modifier = Modifier.size(56.dp))
+                }
+            }
+        }
+        val artwork = compose.onNodeWithTag("app-artwork-$appId").captureToImage().toPixelMap()
+        assertEquals(Masala, artwork[artwork.width / 2, artwork.height / 2])
+    }
 
     @Test fun accessibleIconOnlyShortcutsShareOneLaunchAction() {
         show()

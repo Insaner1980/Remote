@@ -58,7 +58,8 @@ internal fun TvAppArtwork(
 }
 
 // Built-in webOS apps supply white artwork on a transparent background.
-private val lgSystemArtworkIds = setOf("com.webos.app.discovery", "com.webos.app.photovideo")
+private val lgSystemArtworkIds =
+    setOf("com.webos.app.discovery", "com.webos.app.photovideo", "com.webos.app.mediadiscovery")
 
 // Explicit state and callbacks preserve the hoisted Compose API.
 @Suppress("LongParameterList")
