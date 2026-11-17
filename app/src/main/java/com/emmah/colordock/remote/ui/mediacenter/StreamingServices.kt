@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -102,7 +105,9 @@ internal fun serviceLabel(serviceId: String): String =
         else -> serviceId.replace('_', ' ').replaceFirstChar(Char::titlecase)
     }
 
-private const val DISABLED_APP_ALPHA = .38f
+private const val DISABLED_APP_ALPHA = .6f
+
+private val DisabledArtwork = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
 
 private const val FADE_START = .85f
 
@@ -119,6 +124,7 @@ private fun StreamingServiceTile(
         modifier = modifier.size(64.dp),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        border = if (enabled) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Image(
             painterResource(serviceIcon(id)),
@@ -132,6 +138,7 @@ private fun StreamingServiceTile(
                     },
                 ),
             contentScale = ContentScale.Fit,
+            colorFilter = if (enabled) null else DisabledArtwork,
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -45,18 +46,21 @@ internal fun RendererControls(
                 maxLines = 1,
             )
         }
-        DirectionPad(
-            enabled = enabled,
-            onCommand = { command ->
-                if (command == TvCommand.Ok) {
-                    controller.activate()
-                } else {
-                    nativeDirection(command)?.let(controller::move)
-                }
-            },
-            onPress = { nativeDirection(it)?.let(controller::press) },
-            onRelease = controller::release,
-        )
+        BoxWithConstraints {
+            DirectionPad(
+                enabled = enabled,
+                onCommand = { command ->
+                    if (command == TvCommand.Ok) {
+                        controller.activate()
+                    } else {
+                        nativeDirection(command)?.let(controller::move)
+                    }
+                },
+                onPress = { nativeDirection(it)?.let(controller::press) },
+                onRelease = controller::release,
+                diameter = minOf(maxWidth * MEDIACENTER_PAD_WIDTH_FRACTION, 300.dp),
+            )
+        }
         bottom()
         if (snapshot?.ui?.route in listOf(Route.VIDEOS, Route.MUSIC, Route.PHOTOS) && enabled) {
             var value by remember(snapshot.serverEpoch, snapshot.ui.route) { mutableStateOf(TextFieldValue()) }
@@ -105,3 +109,5 @@ private fun rendererStatus(
             null
         }
     }
+
+private const val MEDIACENTER_PAD_WIDTH_FRACTION = .78f

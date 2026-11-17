@@ -30,8 +30,8 @@ private fun LightComponentsPreview() {
 private fun ComponentsPreview() {
     Surface {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            DeviceSelector("Mediacenter", true, SelectorSize.Large, {})
-            DeviceSelector("Mediacenter", true, SelectorSize.Compact, {})
+            DeviceSelector("Mediacenter", true, {})
+            DeviceSelector("Mediacenter", false, {})
             SectionLabel("Sound")
             ListGroup {
                 ListRow("TV (HDMI)", "Connected", ListRowPosition.First, leadingIcon = R.drawable.ic_tv, onClick = {})

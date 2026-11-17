@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -46,10 +48,6 @@ import com.emmah.colordock.remote.ui.AppTheme
 import com.emmah.colordock.remote.ui.DockIcon
 import com.emmah.colordock.remote.ui.RemoteDimens
 import com.emmah.colordock.remote.ui.RemoteTheme
-
-internal enum class ListRowPosition { Single, First, Middle, Last }
-
-internal enum class SelectorSize { Large, Compact }
 
 private const val DISABLED_CONTENT_ALPHA = .38f
 
@@ -176,6 +174,7 @@ internal fun MediaKey(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     description: String? = null,
+    stacked: Boolean = false,
 ) {
     Button(
         onClick,
@@ -190,25 +189,46 @@ internal fun MediaKey(
         ),
         enabled = enabled,
         shape = CircleShape,
+        contentPadding =
+            if (stacked) {
+                PaddingValues(horizontal = 4.dp, vertical = RemoteDimens.ItemGap)
+            } else {
+                ButtonDefaults.ContentPadding
+            },
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ),
     ) {
-        if (icon != null) {
-            DockIcon(
-                icon,
-                Modifier.size(20.dp),
-                tint =
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                        alpha = if (enabled) 1f else DISABLED_CONTENT_ALPHA,
-                    ),
-            )
-            Spacer(Modifier.size(RemoteDimens.ItemGap))
+        if (stacked) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                if (icon != null) MediaKeyIcon(icon, enabled)
+                Text(text, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
+            }
+        } else {
+            if (icon != null) {
+                MediaKeyIcon(icon, enabled)
+                Spacer(Modifier.size(RemoteDimens.ItemGap))
+            }
+            Text(text, style = MaterialTheme.typography.labelLarge)
         }
-        Text(text, style = MaterialTheme.typography.labelLarge)
     }
+}
+
+@Composable
+private fun MediaKeyIcon(
+    icon: Int,
+    enabled: Boolean,
+) {
+    DockIcon(
+        icon,
+        Modifier.size(20.dp),
+        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else DISABLED_CONTENT_ALPHA),
+    )
 }
 
 // Explicit callbacks preserve the hoisted Compose API.
@@ -243,64 +263,6 @@ internal fun MediaIconButton(
             ),
     ) {
         DockIcon(icon, label = label)
-    }
-}
-
-@Composable
-internal fun DeviceSelector(
-    name: String,
-    connected: Boolean,
-    size: SelectorSize,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val large = size == SelectorSize.Large
-    Row(
-        modifier
-            .testTag("target-selector")
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = "Change device" }
-            .height(if (large) 48.dp else 36.dp)
-            .padding(start = if (large) 8.dp else 12.dp, end = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (large) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
-                Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                    DockIcon(
-                        R.drawable.ic_tv,
-                        Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                }
-            }
-        } else {
-            DockIcon(R.drawable.ic_tv, Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Text(
-            name,
-            Modifier.weight(1f, fill = false),
-            style = if (large) MaterialTheme.typography.titleMedium else MaterialTheme.typography.labelLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        if (large) {
-            DockIcon(
-                if (connected) R.drawable.ic_wifi else R.drawable.ic_wifi_off,
-                Modifier.size(18.dp),
-                label = if (connected) "Connected" else "Not connected",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        DockIcon(
-            R.drawable.ic_keyboard_arrow_down,
-            Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 

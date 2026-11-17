@@ -170,6 +170,9 @@ internal fun RemoteAction(
     }
 }
 
+private val LgPadDiameter = 220.dp
+
+@Suppress("LongParameterList")
 @Composable
 internal fun DirectionPad(
     enabled: Boolean,
@@ -177,26 +180,28 @@ internal fun DirectionPad(
     onPress: (TvCommand) -> Unit,
     onRelease: () -> Unit,
     modifier: Modifier = Modifier,
+    diameter: Dp = LgPadDiameter,
 ) {
+    val scale = diameter / LgPadDiameter
     val colors = MaterialTheme.colorScheme
     Surface(
-        modifier.size(220.dp).testTag("direction-pad"),
+        modifier.size(diameter).testTag("direction-pad"),
         CircleShape,
         color = colors.surfaceContainerHigh,
         border = BorderStroke(1.dp, colors.outlineVariant),
         shadowElevation = 0.dp,
     ) {
         Box {
-            DirectionKeys(enabled, onCommand, onPress, onRelease)
+            DirectionKeys(enabled, onCommand, onPress, onRelease, scale)
             Box(
                 Modifier
                     .align(Alignment.Center)
-                    .size(102.dp)
+                    .size(102.dp * scale)
                     .border(1.dp, colors.outlineVariant, CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Surface(
-                    Modifier.size(88.dp),
+                    Modifier.size(88.dp * scale),
                     CircleShape,
                     colors.primaryContainer,
                     shadowElevation = 0.dp,
@@ -364,6 +369,7 @@ private fun BoxScope.DirectionKeys(
     onCommand: (TvCommand) -> Unit,
     onPress: (TvCommand) -> Unit,
     onRelease: () -> Unit,
+    scale: Float,
 ) {
     RemoteKey(
         "Up",
@@ -373,7 +379,7 @@ private fun BoxScope.DirectionKeys(
         onCommand,
         onPress,
         onRelease,
-        Modifier.align(Alignment.TopCenter).size(72.dp, 64.dp),
+        Modifier.align(Alignment.TopCenter).size(72.dp * scale, 64.dp * scale),
         iconSize = 28.dp,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -385,7 +391,7 @@ private fun BoxScope.DirectionKeys(
         onCommand,
         onPress,
         onRelease,
-        Modifier.align(AbsoluteAlignment.CenterLeft).size(64.dp, 72.dp),
+        Modifier.align(AbsoluteAlignment.CenterLeft).size(64.dp * scale, 72.dp * scale),
         iconSize = 28.dp,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -397,7 +403,7 @@ private fun BoxScope.DirectionKeys(
         onCommand,
         onPress,
         onRelease,
-        Modifier.align(AbsoluteAlignment.CenterRight).size(64.dp, 72.dp),
+        Modifier.align(AbsoluteAlignment.CenterRight).size(64.dp * scale, 72.dp * scale),
         iconSize = 28.dp,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -409,7 +415,7 @@ private fun BoxScope.DirectionKeys(
         onCommand,
         onPress,
         onRelease,
-        Modifier.align(Alignment.BottomCenter).size(72.dp, 64.dp),
+        Modifier.align(Alignment.BottomCenter).size(72.dp * scale, 64.dp * scale),
         iconSize = 28.dp,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     )

@@ -37,7 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.mediacenter.DeviceSelector
-import com.emmah.colordock.remote.ui.mediacenter.SelectorSize
 
 /** The device-name area of each target's existing header owns selection and connection access. */
 @Suppress("LongParameterList")
@@ -48,7 +47,6 @@ internal fun TargetSelector(
     onSelect: (ControlTarget) -> Unit,
     onConnection: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false,
 ) {
     var open by remember { mutableStateOf(false) }
     val name =
@@ -64,7 +62,6 @@ internal fun TargetSelector(
             DeviceSelector(
                 name,
                 state.ready(state.selected),
-                if (compact) SelectorSize.Compact else SelectorSize.Large,
                 { open = true },
             )
         } else {

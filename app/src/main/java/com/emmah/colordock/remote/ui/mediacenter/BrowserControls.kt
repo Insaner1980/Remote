@@ -17,10 +17,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.BrowserKey
 import com.emmah.colordock.remote.mediacenter.protocol.MethodName
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun BrowserControls(
@@ -74,16 +76,28 @@ private fun BrowserActions(
                 canScroll = streaming.allows(MethodName.BROWSER_SCROLL),
             )
         }
-        BrowserNavigation(streaming, target, controller) {
-            controller.endGesture()
-            keyboardOpen = true
-        }
-        if (allowClose) {
-            MediaKey("Close tab", R.drawable.ic_close, true, {
-                controller.endGesture()
-                closeOpen = true
-            })
-        }
+        BrowserNavigation(
+            streaming,
+            hasKeyboard = keyboard || text,
+            actions =
+                BrowserNavigationActions(
+                    back = { controller.back(target) },
+                    reload = { controller.reload(target) },
+                    openKeyboard = {
+                        controller.endGesture()
+                        keyboardOpen = true
+                    },
+                    close =
+                        if (allowClose) {
+                            {
+                                controller.endGesture()
+                                closeOpen = true
+                            }
+                        } else {
+                            null
+                        },
+                ),
+        )
     }
     if (keyboardOpen) {
         BrowserKeyboard(
@@ -104,32 +118,68 @@ private fun BrowserActions(
     }
 }
 
+private data class BrowserNavigationActions(
+    val back: () -> Unit,
+    val reload: () -> Unit,
+    val openKeyboard: () -> Unit,
+    val close: (() -> Unit)?,
+)
+
+private data class BrowserAction(
+    val label: String,
+    val icon: Int,
+    val onClick: () -> Unit,
+    val description: String? = null,
+)
+
 @Composable
 private fun BrowserNavigation(
     streaming: StreamingState,
-    target: BrowserTarget,
-    controller: BrowserInputController,
-    modifier: Modifier = Modifier,
-    showKeyboard: () -> Unit,
+    hasKeyboard: Boolean,
+    actions: BrowserNavigationActions,
 ) {
     val capabilities = streaming.browser?.capabilities ?: return
     val canNavigate = capabilities.pointer || capabilities.keyboard || capabilities.text
-    val keyboard =
-        (capabilities.keyboard && streaming.allows(MethodName.BROWSER_KEY)) ||
-            (capabilities.text && streaming.allows(MethodName.BROWSER_TEXT))
-    Column(modifier) {
-        if (!canNavigate) Text("Controls unavailable")
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val buttons =
+        buildList {
             if (canNavigate && streaming.allows(MethodName.BROWSER_BACK)) {
-                MediaIconButton(R.drawable.ic_undo, "Back", { controller.back(target) }, true)
+                add(BrowserAction("Back", R.drawable.ic_undo, actions.back, "Back"))
             }
             if (canNavigate && streaming.allows(MethodName.BROWSER_RELOAD)) {
-                MediaIconButton(R.drawable.ic_refresh, "Reload", { controller.reload(target) }, true)
+                add(BrowserAction("Reload", R.drawable.ic_refresh, actions.reload, "Reload"))
             }
-            if (keyboard) MediaKey("Keyboard", null, true, showKeyboard)
+            if (hasKeyboard) add(BrowserAction("Keyboard", R.drawable.ic_keyboard, actions.openKeyboard))
+            actions.close?.let { add(BrowserAction("Close tab", R.drawable.ic_close, it)) }
+        }
+    val columns =
+        if (LocalDensity.current.fontScale > BROWSER_ACTION_STACK_FONT_SCALE) {
+            BROWSER_ACTION_STACKED_COLUMNS
+        } else {
+            BROWSER_ACTION_COLUMNS
+        }
+    Column(verticalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap)) {
+        if (!canNavigate) Text("Controls unavailable")
+        buttons.chunked(columns).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap)) {
+                row.forEach { button ->
+                    MediaKey(
+                        button.label,
+                        button.icon,
+                        true,
+                        button.onClick,
+                        Modifier.weight(1f),
+                        description = button.description,
+                        stacked = true,
+                    )
+                }
+            }
         }
     }
 }
+
+private const val BROWSER_ACTION_STACK_FONT_SCALE = 1.3f
+private const val BROWSER_ACTION_COLUMNS = 4
+private const val BROWSER_ACTION_STACKED_COLUMNS = 2
 
 @Composable
 private fun CloseBrowserDialog(
