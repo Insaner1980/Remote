@@ -175,6 +175,7 @@ internal fun MediaKey(
     modifier: Modifier = Modifier,
     description: String? = null,
     stacked: Boolean = false,
+    trailingIcon: Boolean = false,
 ) {
     Button(
         onClick,
@@ -210,11 +211,15 @@ internal fun MediaKey(
                 Text(text, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
             }
         } else {
-            if (icon != null) {
+            if (icon != null && !trailingIcon) {
                 MediaKeyIcon(icon, enabled)
                 Spacer(Modifier.size(RemoteDimens.ItemGap))
             }
             Text(text, style = MaterialTheme.typography.labelLarge)
+            if (icon != null && trailingIcon) {
+                Spacer(Modifier.size(RemoteDimens.ItemGap))
+                MediaKeyIcon(icon, enabled)
+            }
         }
     }
 }

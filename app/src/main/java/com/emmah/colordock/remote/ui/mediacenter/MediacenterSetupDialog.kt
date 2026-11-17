@@ -7,6 +7,7 @@ import android.view.TextureView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -119,17 +120,17 @@ private fun MediacenterDialogContent(
     val connection by viewModel.connection.collectAsStateWithLifecycle()
     val manualActions =
         remember(viewModel) {
-            ManualVerificationActions(
-                viewModel.pairing::confirm,
-                viewModel.pairing::reject,
-                viewModel.pairing::pairManual,
-            )
+            val pairing = viewModel.pairing
+            ManualVerificationActions(pairing::confirm, pairing::reject, pairing::pairManual)
         }
     val connectedNetwork =
         ui.networkName.takeIf { name ->
             connection == MediacenterConnectionState.Connected && networks.any { it.label == name }
         }
-    Column(modifier.fillMaxWidth().heightIn(max = 560.dp)) {
+    Column(
+        modifier.fillMaxWidth().heightIn(max = 560.dp),
+        verticalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap),
+    ) {
         MediacenterNetworkOptions(networks, ui, connectedNetwork, {
             onScanningChange(false)
             viewModel.select(it)
@@ -299,7 +300,7 @@ internal fun MediacenterManualSetup(
     actions: ManualVerificationActions,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap)) {
         val observation = ui.observation
         if (observation != null) {
             ManualVerification(observation, ui, actions)
@@ -317,13 +318,19 @@ private fun ManualVerification(
     modifier: Modifier = Modifier,
 ) {
     var code by remember(observation) { mutableStateOf("") }
-    Column(modifier.verticalScroll(rememberScrollState())) {
-        Text("Match the words on the computer")
-        Text(observation.phrase.joinToString(" "), style = MaterialTheme.typography.titleLarge)
+    Column(
+        modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap)) {
+            Text("Match the words on the computer")
+            Text(observation.phrase.joinToString(" "), style = MaterialTheme.typography.titleLarge)
+        }
         if (ui.codeReady) {
             OutlinedTextField(
                 code,
                 { code = it.uppercase(Locale.ROOT).take(MANUAL_CODE_LENGTH) },
+                modifier = Modifier.fillMaxWidth(),
                 label = { Text("Code") },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,

@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun SoundOptions(
@@ -70,7 +71,7 @@ private fun SoundOutputList(
     val selected = outputs?.requestedOutputId ?: outputs?.effectiveOutputId
     val items = outputs?.outputs.orEmpty()
     val names = soundOutputLabels(items)
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap)) {
         SoundOutputStatus(state)
         ListGroup {
             items.forEachIndexed { index, output ->

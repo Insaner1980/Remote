@@ -52,6 +52,7 @@ class BrowserScreenTest {
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(1)
         compose.onNodeWithText("Keyboard").performScrollTo().performClick()
         compose.onNodeWithText("Type text").assertExists()
+        compose.onNodeWithContentDescription("Backspace").assertExists()
         compose.runOnIdle { streaming.value = streaming.value.copy(target = null, browser = null) }
         compose.onNodeWithText("Type text").assertDoesNotExist()
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(0)

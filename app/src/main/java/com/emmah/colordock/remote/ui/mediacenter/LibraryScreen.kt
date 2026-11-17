@@ -148,6 +148,7 @@ private fun LibraryPages(
                     actions.next,
                     modifier,
                     description = "Next page",
+                    trailingIcon = true,
                 )
             }
         },

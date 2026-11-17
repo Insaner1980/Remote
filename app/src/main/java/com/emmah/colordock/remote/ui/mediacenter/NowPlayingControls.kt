@@ -122,11 +122,7 @@ private fun NowPlayingTransport(
 ) {
     val player = snapshot.player
     val session = player.sessionId
-    Row(
-        Modifier.horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+    TransportRow {
         if (snapshot.queueSummary.sessionId != null) {
             MediaIconButton(
                 R.drawable.ic_skip_previous,
@@ -163,7 +159,7 @@ internal fun PlaybackToggle(
 ) {
     FilledIconButton(
         onClick,
-        modifier.size(56.dp),
+        modifier.size(64.dp),
         enabled = enabled,
         colors =
             IconButtonDefaults.filledIconButtonColors(
@@ -233,11 +229,6 @@ private fun ColumnScope.PlayerSeekControl(
     val duration = player.durationSeconds
     if (duration != null && duration > 0) {
         var draft by remember { mutableStateOf<Float?>(null) }
-        Text(
-            "${playbackTime(player.positionSeconds)} / ${playbackTime(duration)}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
         Slider(
             (draft ?: player.positionSeconds.toFloat()).coerceIn(0f, duration.toFloat()),
             { draft = it },
@@ -252,6 +243,11 @@ private fun ColumnScope.PlayerSeekControl(
                 }
             },
         )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            val style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(playbackTime(player.positionSeconds), style = style)
+            Text(playbackTime(duration), style = style)
+        }
     }
 }
 

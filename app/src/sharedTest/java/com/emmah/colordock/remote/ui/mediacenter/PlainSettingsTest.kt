@@ -36,6 +36,7 @@ class PlainSettingsTest {
         compose.onNodeWithText("Phone connection: connected").assertDoesNotExist()
         compose.onNodeWithText("Viewing idle inhibition: unavailable").assertDoesNotExist()
         compose.onNodeWithContentDescription("Start automatically").performClick()
+        compose.assertDestructiveIcon("Stop playback")
         compose.onNodeWithText("Stop playback").performClick()
         assertTrue(sent.first() is RemoteCommand.SettingsStartAtLoginSet)
         assertTrue(sent.last() is RemoteCommand.SettingsEndSession)

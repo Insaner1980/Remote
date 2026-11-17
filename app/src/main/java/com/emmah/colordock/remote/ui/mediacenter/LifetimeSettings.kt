@@ -7,6 +7,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -38,12 +39,9 @@ internal fun LifetimeSettings(
                 null,
                 ListRowPosition.Last,
                 titleColor = stopColor,
-                leading = {
-                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-                        DockIcon(R.drawable.ic_stop, Modifier.size(20.dp), tint = stopColor)
-                    }
+                trailing = {
+                    DockIcon(R.drawable.ic_stop, Modifier.testTag("destructive-action-icon"), tint = stopColor)
                 },
-                trailing = {},
                 onClick = { send(RemoteCommand.SettingsEndSession(SettingsEndSessionParams())) },
                 enabled = ready,
             )

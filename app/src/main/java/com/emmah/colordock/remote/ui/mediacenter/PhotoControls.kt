@@ -80,11 +80,7 @@ private fun PhotoTransport(
     val photo = state.snapshot?.slideshow
     val session = photo?.sessionId
     val enabled = session != null && !state.busy
-    Row(
-        Modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    TransportRow {
         MediaIconButton(R.drawable.ic_skip_previous, "Previous", {
             session?.let { command(RemoteCommand.PhotosPrevious(PhotosPreviousParams(it))) }
         }, enabled)

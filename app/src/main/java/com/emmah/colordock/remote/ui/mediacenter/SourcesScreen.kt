@@ -88,7 +88,8 @@ private fun SourceRow(
             source.availability != Availability.AVAILABLE -> "Offline"
             else -> null
         }
-    ListRow(source.label, supporting, position, trailing = {
+    val icon = if (source.availability == Availability.AVAILABLE) R.drawable.ic_folder else R.drawable.ic_folder_off
+    ListRow(source.label, supporting, position, leadingIcon = icon, trailing = {
         ItemActions(
             "Folder options for ${source.label}",
             listOf(

@@ -34,6 +34,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.Availability
 import com.emmah.colordock.remote.mediacenter.protocol.MediaItem
 import com.emmah.colordock.remote.mediacenter.protocol.MediaKind
 import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.RemoteDimens
 import com.emmah.colordock.remote.ui.RemoteShapes
 
 @Composable
@@ -51,18 +52,12 @@ internal fun LibraryItemRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            val music = item.kind == MediaKind.MUSIC
             MediaThumbnail(
                 item.thumbnailId,
                 thumbnail,
-                Modifier.size(96.dp, 54.dp).clip(RemoteShapes.Inner),
-                fallbackIcon =
-                    if (item.kind ==
-                        MediaKind.MUSIC
-                    ) {
-                        R.drawable.ic_queue_music
-                    } else {
-                        R.drawable.ic_smart_display
-                    },
+                Modifier.size(if (music) 56.dp else 96.dp, if (music) 56.dp else 54.dp).clip(RemoteShapes.Inner),
+                fallbackIcon = if (music) R.drawable.ic_music_note else R.drawable.ic_smart_display,
             )
             Column(Modifier.weight(1f)) {
                 Text(
@@ -153,22 +148,33 @@ private fun MediaThumbnail(
                     contentScale = ContentScale.Crop,
                 )
             } else {
-                DockIcon(
-                    fallbackIcon,
-                    Modifier.size(if (fallback == null) 20.dp else 22.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (fallback == null) 1f else .7f),
-                )
-                fallback?.let {
-                    Text(
-                        it,
-                        Modifier.align(Alignment.BottomStart).padding(8.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                ThumbnailPlaceholder(fallback, fallbackIcon)
             }
+        }
+    }
+}
+
+@Composable
+private fun ThumbnailPlaceholder(
+    title: String?,
+    icon: Int,
+) {
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant
+    if (title == null) {
+        DockIcon(icon, tint = tint)
+    } else {
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                DockIcon(icon, Modifier.size(22.dp), tint = tint.copy(alpha = .7f))
+            }
+            Text(
+                title,
+                Modifier.padding(RemoteDimens.ItemGap),
+                style = MaterialTheme.typography.labelSmall,
+                color = tint,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
