@@ -16,17 +16,21 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.NAV_LABEL_MAX_FONT_SCALE
 
 // Hoisted header slots preserve the target's navigation and recovery ownership.
 @Suppress("LongParameterList")
@@ -107,8 +111,25 @@ internal fun MediacenterBottomNavigation(
                 selected = selected == destination,
                 onClick = { onSelect(destination) },
                 modifier = Modifier.testTag("media-nav-${destination.name}"),
-                icon = { DockIcon(icon) },
-                label = { Text(destination.name, style = MaterialTheme.typography.labelMedium) },
+                icon = { DockIcon(icon, Modifier.testTag("navigation-icon-${destination.name}")) },
+                label = {
+                    val density = LocalDensity.current
+                    CompositionLocalProvider(
+                        LocalDensity provides
+                            Density(
+                                density.density,
+                                fontScale = density.fontScale.coerceAtMost(NAV_LABEL_MAX_FONT_SCALE),
+                            ),
+                    ) {
+                        Text(
+                            destination.name,
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                },
                 colors =
                     NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,

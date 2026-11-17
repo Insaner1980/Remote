@@ -13,3 +13,5 @@ internal object RemoteDimens {
     val TileHeight = 64.dp
     val RowMinHeight = 64.dp
 }
+
+internal const val NAV_LABEL_MAX_FONT_SCALE = 1.3f
