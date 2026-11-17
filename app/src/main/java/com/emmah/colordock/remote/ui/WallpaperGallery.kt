@@ -105,24 +105,23 @@ internal fun WallpaperGallery(
     LazyVerticalGrid(
         columns = GridCells.Adaptive(140.dp),
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = RemoteDimens.ItemGap, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item(span = {
             GridItemSpan(maxLineSpan)
         }) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                if (targetSelector != null) {
-                    Column(Modifier.weight(1f)) { targetSelector() }
-                } else {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Wallpapers", style = MaterialTheme.typography.headlineSmall)
-                        Text("Pictures stored on your TV", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-                SettingsButton(onSettings)
-            }
+            RemoteHeader(
+                onSettings,
+                selector =
+                    targetSelector ?: {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("Wallpapers", style = MaterialTheme.typography.headlineSmall)
+                            Text("Pictures stored on your TV", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    },
+            )
         }
         if (state.connection != DockConnectionState.Ready || snapshot == null) {
             item(span = {

@@ -110,21 +110,22 @@ fun DockScreen(
         }
     }
     Column(
-        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp, top = RemoteDimens.ItemGap, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            if (targetSelector != null) {
-                Column(Modifier.weight(1f)) { targetSelector() }
-            } else {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Color Dock", style = MaterialTheme.typography.headlineSmall)
-                    Text("Home screen settings", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-            SettingsButton(onSettings)
-        }
-        HorizontalDivider(Modifier.padding(vertical = 2.dp))
+        RemoteHeader(
+            onSettings,
+            selector =
+                targetSelector ?: {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("Color Dock", style = MaterialTheme.typography.headlineSmall)
+                        Text("Home screen settings", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                },
+        )
         if (state.connection != DockConnectionState.Ready || snapshot == null) {
             DockUnavailable(state, onOpen, onJoin)
             return@Column

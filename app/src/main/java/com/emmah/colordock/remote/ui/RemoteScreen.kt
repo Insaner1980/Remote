@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,10 +50,12 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -206,15 +209,34 @@ private fun RemoteControls(
     modifier: Modifier = Modifier,
     targetSelector: (@Composable () -> Unit)? = null,
 ) {
+    val scroll = rememberScrollState()
+    val scrollable by remember { derivedStateOf { scroll.maxValue in 1 until Int.MAX_VALUE } }
+    val bottomPadding = if (scrollable) 32.dp else RemoteDimens.ScreenGutter
+    val background = MaterialTheme.colorScheme.background
     Column(
         modifier
             .fillMaxSize()
-            .verticalScroll(
-                rememberScrollState(),
-            ).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .drawWithContent {
+                drawContent()
+                if (scroll.maxValue - scroll.value > bottomPadding.roundToPx()) {
+                    drawRect(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, background),
+                            startY = size.height - 24.dp.toPx(),
+                            endY = size.height,
+                        ),
+                    )
+                }
+            }.verticalScroll(scroll)
+            .padding(
+                start = RemoteDimens.ScreenGutter,
+                end = RemoteDimens.ScreenGutter,
+                top = RemoteDimens.ItemGap,
+                bottom = bottomPadding,
+            ),
     ) {
-        RemoteHeader(state, onConnection, onSettings, onPowerConfirmation, targetSelector)
+        RemoteControlsHeader(state, onConnection, onSettings, onPowerConfirmation, targetSelector)
+        Spacer(Modifier.height(RemoteDimens.BlockGap))
         AdaptivePair(
             first = { width ->
                 RemoteAction("LG Home", R.drawable.ic_home, enabled, {
@@ -225,16 +247,21 @@ private fun RemoteControls(
                 RemoteAction("Color Dock", R.drawable.ic_open_in_new, enabled, onOpenDock, width)
             },
         )
+        Spacer(Modifier.height(RemoteDimens.BlockGap / 2))
         state.channel?.let {
             Text(
                 "${it.number}: ${it.name}",
                 Modifier.align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Spacer(Modifier.height(RemoteDimens.BlockGap / 2))
         }
         DirectionPad(enabled, onCommand, onPress, onRelease, Modifier.align(Alignment.CenterHorizontally))
+        Spacer(Modifier.height(RemoteDimens.BlockGap))
         RemoteGuideActions(state, enabled, onCommand)
+        Spacer(Modifier.height(RemoteDimens.BlockGap / 2))
         RemoteTransport(state, enabled, onCommand, onPress, onRelease, onNumbers, openApps, appsFocus)
+        Spacer(Modifier.height(RemoteDimens.BlockGap / 2))
         TvAppsStrip(apps, appIcons, onLoadAppIcon, {
             onRelease()
             onOpenApp(it)
@@ -243,7 +270,24 @@ private fun RemoteControls(
 }
 
 @Composable
-private fun RemoteHeader(
+internal fun RemoteHeader(
+    onSettings: () -> Unit,
+    selector: @Composable () -> Unit,
+    trailing: @Composable () -> Unit = {},
+) {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap),
+    ) {
+        Column(Modifier.weight(1f)) { selector() }
+        SettingsButton(onSettings)
+        trailing()
+    }
+}
+
+@Composable
+private fun RemoteControlsHeader(
     state: TvState,
     onConnection: () -> Unit,
     onSettings: () -> Unit,
@@ -251,35 +295,31 @@ private fun RemoteHeader(
     targetSelector: (@Composable () -> Unit)?,
 ) {
     val enabled = state.connection == TvConnectionState.Ready
-    Row(
-        Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (targetSelector != null) {
-            Column(Modifier.weight(1f)) { targetSelector() }
-        } else {
-            TextButton(
-                onConnection,
-                Modifier.weight(1f),
-                shape = RoundedCornerShape(0.dp),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        state.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Text(
-                        if (enabled) "Connected" else "TV unavailable",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+    RemoteHeader(
+        onSettings,
+        selector =
+            targetSelector ?: {
+                TextButton(
+                    onConnection,
+                    Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(0.dp),
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            state.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Text(
+                            if (enabled) "Connected" else "TV unavailable",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
-            }
-        }
-        SettingsButton(onSettings)
+            },
+    ) {
         OutlinedIconButton(
             onClick = {
                 onPowerConfirmation()
