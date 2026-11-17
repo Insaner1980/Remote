@@ -95,6 +95,7 @@ class ControlTargetTest {
         compose.runOnIdle { targets.select(ControlTarget.LgTv) {} }
         compose.onNodeWithText("Turn off the TV?").assertDoesNotExist()
         compose.onNodeWithContentDescription("Turn off TV").performScrollTo().performClick()
+        compose.assertDestructiveIcon("Turn off")
         compose.onNodeWithText("Turn off").performClick()
         compose.runOnIdle {
             assertEquals(listOf(TvCommand.PowerOff), tvSent)

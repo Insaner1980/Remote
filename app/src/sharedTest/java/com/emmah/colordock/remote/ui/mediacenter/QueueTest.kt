@@ -14,6 +14,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.QueueMoveParams
 import com.emmah.colordock.remote.mediacenter.protocol.QueuePage
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.ui.RemoteTheme
+import com.emmah.colordock.remote.ui.assertDestructiveIcon
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -50,6 +51,7 @@ class QueueTest {
         compose.onNodeWithText("Move up").performClick()
         assertEquals(QueueMoveParams("entry-b", "entry-a"), (commands.last() as RemoteCommand.QueueMove).params)
         compose.onNodeWithTag("queue-options-entry-b").performScrollTo().performClick()
+        compose.assertDestructiveIcon("Remove")
         compose.onNodeWithText("Remove").performClick()
         assertEquals("entry-b", (commands.last() as RemoteCommand.QueueRemove).params.entryId)
         compose.onNodeWithText("Save playlist").performScrollTo().performClick()

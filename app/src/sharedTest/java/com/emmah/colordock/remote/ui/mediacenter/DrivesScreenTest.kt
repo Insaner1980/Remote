@@ -51,6 +51,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
 import com.emmah.colordock.remote.mediacenter.protocol.WireErrorCode
 import com.emmah.colordock.remote.ui.RemoteTheme
+import com.emmah.colordock.remote.ui.assertDestructiveIcon
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -103,6 +104,7 @@ class DrivesScreenTest {
                 .performScrollTo()
                 .assertIsDisplayed()
                 .performClick()
+            compose.assertDestructiveIcon("Eject")
             compose.onNodeWithText("Eject").performClick()
         }
         compose.runOnIdle {
@@ -142,6 +144,7 @@ class DrivesScreenTest {
         }
         compose.onNodeWithText("Sibling volume", substring = true).assertIsDisplayed()
         compose.onNodeWithText("Local playback", substring = true).assertIsDisplayed()
+        compose.assertDestructiveIcon("Confirm")
         compose.onNodeWithText("Confirm").performClick()
         compose.runOnIdle {
             val command = sent.last().command as RemoteCommand.DrivesConfirmEject

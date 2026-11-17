@@ -16,6 +16,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.SettingsState
 import com.emmah.colordock.remote.mediacenter.protocol.Source
 import com.emmah.colordock.remote.mediacenter.protocol.Theme
 import com.emmah.colordock.remote.ui.RemoteTheme
+import com.emmah.colordock.remote.ui.assertDestructiveIcon
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -110,6 +111,7 @@ class PlainSettingsTest {
         compose.onNodeWithText("Update").performClick()
         assertEquals(listOf("folder-id"), scans)
         compose.onNodeWithContentDescription("Folder options for Sample folder").performClick()
+        compose.assertDestructiveIcon("Remove")
         compose.onNodeWithText("Remove").performClick()
         assertEquals(listOf("folder-id"), removed)
     }

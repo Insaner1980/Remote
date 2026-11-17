@@ -117,7 +117,14 @@ private fun ColumnScope.DriveRow(
         ItemActions(
             "Drive options for ${drive.label}",
             listOf(
-                MenuAction("Eject", enabled && drive.removable) { actions.eject(drive.id) },
+                MenuAction(
+                    "Eject",
+                    enabled && drive.removable,
+                    destructive = true,
+                    destructiveIcon = R.drawable.ic_eject,
+                ) {
+                    actions.eject(drive.id)
+                },
             ),
             enabled = enabled,
         )

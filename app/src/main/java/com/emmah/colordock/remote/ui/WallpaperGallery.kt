@@ -430,11 +430,7 @@ private fun WallpaperShuffleDialog(
     onPatch: (DockPatch) -> Unit,
     onNext: () -> Unit,
 ) {
-    AlertDialog(onDismissRequest = {
-        onShuffleOptions(false)
-    }, title = {
-        Text("Shuffle options")
-    }, text = {
+    LgDismissDialog("Shuffle options", "Done", { onShuffleOptions(false) }) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             ChoiceRow(
                 "Change wallpaper",
@@ -448,13 +444,7 @@ private fun WallpaperShuffleDialog(
                 Text("Next wallpaper")
             }
         }
-    }, confirmButton = {
-        TextButton({
-            onShuffleOptions(false)
-        }) {
-            Text("Done")
-        }
-    })
+    }
 }
 
 private const val CURRENT_WALLPAPER_ASPECT_RATIO = 2.8f

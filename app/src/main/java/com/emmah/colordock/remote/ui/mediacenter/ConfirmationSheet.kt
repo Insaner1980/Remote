@@ -1,5 +1,9 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -10,8 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.ActionKind
 import com.emmah.colordock.remote.mediacenter.protocol.ConfirmationPreview
+import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun ConfirmationSheet(
@@ -27,27 +35,28 @@ internal fun ConfirmationSheet(
         title = { Text(confirmationTitle(preview.action, title)) },
         text = { ConfirmationRows(preview) },
         confirmButton = {
-            val destructive =
+            val icon =
                 when (preview.action) {
-                    ActionKind.REMOVE_SOURCE,
-                    ActionKind.REVOKE_DEVICE,
-                    ActionKind.EJECT_DRIVE,
-                    ActionKind.END_SESSION,
-                    -> true
-
-                    else -> false
+                    ActionKind.REMOVE_SOURCE, ActionKind.REVOKE_DEVICE -> R.drawable.ic_delete
+                    ActionKind.EJECT_DRIVE -> R.drawable.ic_eject
+                    ActionKind.END_SESSION -> R.drawable.ic_stop
+                    else -> null
                 }
             val colors = MaterialTheme.colorScheme
             Button(
                 onClick = actions.confirm,
                 enabled = !busy,
                 colors =
-                    if (destructive) {
+                    if (icon != null) {
                         ButtonDefaults.buttonColors(containerColor = colors.error, contentColor = colors.onError)
                     } else {
                         ButtonDefaults.buttonColors()
                     },
             ) {
+                if (icon != null) {
+                    DockIcon(icon, Modifier.testTag("destructive-action-icon"))
+                    Spacer(Modifier.width(RemoteDimens.ItemGap))
+                }
                 Text("Confirm")
             }
         },
@@ -67,9 +76,12 @@ private fun ConfirmationRows(preview: ConfirmationPreview) {
                     else -> label
                 }
             }
-    ListGroup(Modifier.verticalScroll(rememberScrollState())) {
-        labels.forEachIndexed { index, label ->
-            ListRow(label, null, listRowPosition(index, labels.size), maxTitleLines = Int.MAX_VALUE)
+    Column(
+        Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap),
+    ) {
+        labels.forEach { label ->
+            Text(label, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

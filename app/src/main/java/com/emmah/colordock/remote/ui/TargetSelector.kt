@@ -116,39 +116,37 @@ private fun TargetSelectionDialog(
         MediacenterTargetSelectionSheet(state, onSelect, onConnection, onDismiss)
         return
     }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Control device") },
-        text = {
-            Column {
-                ControlTarget.entries.forEach { target ->
-                    TextButton(onClick = { onSelect(target) }, modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Text(target.label, Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
-                            if (target == state.selected) {
-                                DockIcon(
-                                    R.drawable.ic_check,
-                                    Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                            Text(
-                                if (state.ready(target)) "Connected" else "Not connected",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+    LgDismissDialog("Control device", "Close", onDismiss) {
+        ControlTarget.entries.forEach { target ->
+            TextButton(
+                onClick = { onSelect(target) },
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap),
+                ) {
+                    Text(target.label, Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurface)
+                    if (target == state.selected) {
+                        DockIcon(
+                            R.drawable.ic_check,
+                            Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
+                    Text(
+                        if (state.ready(target)) "Connected" else "Not connected",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
-                TextButton(onClick = onConnection) { Text("${state.selected.label} connection") }
             }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } },
-    )
+        }
+        HorizontalDivider()
+        LgDialogAction("${state.selected.label} connection", R.drawable.ic_settings, onConnection)
+    }
 }
 
 // Picker rows are local to the Mediacenter sheet, never used by LG dialogs.

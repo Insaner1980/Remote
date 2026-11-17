@@ -205,6 +205,7 @@ class CompanionScreensTest {
             assertTrue(deleted.isEmpty())
         }
         compose.onNodeWithText("Delete from TV").performScrollTo().performClick()
+        compose.assertDestructiveIcon("Delete")
         compose.onNodeWithText("Delete", useUnmergedTree = true).performClick()
         compose.runOnIdle {
             assertEquals(listOf(second.id), deleted)

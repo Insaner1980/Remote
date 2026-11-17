@@ -37,6 +37,7 @@ class MainRoutesTest {
         }
         compose.onNodeWithText("Connected").assertIsDisplayed()
         compose.onNodeWithText("Reconnect").performClick()
+        compose.assertDestructiveIcon("Forget TV")
         compose.onNodeWithText("Forget TV").performClick()
         compose.runOnIdle { state = state.copy(connection = TvConnectionState.Failed) }
         compose.onNodeWithText("TV unavailable").assertIsDisplayed()

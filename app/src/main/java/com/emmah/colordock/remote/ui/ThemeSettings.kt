@@ -39,55 +39,46 @@ internal fun SettingsButton(onClick: () -> Unit) {
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun ThemeSettings(
     theme: AppTheme,
     onSelect: (AppTheme) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     error: String? = null,
     sound: @Composable () -> Unit = {},
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text("Appearance")
-        },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Column(Modifier.selectableGroup()) {
-                    AppTheme.entries.forEach { option ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 64.dp)
-                                .selectable(theme == option, role = Role.RadioButton, onClick = {
-                                    onSelect(option)
-                                })
-                                .padding(vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            RadioButton(selected = theme == option, onClick = null)
-                            Text(if (option == AppTheme.SoftDark) "Dark" else "Light", Modifier.weight(1f))
-                        }
+    LgDismissDialog("Appearance", "Done", onDismiss, modifier) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.selectableGroup()) {
+                AppTheme.entries.forEach { option ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 64.dp)
+                            .selectable(theme == option, role = Role.RadioButton, onClick = {
+                                onSelect(option)
+                            })
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        RadioButton(selected = theme == option, onClick = null)
+                        Text(if (option == AppTheme.SoftDark) "Dark" else "Light", Modifier.weight(1f))
                     }
                 }
-                sound()
-                error?.let {
-                    Text(
-                        it,
-                        Modifier.semantics {
-                            liveRegion = LiveRegionMode.Polite
-                        },
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
             }
-        },
-        confirmButton = {
-            TextButton(onDismiss) {
-                Text("Done")
+            sound()
+            error?.let {
+                Text(
+                    it,
+                    Modifier.semantics {
+                        liveRegion = LiveRegionMode.Polite
+                    },
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
-        },
-    )
+        }
+    }
 }

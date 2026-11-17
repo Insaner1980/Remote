@@ -315,7 +315,7 @@ class MainActivity : ComponentActivity() {
         if (settingsOpen) {
             ThemeSettings(theme, appearance::select, {
                 settingsOpen = false
-            }, themeError)
+            }, error = themeError)
         }
         if (connectionSheet && targetState.selected == ControlTarget.LgTv) {
             TvConnectionDialog(

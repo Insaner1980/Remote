@@ -208,11 +208,18 @@ private fun WallpaperDeleteDialog(
     }, text = {
         Text("The original picture on your phone will be kept.")
     }, confirmButton = {
-        TextButton({
-            onDeleteConfirmation(false)
-            onImageAction(DockMethod.Delete, detail, null)
-        }) {
-            Text("Delete", color = MaterialTheme.colorScheme.error)
+        Button(
+            onClick = {
+                onDeleteConfirmation(false)
+                onImageAction(DockMethod.Delete, detail, null)
+            },
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
+        ) {
+            DialogActionLabel("Delete", R.drawable.ic_delete, destructive = true)
         }
     }, dismissButton = {
         TextButton({

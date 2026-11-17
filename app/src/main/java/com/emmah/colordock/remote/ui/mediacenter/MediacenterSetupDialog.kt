@@ -6,10 +6,14 @@ import android.provider.Settings
 import android.view.TextureView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -28,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,12 +42,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.AndroidMediacenterNetwork
 import com.emmah.colordock.remote.mediacenter.CertificateObservation
 import com.emmah.colordock.remote.mediacenter.MediacenterCameraScanner
 import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterEndpoint
 import com.emmah.colordock.remote.mediacenter.protocol.PairingCandidate
+import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.RemoteDimens
 import java.util.Locale
 
 @Composable
@@ -117,8 +125,12 @@ private fun MediacenterDialogContent(
                 viewModel.pairing::pairManual,
             )
         }
-    Column(modifier.heightIn(max = 560.dp)) {
-        MediacenterNetworkOptions(networks, ui, {
+    val connectedNetwork =
+        ui.networkName.takeIf { name ->
+            connection == MediacenterConnectionState.Connected && networks.any { it.label == name }
+        }
+    Column(modifier.fillMaxWidth().heightIn(max = 560.dp)) {
+        MediacenterNetworkOptions(networks, ui, connectedNetwork, {
             onScanningChange(false)
             viewModel.select(it)
         })
@@ -150,7 +162,7 @@ private fun MediacenterDialogContent(
         if (!ui.lanGranted) MediacenterLanSettings()
         if (ui.busy) androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth())
         SetupNotice(ui, connection)
-        MediacenterConnectionStatus(connection)
+        if (connectedNetwork == null) MediacenterConnectionStatus(connection)
         val browsingSetup = ui.observation == null && !scanning
         val hasSavedAction = ui.saved || ui.forgetFailed
         if (hasSavedAction && !ui.busy && browsingSetup) {
@@ -163,25 +175,24 @@ private fun MediacenterDialogContent(
 private fun MediacenterNetworkOptions(
     networks: List<AndroidMediacenterNetwork>,
     ui: MediacenterSetupState,
+    connectedNetwork: String?,
     onSelect: (AndroidMediacenterNetwork) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    Column(modifier) {
-        Text("Wi-Fi", style = MaterialTheme.typography.titleMedium)
-        networks.forEach { network ->
-            TextButton(onClick = { onSelect(network) }, enabled = !ui.busy) {
-                Text(
-                    if (ui.networkName ==
-                        network.label
-                    ) {
-                        "✓ ${network.label.substringBefore(" (")}"
-                    } else {
-                        network.label.substringBefore(" (")
-                    },
-                )
-            }
+    Column {
+        if (networks.isEmpty()) {
+            Text("Wi-Fi", style = MaterialTheme.typography.titleMedium)
+            if (ui.lanGranted) Text("Connect to Wi-Fi")
         }
-        if (ui.lanGranted && networks.isEmpty()) Text("Connect to Wi-Fi")
+        networks.forEach { network ->
+            MediacenterDialogAction(
+                network.label.substringBefore(" ("),
+                R.drawable.ic_wifi,
+                onClick = { onSelect(network) },
+                enabled = !ui.busy,
+                supporting = "Connected".takeIf { connectedNetwork == network.label },
+                trailingIcon = R.drawable.ic_check.takeIf { ui.networkName == network.label },
+            )
+        }
     }
 }
 
@@ -262,25 +273,14 @@ private fun MediacenterConnectionActions(
 ) {
     Column(modifier) {
         if (canReconnect) {
-            Button(onClick = { connections.connect() }) { Text("Reconnect") }
-            TextButton(onClick = connections::find) { Text("Find computer") }
+            MediacenterDialogAction("Reconnect", R.drawable.ic_refresh, { connections.connect() })
+            MediacenterDialogAction("Find computer", R.drawable.ic_search, connections::find)
             candidates.forEach { endpoint ->
-                Button(onClick = { connections.connect(endpoint) }) { Text("Connect") }
+                MediacenterDialogAction("Connect", R.drawable.ic_wifi, { connections.connect(endpoint) })
             }
-        }
-        TextButton(
-            onClick = connections::forget,
-            colors =
-                ButtonDefaults.textButtonColors(
-                    contentColor =
-                        if (canReconnect) {
-                            MaterialTheme.colorScheme.error
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        },
-                ),
-        ) {
-            Text(if (canReconnect) "Remove computer" else "Try again")
+            MediacenterDialogAction("Remove computer", R.drawable.ic_delete, connections::forget, destructive = true)
+        } else {
+            TextButton(onClick = connections::forget) { Text("Try again") }
         }
     }
 }

@@ -230,42 +230,20 @@ internal fun TvConnectionDialog(
     onReconnect: () -> Unit,
     forgetTv: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        title = {
-            Text(state.name)
-        },
-        text = {
-            Column {
-                Text(
-                    if (state.connection == TvConnectionState.Ready) "Connected" else "TV unavailable",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                TextButton(onClick = {
-                    onDismiss()
-                    onReconnect()
-                }) {
-                    Text("Reconnect")
-                }
-                TextButton(
-                    onClick = forgetTv,
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                ) {
-                    Text("Forget TV")
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
+    LgDismissDialog(state.name, "Close", onDismiss) {
+        Column {
+            Text(
+                if (state.connection == TvConnectionState.Ready) "Connected" else "TV unavailable",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            LgDialogAction("Reconnect", R.drawable.ic_refresh, {
                 onDismiss()
-            }) {
-                Text("Close")
-            }
-        },
-    )
+                onReconnect()
+            })
+            LgDialogAction("Forget TV", R.drawable.ic_delete, forgetTv, destructive = true)
+        }
+    }
 }
 
 @Composable

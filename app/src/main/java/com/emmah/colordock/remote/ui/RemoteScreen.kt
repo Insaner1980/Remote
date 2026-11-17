@@ -27,6 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -460,11 +461,18 @@ private fun RemotePowerDialog(
             Text("Turn off the TV?")
         },
         confirmButton = {
-            TextButton(onClick = {
-                onDismiss()
-                onCommand(TvCommand.PowerOff)
-            }) {
-                Text("Turn off")
+            Button(
+                onClick = {
+                    onDismiss()
+                    onCommand(TvCommand.PowerOff)
+                },
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+            ) {
+                DialogActionLabel("Turn off", R.drawable.ic_power_settings_new, destructive = true)
             }
         },
         dismissButton = {

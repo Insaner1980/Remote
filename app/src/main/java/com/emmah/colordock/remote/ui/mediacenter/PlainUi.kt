@@ -34,19 +34,22 @@ internal fun ItemActions(
         ) {
             DockIcon(R.drawable.ic_more_vert, label = label)
         }
+        val colors = MaterialTheme.colorScheme
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             actions.forEach { action ->
                 DropdownMenuItem(
                     text = { Text(action.label) },
                     enabled = action.enabled,
+                    leadingIcon =
+                        if (action.destructive) {
+                            { DockIcon(action.destructiveIcon, Modifier.testTag("destructive-action-icon")) }
+                        } else {
+                            null
+                        },
                     colors =
                         MenuDefaults.itemColors(
-                            textColor =
-                                if (action.destructive) {
-                                    MaterialTheme.colorScheme.error
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
+                            textColor = if (action.destructive) colors.error else colors.onSurface,
+                            leadingIconColor = colors.error,
                         ),
                     onClick = {
                         open = false

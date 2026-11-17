@@ -36,6 +36,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.SettingsState
 import com.emmah.colordock.remote.mediacenter.protocol.Theme
 import com.emmah.colordock.remote.mediacenter.protocol.VpnCountry
 import com.emmah.colordock.remote.ui.RemoteTheme
+import com.emmah.colordock.remote.ui.assertDestructiveIcon
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -109,6 +110,7 @@ class SettingsScreenTest {
             assertEquals(false, (sent.last() as RemoteCommand.VpnRequirementSet).params.required)
             compose.runOnIdle { section.value = SettingsSection.Devices }
             compose.onNodeWithContentDescription("Phone options for Sofa phone").performScrollTo().performClick()
+            compose.assertDestructiveIcon("Remove")
             compose.onNodeWithText("Remove").performClick()
             assertEquals("phone", (sent.last() as RemoteCommand.DevicesRevoke).params.deviceId)
             compose.onNodeWithText("Add phone").performScrollTo().assertIsDisplayed()
