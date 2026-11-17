@@ -35,3 +35,17 @@ The independent source review of `86c5043..900d278` found zero critical or impor
 ### Roboto Flex
 
 `app/src/main/res/font/roboto_flex.ttf` is the upstream variable font. Its SHA-256 is `9b523f7d82593df0107173849ebb8c817471a1df4b4fb2c3cbf40cfd810c8281`. The unmodified SIL Open Font License 1.1 is bundled as `app/src/main/assets/licenses/roboto_flex_OFL.txt`. Headlines use the wider width axis through Compose font variation settings. [Upstream font and license](https://github.com/google/fonts/tree/main/ofl/robotoflex)
+
+## Visual polish QA
+
+Fixed findings 1–31 in the visual polish plan. No findings were skipped. OD1 uses neutral bordered digit keys and reserves the primary color for “Open Live TV and tune.” OD2 gives filled LG actions a pill shape and retains their colors. OD3 uses the same compact selector on all three Mediacenter tabs, on the left in Remote and the right in Library and Settings. At narrow widths or large font scales it can move to a second line while staying right-aligned.
+
+On Pixel 9 at 1080 × 2424, 420 dpi and font scale 1.15, visually inspected both connected Remote views in both themes. The LG app strip clears the navigation divider at rest. Pixel samples confirmed the Masala backplates on both LG system icons and the opaque white backgrounds behind the disabled Mediacenter Netflix and YouTube artwork. The full JVM suite intermittently returned window-gray pixels for these artwork checks, so the artwork color checks use the Pixel captures. The live comparisons cover 27 dark and 23 light screens, including Queue, the country picker, and photo pagination. The private raw captures and side-by-side comparisons are in `../Mediacenter/.superpowers/sdd/2026-11-17-remote-polish/after/`.
+
+The LG weather field, search action, upload preview and progress controls use the available content width. The weather fixture places its content in a 320 dp test frame. Compared the weather attribution and upload progress within their respective content frames.
+
+On the Android emulator, regenerated all 146 original fixtures and rendered both Remote views at 320, 400 and 411 dp with font scales 1.0, 1.15 and 2.0 in both themes. Verified single-line navigation labels, visible keyboard keys with unbroken text at 320 dp and font scale 2.0, text dismiss actions, and icons on destructive actions. The QR uses at least 16 dp of white margin and retains the four-module quiet zone. All 157 instrumented test executions passed across the fixture and regression runs.
+
+The original Remote package `com.emmah.colordock.remote` was updated in place with the same signer and UID 10450. The runtime APK was built from `c33fa91`. Its SHA-256 was `cf527d507183b745b204d58829c4918699bd13ebe5ff7ce4f9b66709baa2d7a0`. Both encrypted pairings and both preference files were byte-identical immediately before and after installation. The existing LG reconnect flow re-encrypted its saved pairing during live verification. Both preference files and the Mediacenter pairing matched their original bytes after capture. The original dark theme, font scale and screen wake policy were restored.
+
+The full Gradle gate passed both APK assemblies, all 494 unit and Compose tests, Android lint, Detekt and ktlint. Lint reported zero errors and five warnings.
