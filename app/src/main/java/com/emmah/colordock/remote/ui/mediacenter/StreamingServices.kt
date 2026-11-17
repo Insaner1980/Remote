@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -27,8 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
@@ -118,16 +123,21 @@ private fun StreamingServiceTile(
     open: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val icon = serviceIcon(id)
+    val bitmap = if (!enabled && icon != R.drawable.ic_grid_view) ImageBitmap.imageResource(icon) else null
+    // The bundled wordmarks have flat, opaque backgrounds. Use their edge color behind the faded artwork.
+    val backplate = bitmap?.let { remember(it) { it.toPixelMap(width = 1, height = 1)[0, 0] } }
+    val painter = bitmap?.let { remember(it) { BitmapPainter(it) } } ?: painterResource(icon)
     Surface(
         onClick = { open(id) },
         enabled = enabled,
         modifier = modifier.size(64.dp),
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = backplate ?: MaterialTheme.colorScheme.surfaceContainerHigh,
         border = if (enabled) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Image(
-            painterResource(serviceIcon(id)),
+            painter,
             contentDescription = "Open ${serviceLabel(id)}",
             modifier =
                 Modifier.fillMaxSize().clip(MaterialTheme.shapes.large).alpha(

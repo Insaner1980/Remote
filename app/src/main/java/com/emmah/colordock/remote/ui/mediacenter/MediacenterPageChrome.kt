@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -49,25 +50,39 @@ internal fun MediacenterPageHeading(
     val currentSelector by rememberUpdatedState(selector)
     val deviceSelector = remember { movableContentOf { currentSelector() } }
     val subpage = destination == MediaDestination.Settings && section != null
-    MediacenterHeadingRow(modifier.testTag("mediacenter-page-heading")) {
-        if (subpage) {
-            MediacenterSubpageTitle(section.name, "Back to settings", onBack)
-        } else if (destination == MediaDestination.Remote) {
-            Box(Modifier.weight(1f)) { deviceSelector() }
-        } else {
-            Text(
-                destination.name,
-                style = MaterialTheme.typography.headlineSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(Modifier.weight(1f))
+    val showHeadingSelector = !subpage && destination != MediaDestination.Remote
+    BoxWithConstraints(modifier.testTag("mediacenter-page-heading")) {
+        val largeText = LocalDensity.current.fontScale >= HEADING_LARGE_FONT_SCALE
+        val selectorOnSeparateLine =
+            showHeadingSelector &&
+                (maxWidth < 340.dp || (largeText && maxWidth < 440.dp))
+        Column {
+            MediacenterHeadingRow {
+                if (subpage) {
+                    MediacenterSubpageTitle(section.name, "Back to settings", onBack)
+                } else if (destination == MediaDestination.Remote) {
+                    Box(Modifier.weight(1f)) { deviceSelector() }
+                } else {
+                    Text(
+                        destination.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.weight(1f))
+                }
+                actions()
+                attention()
+                if (showHeadingSelector && !selectorOnSeparateLine) deviceSelector()
+            }
+            if (selectorOnSeparateLine) {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) { deviceSelector() }
+            }
         }
-        actions()
-        attention()
-        if (!subpage && destination != MediaDestination.Remote) deviceSelector()
     }
 }
+
+private const val HEADING_LARGE_FONT_SCALE = 1.4f
 
 @Composable
 internal fun MediacenterSubpageHeading(

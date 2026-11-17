@@ -8,8 +8,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -32,6 +35,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteResult
 import com.emmah.colordock.remote.mediacenter.protocol.ServiceCapability
 import com.emmah.colordock.remote.mediacenter.protocol.SupportedState
 import com.emmah.colordock.remote.ui.RemoteTheme
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -57,6 +61,12 @@ class BrowserScreenTest {
         compose.onNodeWithText("Type text").assertDoesNotExist()
         compose.onAllNodesWithTag("browser-touchpad").assertCountEquals(0)
         compose.onAllNodesWithTag("transport-controls").assertCountEquals(0)
+    }
+
+    @Test fun disabledStreamingTileKeepsTheArtworkBackplateOpaque() {
+        compose.setContent { RemoteTheme { StreamingServices(activeStreaming(), false, {}) } }
+        val artwork = compose.onNodeWithContentDescription("Open YouTube").captureToImage().toPixelMap()
+        assertEquals(Color.White, artwork[artwork.width / 2, artwork.height / 8])
     }
 
     @Test fun showMenuAndReturnUseTheirOwnAcknowledgedContexts() {

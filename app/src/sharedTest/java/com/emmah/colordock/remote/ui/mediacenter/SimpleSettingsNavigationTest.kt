@@ -89,6 +89,23 @@ class SimpleSettingsNavigationTest {
         compose.onNodeWithTag("media-nav-Remote").performClick().assertIsSelected()
     }
 
+    @Test fun overviewSelectorsKeepTheFullNameAt320DpAndDoubleText() {
+        showSettings(windowSize = DpSize(320.dp, 700.dp), fontScale = 2f)
+        assertDeviceNameFits()
+        compose.onNodeWithTag("media-nav-Library").performClick()
+        assertDeviceNameFits()
+    }
+
+    private fun assertDeviceNameFits() {
+        val results = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+        compose
+            .onNodeWithText("Mediacenter", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(results) }
+        val layout = results.single()
+        assertTrue(layout.lineCount == 1 && !layout.isLineEllipsized(0))
+    }
+
     @Test fun subpageHidesSelectorButKeepsBackAndBottomNavigation() {
         showSettings()
         compose.onNodeWithTag("target-selector").assertIsDisplayed()
