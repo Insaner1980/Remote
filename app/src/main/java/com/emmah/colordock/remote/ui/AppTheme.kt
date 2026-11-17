@@ -126,7 +126,7 @@ fun RemoteTheme(
 ) {
     MaterialTheme(
         typography = RemoteTypography,
-        shapes = RemoteShapes,
+        shapes = ThemeShapes,
         colorScheme = if (theme == AppTheme.WarmLight) WarmLightColors else SoftDarkColors,
         content = content,
     )
@@ -261,9 +261,9 @@ private val RemoteTypography =
                 fontWeight = FontWeight.Medium,
             ),
     )
-private val RemoteShapes =
+private val ThemeShapes =
     Shapes(
-        extraSmall = RoundedCornerShape(4.dp),
+        extraSmall = RoundedCornerShape(8.dp),
         small = RoundedCornerShape(8.dp),
         medium = RoundedCornerShape(16.dp),
         large = RoundedCornerShape(22.dp),

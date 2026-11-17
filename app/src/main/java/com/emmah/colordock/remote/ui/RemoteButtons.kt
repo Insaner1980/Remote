@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -141,7 +140,7 @@ internal fun RemoteAction(
             },
         ),
         enabled,
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = remoteColors(),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = if (vertical) 6.dp else 10.dp),
@@ -238,7 +237,7 @@ internal fun Rocker(
 ) {
     Surface(
         modifier,
-        RoundedCornerShape(24.dp),
+        MaterialTheme.shapes.medium,
         MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {

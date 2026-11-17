@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -105,7 +104,7 @@ internal fun WallpaperUploadPreview(
                         .fillMaxWidth()
                         .aspectRatio(
                             WALLPAPER_PREVIEW_ASPECT_RATIO,
-                        ).clip(RoundedCornerShape(14.dp)),
+                        ).clip(RemoteShapes.Inner),
             )
             ChoiceRow(
                 "Picture fit",

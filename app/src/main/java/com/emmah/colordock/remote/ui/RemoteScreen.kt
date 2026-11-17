@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -24,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -57,6 +57,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -65,6 +66,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.tv.TvChannel
@@ -216,18 +218,8 @@ private fun RemoteControls(
     Column(
         modifier
             .fillMaxSize()
-            .drawWithContent {
-                drawContent()
-                if (scroll.maxValue - scroll.value > bottomPadding.roundToPx()) {
-                    drawRect(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, background),
-                            startY = size.height - 24.dp.toPx(),
-                            endY = size.height,
-                        ),
-                    )
-                }
-            }.verticalScroll(scroll)
+            .remoteScrollFade(scroll, background, bottomPadding)
+            .verticalScroll(scroll)
             .padding(
                 start = RemoteDimens.ScreenGutter,
                 end = RemoteDimens.ScreenGutter,
@@ -269,77 +261,23 @@ private fun RemoteControls(
     }
 }
 
-@Composable
-internal fun RemoteHeader(
-    onSettings: () -> Unit,
-    selector: @Composable () -> Unit,
-    trailing: @Composable () -> Unit = {},
-) {
-    Row(
-        Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap),
-    ) {
-        Column(Modifier.weight(1f)) { selector() }
-        SettingsButton(onSettings)
-        trailing()
-    }
-}
-
-@Composable
-private fun RemoteControlsHeader(
-    state: TvState,
-    onConnection: () -> Unit,
-    onSettings: () -> Unit,
-    onPowerConfirmation: () -> Unit,
-    targetSelector: (@Composable () -> Unit)?,
-) {
-    val enabled = state.connection == TvConnectionState.Ready
-    RemoteHeader(
-        onSettings,
-        selector =
-            targetSelector ?: {
-                TextButton(
-                    onConnection,
-                    Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(0.dp),
-                    contentPadding = PaddingValues(0.dp),
-                ) {
-                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            state.name,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                        Text(
-                            if (enabled) "Connected" else "TV unavailable",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            },
-    ) {
-        OutlinedIconButton(
-            onClick = {
-                onPowerConfirmation()
-            },
-            enabled = enabled,
-            modifier =
-                Modifier.size(
-                    48.dp,
+private fun Modifier.remoteScrollFade(
+    scroll: ScrollState,
+    background: Color,
+    bottomPadding: Dp,
+): Modifier =
+    drawWithContent {
+        drawContent()
+        if (scroll.maxValue - scroll.value > bottomPadding.roundToPx()) {
+            drawRect(
+                Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, background),
+                    startY = size.height - 24.dp.toPx(),
+                    endY = size.height,
                 ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        ) {
-            DockIcon(
-                R.drawable.ic_power_settings_new,
-                modifier = Modifier.size(30.dp),
-                label = "Turn off TV",
-                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }
-}
 
 // Explicit state and callbacks preserve the hoisted Compose API.
 @Suppress("LongParameterList")

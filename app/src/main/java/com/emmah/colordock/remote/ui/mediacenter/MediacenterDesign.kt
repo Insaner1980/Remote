@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -82,9 +83,9 @@ internal fun ListRow(
     val titleTint = titleColor.takeOrElse { colors.onSurface }
     val shape =
         when (position) {
-            ListRowPosition.Single -> RoundedCornerShape(22.dp)
+            ListRowPosition.Single -> MaterialTheme.shapes.large
             ListRowPosition.First -> RoundedCornerShape(22.dp, 22.dp, 4.dp, 4.dp)
-            ListRowPosition.Middle -> RoundedCornerShape(4.dp)
+            ListRowPosition.Middle -> MaterialTheme.shapes.large.copy(CornerSize(4.dp))
             ListRowPosition.Last -> RoundedCornerShape(4.dp, 4.dp, 22.dp, 22.dp)
         }
     val click =
@@ -373,7 +374,7 @@ internal fun EmptyListRow(
 ) {
     Surface(
         modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Text(

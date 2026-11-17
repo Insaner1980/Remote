@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,7 +71,7 @@ internal fun TargetSelector(
             OutlinedButton(
                 onClick = { open = true },
                 modifier = Modifier.fillMaxWidth().testTag("target-selector"),
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.medium,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -168,7 +167,7 @@ private fun SheetTargetRow(
         modifier
             .padding(horizontal = 12.dp, vertical = 2.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(MaterialTheme.shapes.large)
             .background(if (selected) colors.secondaryContainer else androidx.compose.ui.graphics.Color.Transparent)
             .clickable(role = Role.Button, onClick = onClick)
             .heightIn(min = 64.dp)

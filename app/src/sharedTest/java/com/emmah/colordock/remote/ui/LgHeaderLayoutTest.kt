@@ -31,6 +31,16 @@ class LgHeaderLayoutTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun selectorAndThemeControlAlignAcrossTabs() {
+        showTabs()
+        val baseline = headerBounds()
+        listOf(RemoteTab.Wallpapers, RemoteTab.Dock).forEach { tab ->
+            compose.onNodeWithText(tab.label).performClick()
+            assertEquals(tab.label, baseline, headerBounds())
+        }
+    }
+
+    @Suppress("LongMethod") // Exercise the three real tab entry points with the same selector.
+    private fun showTabs() {
         compose.setContent {
             var tab by remember { mutableStateOf(RemoteTab.Remote) }
             val dock = DockState(DockConnectionState.Unavailable)
@@ -104,11 +114,6 @@ class LgHeaderLayoutTest {
                     }
                 }
             }
-        }
-        val baseline = headerBounds()
-        listOf(RemoteTab.Wallpapers, RemoteTab.Dock).forEach { tab ->
-            compose.onNodeWithText(tab.label).performClick()
-            assertEquals(tab.label, baseline, headerBounds())
         }
     }
 

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -39,6 +38,7 @@ import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.SettingsThemeSetParams
 import com.emmah.colordock.remote.mediacenter.protocol.Theme
 import com.emmah.colordock.remote.mediacenter.protocol.VpnRequirementSetParams
+import com.emmah.colordock.remote.ui.RemoteShapes
 
 @Composable
 internal fun SettingsScreen(
@@ -130,7 +130,7 @@ private fun VpnServicePreferences(
                         Image(
                             painterResource(serviceIcon(service.serviceId)),
                             null,
-                            Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)),
+                            Modifier.size(36.dp).clip(RemoteShapes.Inner),
                         )
                     },
                     onClick = {

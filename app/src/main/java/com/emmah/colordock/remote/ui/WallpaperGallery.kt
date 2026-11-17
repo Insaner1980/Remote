@@ -25,7 +25,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -268,7 +268,7 @@ private fun CurrentWallpaperCard(
         onClick = {
             onDetail(snapshot.current)
         },
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Box {
@@ -280,7 +280,7 @@ private fun CurrentWallpaperCard(
             )
             Surface(
                 Modifier.align(Alignment.BottomStart).padding(10.dp),
-                RoundedCornerShape(20.dp),
+                CircleShape,
                 WarmBlack.copy(alpha = CURRENT_WALLPAPER_BADGE_ALPHA),
                 contentColor = OrchidWhite,
             ) {
@@ -300,7 +300,7 @@ private fun WallpaperSourceSelector(
     onSource: (String) -> Unit,
 ) {
     Surface(
-        shape = RoundedCornerShape(24.dp),
+        shape = CircleShape,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
@@ -311,9 +311,7 @@ private fun WallpaperSourceSelector(
                     {
                         onSource(value)
                     },
-                    RoundedCornerShape(
-                        24.dp,
-                    ),
+                    CircleShape,
                     border =
                         BorderStroke(
                             0.dp,
@@ -351,7 +349,7 @@ private fun WallpaperGridCard(
         onClick = {
             onDetail(image)
         },
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         border =
             BorderStroke(
                 1.dp,
@@ -373,7 +371,7 @@ private fun WallpaperGridCard(
             if (selected) {
                 Surface(
                     Modifier.align(Alignment.TopEnd).padding(6.dp).size(26.dp),
-                    RoundedCornerShape(CIRCULAR_CORNER_PERCENT),
+                    CircleShape,
                     MaterialTheme.colorScheme.primaryContainer,
                 ) {
                     DockIcon(R.drawable.ic_check, tint = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -390,7 +388,7 @@ private fun WallpaperShuffleSettings(
     onShuffleOptions: (Boolean) -> Unit,
     onPatch: (DockPatch) -> Unit,
 ) {
-    OutlinedCard(modifier = Modifier.testTag("shuffle-settings"), shape = RoundedCornerShape(14.dp)) {
+    OutlinedCard(modifier = Modifier.testTag("shuffle-settings"), shape = MaterialTheme.shapes.medium) {
         Column(Modifier.padding(horizontal = 14.dp)) {
             Row(
                 Modifier.fillMaxWidth().heightIn(min = 40.dp),
@@ -462,7 +460,6 @@ private fun WallpaperShuffleDialog(
 private const val CURRENT_WALLPAPER_ASPECT_RATIO = 2.8f
 private const val CURRENT_WALLPAPER_BADGE_ALPHA = .85f
 private const val GALLERY_WALLPAPER_ASPECT_RATIO = 2.25f
-private const val CIRCULAR_CORNER_PERCENT = 50
 
 private fun LazyGridScope.wallpaperCollectionFilter(
     ui: WallpaperUiState,
@@ -496,7 +493,7 @@ private fun AddWallpaperButton(onAdd: () -> Unit) {
     Button(
         onAdd,
         Modifier.fillMaxWidth().heightIn(min = 52.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,

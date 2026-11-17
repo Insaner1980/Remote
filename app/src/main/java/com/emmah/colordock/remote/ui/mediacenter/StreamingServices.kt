@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -118,14 +117,14 @@ private fun StreamingServiceTile(
         onClick = { open(id) },
         enabled = enabled,
         modifier = modifier.size(64.dp),
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Image(
             painterResource(serviceIcon(id)),
             contentDescription = "Open ${serviceLabel(id)}",
             modifier =
-                Modifier.fillMaxSize().clip(RoundedCornerShape(18.dp)).alpha(
+                Modifier.fillMaxSize().clip(MaterialTheme.shapes.large).alpha(
                     if (enabled) {
                         1f
                     } else {

@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
 internal object RemoteDimens {
@@ -15,3 +16,7 @@ internal object RemoteDimens {
 }
 
 internal const val NAV_LABEL_MAX_FONT_SCALE = 1.3f
+
+internal object RemoteShapes {
+    val Inner = RoundedCornerShape(12.dp)
+}

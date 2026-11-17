@@ -2,7 +2,6 @@ package com.emmah.colordock.remote.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,7 +28,7 @@ internal fun TvAppArtwork(
             else -> 64.dp
         }
     val artwork = Modifier.size(size).testTag("app-artwork-$appId")
-    val modifier = if (iconOnly) artwork.clip(RoundedCornerShape(12.dp)) else artwork
+    val modifier = if (iconOnly) artwork.clip(RemoteShapes.Inner) else artwork
     when {
         bitmap != null -> Image(bitmap, null, modifier, contentScale = ContentScale.Fit)
         fallback != null -> Image(painterResource(fallback), null, modifier, contentScale = ContentScale.Fit)

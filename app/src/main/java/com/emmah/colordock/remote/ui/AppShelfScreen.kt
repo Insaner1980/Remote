@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -133,7 +132,7 @@ private fun ShelfAppRow(
             .firstOrNull {
                 it.first == id
             }?.second ?: id
-    OutlinedCard(shape = RoundedCornerShape(14.dp)) {
+    OutlinedCard(shape = MaterialTheme.shapes.medium) {
         Column(Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)

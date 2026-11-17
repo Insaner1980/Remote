@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -258,9 +257,7 @@ internal fun ChoiceRow(
             ),
             enabled = enabled,
             shape =
-                RoundedCornerShape(
-                    12.dp,
-                ),
+                MaterialTheme.shapes.medium,
             border =
                 BorderStroke(
                     1.dp,

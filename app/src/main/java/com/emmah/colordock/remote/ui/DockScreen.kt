@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -191,7 +191,7 @@ private fun DockLocationScreen(
             OutlinedCard(onClick = {
                 onLocation(location)
                 onBack()
-            }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+            }, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
                 Text(location.label, Modifier.padding(16.dp))
             }
         }
@@ -224,7 +224,7 @@ private fun ColumnScope.DockClockSettings(
     onPatch: (DockPatch) -> Unit,
 ) {
     Text("Clock mode", style = MaterialTheme.typography.titleMedium)
-    Box(Modifier.fillMaxWidth().aspectRatio(CLOCK_PREVIEW_ASPECT_RATIO).clip(RoundedCornerShape(14.dp))) {
+    Box(Modifier.fillMaxWidth().aspectRatio(CLOCK_PREVIEW_ASPECT_RATIO).clip(RemoteShapes.Inner)) {
         Picture(
             thumbnail,
             "Current wallpaper clock preview",
@@ -233,7 +233,7 @@ private fun ColumnScope.DockClockSettings(
         )
         Surface(
             Modifier.align(Alignment.Center),
-            RoundedCornerShape(12.dp),
+            MaterialTheme.shapes.medium,
             WarmBlack.copy(alpha = CLOCK_OVERLAY_ALPHA),
             contentColor = OrchidWhite,
         ) {
@@ -248,7 +248,7 @@ private fun ColumnScope.DockClockSettings(
         onClock,
         Modifier.fillMaxWidth().heightIn(min = 48.dp),
         enabled = !saving,
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.medium,
         colors =
             ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -282,7 +282,7 @@ private fun DockWeatherSettings(
     onLocation: () -> Unit,
 ) {
     Text("Weather", style = MaterialTheme.typography.titleMedium)
-    OutlinedCard(shape = RoundedCornerShape(14.dp)) {
+    OutlinedCard(shape = MaterialTheme.shapes.medium) {
         Column(Modifier.padding(horizontal = 14.dp)) {
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Show weather", Modifier.weight(1f))
@@ -315,9 +315,7 @@ private fun DockWeatherSettings(
                 ),
                 enabled = !saving,
                 shape =
-                    RoundedCornerShape(
-                        0.dp,
-                    ),
+                RectangleShape,
                 contentPadding =
                     PaddingValues(
                         vertical = 8.dp,
@@ -351,7 +349,7 @@ private fun ColumnScope.DockAppSettings(
     Text("Apps", style = MaterialTheme.typography.titleMedium)
     OutlinedCard(onClick = {
         onShelf()
-    }, modifier = Modifier.fillMaxWidth().testTag("app-shelf-entry"), shape = RoundedCornerShape(14.dp)) {
+    }, modifier = Modifier.fillMaxWidth().testTag("app-shelf-entry"), shape = MaterialTheme.shapes.medium) {
         Row(
             Modifier.fillMaxWidth().heightIn(min = 52.dp).padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
