@@ -64,8 +64,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.tv.TvChannel
 import com.emmah.colordock.remote.tv.TvCommand
@@ -78,7 +80,7 @@ internal fun AdaptivePair(
     first: @Composable (Modifier) -> Unit,
     second: @Composable (Modifier) -> Unit,
 ) {
-    val largeText = LocalDensity.current.fontScale > LARGE_TEXT_FONT_SCALE
+    val largeText = LocalDensity.current.fontScale >= LARGE_TEXT_FONT_SCALE
     val currentFirst by rememberUpdatedState(first)
     val currentSecond by rememberUpdatedState(second)
     val firstContent = remember { movableContentOf<Modifier> { currentFirst(it) } }
@@ -117,9 +119,17 @@ internal fun RemoteAction(
     description: String? = null,
     vertical: Boolean = false,
 ) {
+    val height =
+        if (!vertical) {
+            Modifier.heightIn(min = RemoteDimens.KeyHeight)
+        } else if (LocalDensity.current.fontScale > LARGE_TEXT_FONT_SCALE) {
+            Modifier.heightIn(min = RemoteDimens.TileHeight)
+        } else {
+            Modifier.height(RemoteDimens.TileHeight)
+        }
     OutlinedButton(
         action,
-        modifier.heightIn(min = 56.dp).then(
+        modifier.then(height).then(
             if (description ==
                 null
             ) {
@@ -142,7 +152,7 @@ internal fun RemoteAction(
             ) {
                 DockIcon(icon)
             } else {
-                Text("123", style = MaterialTheme.typography.titleLarge)
+                Text("123", style = MaterialTheme.typography.titleMedium)
             }
         }
         if (vertical) {
@@ -150,13 +160,13 @@ internal fun RemoteAction(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                artwork()
-                Text(text, style = MaterialTheme.typography.labelMedium)
+                Box(Modifier.height(24.dp), contentAlignment = Alignment.Center) { artwork() }
+                Text(text, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         } else {
             artwork()
             Spacer(Modifier.width(10.dp))
-            Text(text)
+            Text(text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -215,6 +225,7 @@ internal fun DirectionPad(
 @Composable
 internal fun Rocker(
     title: String,
+    label: String,
     @DrawableRes icon: Int,
     up: TvCommand,
     down: TvCommand,
@@ -244,10 +255,10 @@ internal fun Rocker(
             )
             if (stretch) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    DockIcon(icon)
+                    RockerLabel(icon, label)
                 }
             } else {
-                DockIcon(icon)
+                RockerLabel(icon, label)
             }
             RemoteKey(
                 "$title down",
@@ -260,6 +271,22 @@ internal fun Rocker(
                 Modifier.fillMaxWidth().height(48.dp),
             )
         }
+    }
+}
+
+@Composable
+private fun RockerLabel(
+    @DrawableRes icon: Int,
+    label: String,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        DockIcon(icon, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            letterSpacing = 0.08.em,
+        )
     }
 }
 

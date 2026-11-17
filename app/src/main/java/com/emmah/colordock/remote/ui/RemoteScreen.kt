@@ -2,7 +2,6 @@ package com.emmah.colordock.remote.ui
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -54,7 +53,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -213,7 +211,7 @@ private fun RemoteControls(
             .fillMaxSize()
             .verticalScroll(
                 rememberScrollState(),
-            ).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
+            ).padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         RemoteHeader(state, onConnection, onSettings, onPowerConfirmation, targetSelector)
@@ -224,7 +222,7 @@ private fun RemoteControls(
                 }, width, "Go to LG Home")
             },
             second = { width ->
-                RemoteAction("Color Dock", R.drawable.ic_grid_view, enabled, onOpenDock, width)
+                RemoteAction("Color Dock", R.drawable.ic_open_in_new, enabled, onOpenDock, width)
             },
         )
         state.channel?.let {
@@ -273,19 +271,11 @@ private fun RemoteHeader(
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Canvas(Modifier.size(10.dp)) {
-                            drawCircle(if (enabled) Color(CONNECTED_STATUS_ARGB) else Color(UNAVAILABLE_STATUS_ARGB))
-                        }
-                        Text(
-                            if (enabled) "Connected" else "TV unavailable",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    Text(
+                        if (enabled) "Connected" else "TV unavailable",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
@@ -337,7 +327,7 @@ private fun RemoteTransport(
         onRelease()
         onNumbers()
     }
-    val largeText = LocalDensity.current.fontScale > LARGE_TEXT_FONT_SCALE
+    val largeText = LocalDensity.current.fontScale >= LARGE_TEXT_FONT_SCALE
     BoxWithConstraints {
         if (maxWidth >= 328.dp &&
             !largeText
@@ -380,6 +370,7 @@ private fun CompactTransport(
     ) {
         Rocker(
             "TV volume",
+            "VOL",
             R.drawable.ic_volume_up,
             TvCommand.VolumeUp,
             TvCommand.VolumeDown,
@@ -393,6 +384,7 @@ private fun CompactTransport(
         shortcuts()
         Rocker(
             "Channel",
+            "CH",
             R.drawable.ic_tv,
             TvCommand.ChannelUp,
             TvCommand.ChannelDown,
@@ -424,6 +416,7 @@ private fun ExpandedTransport(
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Rocker(
                 "TV volume",
+                "VOL",
                 R.drawable.ic_volume_up,
                 TvCommand.VolumeUp,
                 TvCommand.VolumeDown,
@@ -435,6 +428,7 @@ private fun ExpandedTransport(
             )
             Rocker(
                 "Channel",
+                "CH",
                 R.drawable.ic_tv,
                 TvCommand.ChannelUp,
                 TvCommand.ChannelDown,
@@ -506,8 +500,6 @@ private fun RemotePowerDialog(
 }
 
 private const val LARGE_TEXT_FONT_SCALE = 1.4f
-private const val CONNECTED_STATUS_ARGB = 0xFF50DB8A
-private const val UNAVAILABLE_STATUS_ARGB = 0xFFFFB4AB
 
 @Composable
 private fun RemoteGuideActions(

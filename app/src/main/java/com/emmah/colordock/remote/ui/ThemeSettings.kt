@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,8 +30,12 @@ import com.emmah.colordock.remote.R
 
 @Composable
 internal fun SettingsButton(onClick: () -> Unit) {
-    IconButton(onClick, Modifier.size(48.dp)) {
-        DockIcon(R.drawable.ic_settings, label = "Settings", tint = MaterialTheme.colorScheme.onBackground)
+    OutlinedIconButton(
+        onClick,
+        Modifier.size(48.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        DockIcon(R.drawable.ic_contrast, label = "Settings", tint = MaterialTheme.colorScheme.onSurface)
     }
 }
 

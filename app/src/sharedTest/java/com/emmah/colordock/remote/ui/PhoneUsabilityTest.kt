@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,6 +50,23 @@ class PhoneUsabilityTest {
         compose.onAllNodesWithText("Living room", useUnmergedTree = true).assertCountEquals(1)
         compose.onNodeWithText("Change device", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("LG TV · Connected ▾", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test fun lgDeviceNameEllipsizesOnOneLine() {
+        val name = "Living room television with a very long name"
+        compose.setContent {
+            RemoteTheme { Box(Modifier.width(240.dp)) { TargetSelector(ControlTargetState(), name, {}, {}) } }
+        }
+        val results = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+        compose
+            .onNodeWithText(
+                name,
+                useUnmergedTree = true,
+            ).performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
+                it(results)
+            }
+        assertEquals(1, results.single().lineCount)
+        assertTrue(results.single().isLineEllipsized(0))
     }
 
     @Test fun longDeviceNameAndTargetChoicesRemainReachableAtLargeText() {

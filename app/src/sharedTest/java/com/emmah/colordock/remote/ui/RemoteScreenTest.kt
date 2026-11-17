@@ -7,17 +7,23 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.FontScale
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.then
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso.pressBack
@@ -39,6 +45,62 @@ class RemoteScreenTest {
     private val sent = mutableListOf<TvCommand>()
     private val held = mutableListOf<TvCommand>()
     private var released = 0
+
+    @Test fun transportTileHeightsMatchAtNormalText() = verifyTransportTileHeights(1f)
+
+    @Test fun transportTileHeightsMatchAtPhoneText() = verifyTransportTileHeights(1.15f)
+
+    private fun verifyTransportTileHeights(scale: Float) {
+        showConfigured(scale)
+        val heights =
+            listOf("Mute TV sound", "Numbers", "Live TV", "All apps").map {
+                compose
+                    .onNodeWithText(it)
+                    .performScrollTo()
+                    .fetchSemanticsNode()
+                    .boundsInRoot.height
+            }
+        assertTrue("All four transport tiles need equal heights: $heights", heights.max() - heights.min() < 1f)
+    }
+
+    @Test fun rockersShowVolumeAndChannelLabels() {
+        showConfigured(1f)
+        compose.onNodeWithText("VOL").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("CH").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun textAt140PercentUsesStackedControls() {
+        showConfigured(1.4f)
+        compose.onNodeWithTag("compact-controls").assertDoesNotExist()
+        val home =
+            compose
+                .onNodeWithText("LG Home")
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val dock =
+            compose
+                .onNodeWithText("Color Dock")
+                .performScrollTo()
+                .fetchSemanticsNode()
+                .boundsInRoot
+        assertTrue("Large text needs vertically stacked action buttons", home.top < dock.top)
+    }
+
+    private fun showConfigured(scale: Float) {
+        compose.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(412.dp, 900.dp)) then
+                    DeviceConfigurationOverride.FontScale(scale),
+            ) {
+                RemoteTheme {
+                    RemoteScreen(TvState(TvConnectionState.Ready), emptyList(), sent::add, held::add, {
+                        released++
+                    }, {}, {}, {})
+                }
+            }
+        }
+    }
 
     private fun show(
         width: Int = 400,

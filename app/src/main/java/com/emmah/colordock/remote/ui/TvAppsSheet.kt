@@ -1,6 +1,5 @@
 package com.emmah.colordock.remote.ui
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -39,10 +37,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -89,18 +91,7 @@ internal fun TvAppTile(
     }
     val fallback = tvAppFallback(app.id)
     val artwork: @Composable () -> Unit = {
-        val imageModifier =
-            Modifier
-                .size(
-                    if (iconOnly) {
-                        56.dp
-                    } else if (row) {
-                        48.dp
-                    } else {
-                        64.dp
-                    },
-                ).testTag("app-artwork-${app.id}")
-        TvAppArtwork(bitmap, fallback, iconOnly, imageModifier)
+        TvAppArtwork(app.id, bitmap, fallback, row, iconOnly)
     }
     Surface(
         onClick = {
@@ -127,7 +118,7 @@ internal fun TvAppTile(
             }
         } else {
             Column(
-                Modifier.padding(8.dp),
+                Modifier.padding(if (iconOnly) 4.dp else 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
@@ -182,7 +173,20 @@ internal fun TvAppsStrip(
         if (showStatus && (state.hasCatalogStatus || state.hasLaunchStatus)) {
             TvAppsStatus(state, onRefresh, onOpen)
         }
-        LazyRow(Modifier.fillMaxWidth().testTag("app-shortcuts"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyRow(
+            Modifier
+                .fillMaxWidth()
+                .testTag("app-shortcuts")
+                .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(
+                        Brush.horizontalGradient(APP_FADE_START to Color.Black, 1f to Color.Transparent),
+                        blendMode = BlendMode.DstIn,
+                    )
+                },
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(state.apps, key = {
                 it.id
             }) { app ->
@@ -411,3 +415,5 @@ private fun tvAppsLoadMessage(state: TvAppsUiState): Int? =
         state.hasEmptyCatalog -> R.string.tv_apps_empty
         else -> null
     }
+
+private const val APP_FADE_START = .92f
