@@ -4,6 +4,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.FontScale
@@ -12,9 +14,12 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -22,6 +27,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.then
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -31,6 +37,8 @@ import com.emmah.colordock.remote.ui.ControlTarget
 import com.emmah.colordock.remote.ui.ControlTargetState
 import com.emmah.colordock.remote.ui.RemoteTheme
 import com.emmah.colordock.remote.ui.TargetSelector
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -89,6 +97,23 @@ class SimpleSettingsNavigationTest {
         compose.onNodeWithContentDescription("Back to settings").assertIsDisplayed().performClick()
         compose.onNodeWithTag("target-selector").assertIsDisplayed()
         compose.onNodeWithTag("mediacenter-bottom-navigation").assertIsDisplayed()
+    }
+
+    @Test fun headingSurfaceChangesAtTheScrollEdgeAndRestoresAtTheTop() {
+        showSettings(windowSize = DpSize(360.dp, 420.dp))
+        val heading = compose.onNodeWithTag("mediacenter-page-heading")
+        val scroll = compose.onNode(hasScrollAction() and hasAnyDescendant(hasTestTag("settings-section-Sound")))
+        val topColor = heading.captureToImage().toPixelMap()[0, 0]
+
+        scroll.performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 60f) }
+        val scrolledColor = heading.captureToImage().toPixelMap()[0, 0]
+        assertNotEquals(topColor, scrolledColor)
+
+        scroll.performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 60f) }
+        assertEquals(scrolledColor, heading.captureToImage().toPixelMap()[0, 0])
+
+        scroll.performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -1000f) }
+        assertEquals(topColor, heading.captureToImage().toPixelMap()[0, 0])
     }
 
     @Test fun pageRefreshActionsBelongToHeading() {

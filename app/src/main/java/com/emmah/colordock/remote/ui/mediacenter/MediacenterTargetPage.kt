@@ -27,11 +27,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -213,14 +215,11 @@ internal fun MediacenterTargetContent(
     BackHandler(state.destination == MediaDestination.Settings && settingsNavigation.section != null) {
         backToSettings()
     }
+    val scrolled by remember(contentScroll) {
+        derivedStateOf(structuralEqualityPolicy()) { contentScroll.value > 0 }
+    }
     val headingColor by animateColorAsState(
-        if (contentScroll.value ==
-            0
-        ) {
-            MaterialTheme.colorScheme.background
-        } else {
-            MaterialTheme.colorScheme.surfaceContainer
-        },
+        if (scrolled) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.background,
         animationSpec = tween(SCROLL_EDGE_ANIMATION_MS),
         label = "Mediacenter scroll edge",
     )

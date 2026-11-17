@@ -27,8 +27,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -47,6 +49,8 @@ import com.emmah.colordock.remote.ui.RemoteTheme
 internal enum class ListRowPosition { Single, First, Middle, Last }
 
 internal enum class SelectorSize { Large, Compact }
+
+private const val DISABLED_CONTENT_ALPHA = .38f
 
 @Composable
 internal fun ListGroup(
@@ -73,6 +77,9 @@ internal fun ListRow(
     verticalPadding: Dp = 12.dp,
     maxTitleLines: Int = if (supporting == null) 2 else 1,
 ) {
+    val colors = MaterialTheme.colorScheme
+    val contentAlpha = if (enabled) 1f else DISABLED_CONTENT_ALPHA
+    val titleTint = titleColor.takeOrElse { colors.onSurface }
     val shape =
         when (position) {
             ListRowPosition.Single -> RoundedCornerShape(22.dp)
@@ -92,7 +99,7 @@ internal fun ListRow(
         modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(colors.surfaceContainer)
             .then(click)
             .heightIn(min = if (supporting == null) 56.dp else RemoteDimens.RowMinHeight)
             .padding(horizontal = 16.dp, vertical = verticalPadding),
@@ -100,11 +107,15 @@ internal fun ListRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         if (leading != null) {
-            leading()
+            Box(Modifier.alpha(contentAlpha)) { leading() }
         } else if (leadingIcon != null) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
+            Surface(
+                modifier = Modifier.alpha(contentAlpha),
+                shape = CircleShape,
+                color = colors.secondaryContainer,
+            ) {
                 Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-                    DockIcon(leadingIcon, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                    DockIcon(leadingIcon, Modifier.size(20.dp), tint = colors.onSecondaryContainer)
                 }
             }
         }
@@ -112,7 +123,7 @@ internal fun ListRow(
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (titleColor == Color.Unspecified) MaterialTheme.colorScheme.onSurface else titleColor,
+                color = titleTint.copy(alpha = titleTint.alpha * contentAlpha),
                 maxLines = maxTitleLines,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -120,7 +131,7 @@ internal fun ListRow(
                 Text(
                     supporting,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = colors.onSurfaceVariant.copy(alpha = contentAlpha),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -129,7 +140,7 @@ internal fun ListRow(
         if (trailing != null) {
             trailing()
         } else if (onClick != null) {
-            DockIcon(R.drawable.ic_keyboard_arrow_right, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            DockIcon(R.drawable.ic_keyboard_arrow_right, tint = colors.onSurfaceVariant.copy(alpha = contentAlpha))
         }
     }
 }
@@ -188,7 +199,10 @@ internal fun MediaKey(
             DockIcon(
                 icon,
                 Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 1f else .38f),
+                tint =
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = if (enabled) 1f else DISABLED_CONTENT_ALPHA,
+                    ),
             )
             Spacer(Modifier.size(RemoteDimens.ItemGap))
         }

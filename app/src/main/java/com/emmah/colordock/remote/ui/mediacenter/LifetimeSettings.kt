@@ -32,7 +32,7 @@ internal fun LifetimeSettings(
                     modifier = Modifier.semantics { contentDescription = "Start automatically" },
                 )
             })
-            val stopColor = MaterialTheme.colorScheme.error.copy(alpha = if (ready) 1f else DISABLED_CONTENT_ALPHA)
+            val stopColor = MaterialTheme.colorScheme.error
             ListRow(
                 "Stop playback",
                 null,
@@ -50,5 +50,3 @@ internal fun LifetimeSettings(
         }
     }
 }
-
-private const val DISABLED_CONTENT_ALPHA = .38f
