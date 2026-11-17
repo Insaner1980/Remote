@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +14,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -43,6 +47,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.companion.DockConnectionState
@@ -90,8 +95,13 @@ fun AppShelfScreen(
     ) {
         LgSubPageHeader("Edit app shelf", onCancel, backEnabled = !saving)
         ShelfPreview(order, hidden)
-        order.forEachIndexed { index, id ->
-            ShelfAppRow(index, id, order, hidden, saving, { order = it }, { hidden = it }, { localError = it })
+        OutlinedCard(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
+            Column {
+                order.forEachIndexed { index, id ->
+                    if (index > 0) HorizontalDivider(thickness = 1.dp)
+                    ShelfAppRow(index, id, order, hidden, saving, { order = it }, { hidden = it }, { localError = it })
+                }
+            }
         }
         (error ?: localError)?.let {
             Text(
@@ -127,39 +137,43 @@ private fun ShelfAppRow(
     onHiddenChange: (List<String>) -> Unit,
     onError: (String?) -> Unit,
 ) {
-    val name =
-        shelfApps
-            .firstOrNull {
-                it.first == id
-            }?.second ?: id
-    OutlinedCard(shape = MaterialTheme.shapes.medium) {
-        Column(Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Switch(
-                    id !in hidden,
-                    { visible ->
-                        if (!visible &&
-                            order.none {
-                                it != id && it !in hidden
-                            }
-                        ) {
-                            onError("Keep at least one app visible.")
-                        } else {
-                            onHiddenChange(if (visible) hidden - id else hidden + id)
-                            onError(null)
-                        }
-                    },
-                    modifier =
-                        Modifier.semantics {
-                            contentDescription =
-                                "Show $name"
-                        },
-                    enabled = !saving,
-                )
-            }
-            ShelfReorderActions(name, index, order, saving, onOrder)
-        }
+    val name = shelfAppName(id)
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = RemoteDimens.TileHeight).padding(horizontal = RemoteDimens.ItemGap),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TvAppArtwork(id, null, tvAppFallback(id), iconOnly = true, modifier = Modifier.size(40.dp))
+        Spacer(Modifier.width(RemoteDimens.ItemGap))
+        Text(
+            name,
+            Modifier.weight(1f),
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        ShelfReorderActions(name, index, order, saving, onOrder)
+        Spacer(Modifier.width(RemoteDimens.ItemGap))
+        Switch(
+            id !in hidden,
+            { visible ->
+                if (!visible &&
+                    order.none {
+                        it != id && it !in hidden
+                    }
+                ) {
+                    onError("Keep at least one app visible.")
+                } else {
+                    onHiddenChange(if (visible) hidden - id else hidden + id)
+                    onError(null)
+                }
+            },
+            modifier =
+                Modifier.semantics {
+                    contentDescription =
+                        "Show $name"
+                },
+            enabled = !saving,
+        )
     }
 }
 
@@ -168,20 +182,21 @@ private fun ShelfPreview(
     order: List<String>,
     hidden: List<String>,
 ) {
-    Text(
-        "Preview: " +
-            order
-                .filterNot {
-                    it in hidden
-                }.joinToString(", ") { id ->
-                    shelfApps
-                        .firstOrNull {
-                            it.first == id
-                        }?.second ?: id
-                },
-        style = MaterialTheme.typography.bodySmall,
-    )
+    val visible = order.filterNot { it in hidden }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .semantics { contentDescription = "Preview: " + visible.joinToString(", ", transform = ::shelfAppName) },
+        horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap),
+    ) {
+        visible.forEach { id ->
+            TvAppArtwork(id, null, tvAppFallback(id), iconOnly = true, modifier = Modifier.size(32.dp))
+        }
+    }
 }
+
+private fun shelfAppName(id: String): String = shelfApps.firstOrNull { it.first == id }?.second ?: id
 
 @Composable
 private fun ShelfReorderActions(
@@ -191,8 +206,14 @@ private fun ShelfReorderActions(
     saving: Boolean,
     onOrder: (List<String>) -> Unit,
 ) {
+    val tint = MaterialTheme.colorScheme.onSurfaceVariant
+    val colors =
+        IconButtonDefaults.iconButtonColors(
+            contentColor = tint,
+            disabledContentColor = tint.copy(alpha = .38f),
+        )
     Row {
-        TextButton(
+        IconButton(
             {
                 onOrder(
                     order.toMutableList().apply {
@@ -200,17 +221,17 @@ private fun ShelfReorderActions(
                     },
                 )
             },
+            colors = colors,
             enabled = index > 0 && !saving,
             modifier =
-                Modifier.weight(1f).semantics {
+                Modifier.size(RemoteDimens.MinTouch).semantics {
                     contentDescription =
                         "Move $name up"
                 },
         ) {
             DockIcon(R.drawable.ic_keyboard_arrow_up)
-            Text("Move up")
         }
-        TextButton(
+        IconButton(
             {
                 onOrder(
                     order.toMutableList().apply {
@@ -218,15 +239,15 @@ private fun ShelfReorderActions(
                     },
                 )
             },
+            colors = colors,
             enabled = index < order.lastIndex && !saving,
             modifier =
-                Modifier.weight(1f).semantics {
+                Modifier.size(RemoteDimens.MinTouch).semantics {
                     contentDescription =
                         "Move $name down"
                 },
         ) {
             DockIcon(R.drawable.ic_keyboard_arrow_down)
-            Text("Move down")
         }
     }
 }

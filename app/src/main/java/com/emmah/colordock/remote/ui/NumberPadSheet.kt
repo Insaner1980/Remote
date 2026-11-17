@@ -1,5 +1,6 @@
 package com.emmah.colordock.remote.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -26,6 +28,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.tv.TvChannel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,40 +91,58 @@ fun NumberPadSheet(
 }
 
 private const val MAX_CHANNEL_DIGITS = 5
+private const val LAST_CHANNEL_DIGIT = 9
+private const val DIGITS_PER_ROW = 3
 
 @Composable
 private fun ColumnScope.ChannelKeypad(
     digits: String,
     onDigits: (String) -> Unit,
 ) {
-    for (row in listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"))) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    for (row in (1..LAST_CHANNEL_DIGIT).chunked(DIGITS_PER_ROW)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap)) {
             for (digit in row) {
-                Button(onClick = {
-                    if (digits.length <
-                        MAX_CHANNEL_DIGITS
-                    ) {
-                        onDigits(digits + digit)
-                    }
-                }, modifier = Modifier.weight(1f).heightIn(min = 64.dp)) {
-                    Text(digit)
-                }
+                ChannelDigit(digit, digits, onDigits, Modifier.weight(1f))
             }
         }
     }
-    Button(onClick = {
-        if (digits.length <
-            MAX_CHANNEL_DIGITS
-        ) {
-            onDigits(digits + "0")
-        }
-    }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-        Text("0")
+    ChannelDigit(0, digits, onDigits, Modifier.fillMaxWidth())
+    OutlinedButton(
+        onClick = { onDigits(digits.dropLast(1)) },
+        enabled = digits.isNotEmpty(),
+        modifier = Modifier.fillMaxWidth().heightIn(min = RemoteDimens.KeyHeight),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        DialogActionLabel("Delete", R.drawable.ic_backspace)
     }
-    OutlinedButton(onClick = {
-        onDigits(digits.dropLast(1))
-    }, enabled = digits.isNotEmpty(), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-        Text("Delete")
+}
+
+@Composable
+private fun ChannelDigit(
+    digit: Int,
+    digits: String,
+    onDigits: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = MaterialTheme.colorScheme
+    OutlinedButton(
+        onClick = { if (digits.length < MAX_CHANNEL_DIGITS) onDigits(digits + digit) },
+        modifier = modifier.heightIn(min = RemoteDimens.TileHeight),
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, colors.outlineVariant),
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                containerColor = colors.surfaceContainerHigh,
+                contentColor = colors.onSurface,
+            ),
+    ) {
+        Text(
+            digit.toString(),
+            style =
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = MaterialTheme.typography.titleMedium.fontFamily,
+                ),
+        )
     }
 }
 

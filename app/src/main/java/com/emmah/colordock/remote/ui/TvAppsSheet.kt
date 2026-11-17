@@ -1,5 +1,4 @@
 package com.emmah.colordock.remote.ui
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -18,12 +16,11 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -31,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,87 +42,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.tv.TvApp
 import java.io.File
-
-internal fun tvAppFallback(id: String): Int? =
-    when (id) {
-        "youtube.leanback.v4" -> R.drawable.tv_app_youtube
-        "netflix" -> R.drawable.tv_app_netflix
-        "com.wbd.stream" -> R.drawable.tv_app_hbo_max
-        "viaplay-lg" -> R.drawable.tv_app_viaplay
-        "fi.yle.areena" -> R.drawable.tv_app_yle_areena
-        "mtvkatsomo" -> R.drawable.tv_app_mtv_katsomo
-        "fi.nelonenmedia.ruutu" -> R.drawable.tv_app_ruutu
-        "cdp-30" -> R.drawable.tv_app_plex
-        else -> null
-    }
-
-// Explicit state and callbacks preserve the hoisted Compose API.
-@Suppress("LongParameterList")
-@Composable
-internal fun TvAppTile(
-    app: TvApp,
-    file: ImageFile?,
-    enabled: Boolean,
-    onOpen: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    row: Boolean = false,
-    iconOnly: Boolean = false,
-) {
-    val description = stringResource(R.string.open_tv_app, app.title)
-    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, file) {
-        value =
-            loadAppBitmap(file)
-    }
-    val fallback = tvAppFallback(app.id)
-    val artwork: @Composable () -> Unit = {
-        TvAppArtwork(app.id, bitmap, fallback, row, iconOnly)
-    }
-    Surface(
-        onClick = {
-            onOpen(app.id)
-        },
-        enabled = enabled,
-        modifier =
-            modifier.heightIn(min = 48.dp).semantics(mergeDescendants = true) {
-                contentDescription = description
-                role = Role.Button
-            },
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        if (row) {
-            Row(
-                Modifier.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                if (bitmap != null || fallback != null) artwork()
-                Text(app.title, Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-            }
-        } else {
-            Column(
-                Modifier.padding(if (iconOnly) 4.dp else 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                artwork()
-                if (!iconOnly) Text(app.title, style = MaterialTheme.typography.labelMedium)
-            }
-        }
-    }
-}
 
 // Explicit state and callbacks preserve the hoisted Compose API.
 @Suppress("LongParameterList")
@@ -244,22 +166,27 @@ internal fun TvAppsSheet(
                     },
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(title, style = MaterialTheme.typography.titleLarge)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(
-                        onRefresh,
-                        Modifier.weight(1f).heightIn(min = 48.dp),
-                        enabled =
-                            state.connected && !state.loading,
-                    ) {
-                        Text(stringResource(R.string.tv_apps_refresh))
-                    }
-                    TextButton(onDismiss, Modifier.weight(1f).heightIn(min = 48.dp)) {
-                        Text(stringResource(R.string.tv_apps_close))
-                    }
-                }
+                TvAppsSheetHeader(title, state.connected && !state.loading, onRefresh, onDismiss)
                 TvAppsPicker(state, images, onLoadIcon, onOpen, onRefresh)
             }
+        }
+    }
+}
+
+@Composable
+private fun TvAppsSheetHeader(
+    title: String,
+    canRefresh: Boolean,
+    onRefresh: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+        IconButton(onRefresh, Modifier.size(RemoteDimens.MinTouch), enabled = canRefresh) {
+            DockIcon(R.drawable.ic_refresh, label = stringResource(R.string.tv_apps_refresh))
+        }
+        IconButton(onDismiss, Modifier.size(RemoteDimens.MinTouch)) {
+            DockIcon(R.drawable.ic_close, label = stringResource(R.string.tv_apps_close))
         }
     }
 }
@@ -292,54 +219,54 @@ private fun ColumnScope.TvAppsLaunchStatus(
     onOpen: (String) -> Unit,
     refreshAvailable: Boolean,
 ) {
-    state.launchingId?.let {
-        Text(
-            stringResource(
-                R.string.tv_app_opening,
-                state.launchTitle ?: state.apps
-                    .find { app ->
-                        app.id == it
-                    }?.title
-                    .orEmpty(),
-            ),
-        )
+    state.launchingId?.let { id ->
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+            Text(stringResource(R.string.tv_app_opening, state.appLaunchTitle(id)))
+        }
     }
     state.launchErrorId?.let { id ->
-        Text(
-            if (state.appUnavailable) {
-                stringResource(R.string.tv_app_removed)
-            } else {
-                stringResource(
-                    R.string.tv_app_open_failed,
-                    state.launchTitle ?: state.apps
-                        .find {
-                            it.id == id
-                        }?.title
-                        .orEmpty(),
-                )
-            },
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            DockIcon(R.drawable.ic_error, tint = MaterialTheme.colorScheme.error)
+            Text(
+                if (state.appUnavailable) {
+                    stringResource(R.string.tv_app_removed)
+                } else {
+                    stringResource(R.string.tv_app_open_failed, state.appLaunchTitle(id))
+                },
+                Modifier.weight(1f),
+            )
             if (!state.appUnavailable) {
                 TextButton(
-                    {
-                        onOpen(id)
-                    },
-                    Modifier.heightIn(min = 48.dp),
-                    enabled =
-                        state.connected && state.launchingId == null,
+                    { onOpen(id) },
+                    enabled = state.connected && state.launchingId == null,
                 ) {
                     Text(stringResource(R.string.tv_apps_retry))
                 }
             }
-            if (!refreshAvailable) {
-                TextButton(onRefresh, Modifier.heightIn(min = 48.dp), enabled = state.connected && !state.loading) {
-                    Text(stringResource(R.string.tv_apps_refresh))
-                }
+        }
+        if (!refreshAvailable) {
+            TextButton(
+                onRefresh,
+                Modifier.heightIn(min = 48.dp).align(Alignment.End),
+                enabled =
+                    state.connected && !state.loading,
+            ) {
+                Text(stringResource(R.string.tv_apps_refresh))
             }
         }
     }
 }
+
+private fun TvAppsUiState.appLaunchTitle(id: String): String =
+    launchTitle ?: apps.find { app -> app.id == id }?.title.orEmpty()
 
 private val TvAppsUiState.hasEmptyCatalog get() = hasLoaded && apps.isEmpty()
 private val TvAppsUiState.hasCatalogStatus get() = !connected || loading || loadError || hasEmptyCatalog

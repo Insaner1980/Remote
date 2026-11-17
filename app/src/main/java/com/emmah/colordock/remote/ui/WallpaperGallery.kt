@@ -319,11 +319,13 @@ private fun WallpaperSourceSelector(
                         ),
                     colors =
                         SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.secondary,
-                            activeContentColor = MaterialTheme.colorScheme.onSecondary,
+                            activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                             inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
-                    icon = {},
+                    icon = {
+                        if (source == value) DockIcon(R.drawable.ic_check, Modifier.size(18.dp))
+                    },
                 ) {
                     Text(label)
                 }
@@ -482,8 +484,8 @@ private fun LazyGridScope.wallpaperCollectionFilter(
 private fun AddWallpaperButton(onAdd: () -> Unit) {
     Button(
         onAdd,
-        Modifier.fillMaxWidth().heightIn(min = 52.dp),
-        shape = MaterialTheme.shapes.medium,
+        Modifier.fillMaxWidth().heightIn(min = RemoteDimens.KeyHeight),
+        shape = CircleShape,
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,

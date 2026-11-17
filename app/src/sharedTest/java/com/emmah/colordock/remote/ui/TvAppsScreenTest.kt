@@ -102,6 +102,9 @@ class TvAppsScreenTest {
         compose.onNodeWithText("All apps").performScrollTo().performClick()
     }
 
+    private fun sheetAction(description: String) =
+        compose.onNode(hasContentDescription(description) and hasAnyAncestor(hasTestTag("tv-app-sheet")))
+
     private fun inSheet(text: String) = compose.onNode(hasText(text) and hasAnyAncestor(hasTestTag("tv-app-sheet")))
 
     private fun captureSheet(name: String) {
@@ -135,12 +138,12 @@ class TvAppsScreenTest {
             .assertIsDisplayed()
             .assertHasClickAction()
         picker()
-        inSheet("Refresh").assertIsDisplayed().assertHeightIsAtLeast(48.dp).performClick()
-        inSheet("Close").assertIsDisplayed().assertHeightIsAtLeast(48.dp)
+        sheetAction("Refresh").assertIsDisplayed().assertHeightIsAtLeast(48.dp).performClick()
+        sheetAction("Close").assertIsDisplayed().assertHeightIsAtLeast(48.dp)
         compose.onNodeWithTag("app-picker-list").performScrollToNode(hasText(apps.last().title))
         inSheet(apps.last().title).assertIsDisplayed()
         captureSheet("${width}dp-$scale")
-        inSheet("Close").performClick()
+        sheetAction("Close").performClick()
         compose.onNodeWithTag("tv-app-sheet").assertDoesNotExist()
         compose.runOnIdle {
             assertEquals(2, refreshes)
@@ -222,7 +225,7 @@ class TvAppsScreenTest {
         show()
         picker()
         inSheet("Netflix").performClick()
-        inSheet("Close").performClick()
+        sheetAction("Close").performClick()
         picker()
         compose.runOnIdle {
             feature.value = feature.value.copy(launchCompletedId = "netflix")
@@ -267,8 +270,8 @@ class TvAppsScreenTest {
             feature.value.copy(apps = listOf(TvApp("long", title, null)), launchErrorId = "long", launchTitle = title)
         show(320, 2f)
         picker()
-        inSheet("Close").assertIsDisplayed()
-        inSheet("Refresh").assertIsDisplayed()
+        sheetAction("Close").assertIsDisplayed()
+        sheetAction("Refresh").assertIsDisplayed()
         compose.onNodeWithTag("app-picker-list").performScrollToNode(hasText("Retry"))
         inSheet("Retry").assertIsDisplayed().performClick()
         compose.runOnIdle {

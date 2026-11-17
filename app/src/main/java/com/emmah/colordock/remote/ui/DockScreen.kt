@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -239,9 +240,9 @@ private fun ColumnScope.DockClockSettings(
     }
     Button(
         onClock,
-        Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        Modifier.fillMaxWidth().heightIn(min = RemoteDimens.KeyHeight),
         enabled = !saving,
-        shape = MaterialTheme.shapes.medium,
+        shape = CircleShape,
         colors =
             ButtonDefaults.buttonColors(
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
