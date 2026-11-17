@@ -87,11 +87,12 @@ internal fun WallpaperUploadPreview(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(RemoteDimens.ScreenGutter),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         LgSubPageHeader("Preview pictures", onAbandon)
 
+        WallpaperUploadStatus(ui)
         if (ui.preparing) LinearProgressIndicator(Modifier.fillMaxWidth())
         for (image in ui.prepared) {
             Text(image.name, style = MaterialTheme.typography.titleMedium)
@@ -115,7 +116,6 @@ internal fun WallpaperUploadPreview(
                 onPreparedFit(image.uploadId, it)
             }
         }
-        WallpaperUploadStatus(ui)
         if (ui.upload ==
             null
         ) {

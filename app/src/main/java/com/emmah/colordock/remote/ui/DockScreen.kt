@@ -156,7 +156,7 @@ private fun DockLocationScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(RemoteDimens.ScreenGutter),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         LgSubPageHeader("Choose location", onBack)
@@ -186,7 +186,7 @@ private fun DockLocationScreen(
                 onLocation(location)
                 onBack()
             }, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
-                Text(location.label, Modifier.padding(16.dp))
+                Text(location.label, Modifier.padding(RemoteDimens.ScreenGutter))
             }
         }
         ui.error?.let {
@@ -200,6 +200,7 @@ private fun DockLocationScreen(
         }
         Text(
             "Weather data: Open-Meteo",
+            Modifier.padding(top = RemoteDimens.ItemGap),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
