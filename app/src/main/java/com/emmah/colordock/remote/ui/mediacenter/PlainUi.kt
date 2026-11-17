@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.ui.DockIcon
@@ -21,12 +22,18 @@ import com.emmah.colordock.remote.ui.DockIcon
 internal fun ItemActions(
     label: String,
     actions: List<MenuAction>,
-    modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    buttonTag: String? = null,
 ) {
     var open by remember(label) { mutableStateOf(false) }
-    Box(modifier) {
-        IconButton(onClick = { open = true }, enabled = enabled) { DockIcon(R.drawable.ic_more_vert, label = label) }
+    Box {
+        IconButton(
+            onClick = { open = true },
+            modifier = if (buttonTag == null) Modifier else Modifier.testTag(buttonTag),
+            enabled = enabled,
+        ) {
+            DockIcon(R.drawable.ic_more_vert, label = label)
+        }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             actions.forEach { action ->
                 DropdownMenuItem(

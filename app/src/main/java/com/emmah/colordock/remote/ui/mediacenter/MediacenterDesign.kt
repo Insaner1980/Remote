@@ -71,6 +71,7 @@ internal fun ListRow(
     enabled: Boolean = true,
     role: Role = Role.Button,
     verticalPadding: Dp = 12.dp,
+    maxTitleLines: Int = if (supporting == null) 2 else 1,
 ) {
     val shape =
         when (position) {
@@ -112,7 +113,7 @@ internal fun ListRow(
                 title,
                 style = MaterialTheme.typography.titleMedium,
                 color = if (titleColor == Color.Unspecified) MaterialTheme.colorScheme.onSurface else titleColor,
-                maxLines = if (supporting == null) 2 else 1,
+                maxLines = maxTitleLines,
                 overflow = TextOverflow.Ellipsis,
             )
             if (supporting != null) {

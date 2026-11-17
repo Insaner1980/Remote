@@ -4,8 +4,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,14 +38,14 @@ internal fun PairingDisplay(
         text = {
             Column {
                 if (rows == null) {
-                    Text("QR code unavailable")
+                    ListRow("QR code unavailable", null, ListRowPosition.Single)
                 } else {
-                    Text("Scan with the other phone")
+                    ListRow("Scan with the other phone", null, ListRowPosition.Single)
                     PairingQr(rows)
                 }
             }
         },
-        confirmButton = { TextButton(onClick = dismiss) { Text("Close") } },
+        confirmButton = { Button(onClick = dismiss) { Text("Close") } },
     )
 }
 

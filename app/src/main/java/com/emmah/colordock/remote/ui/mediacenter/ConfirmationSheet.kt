@@ -1,9 +1,11 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,25 +25,53 @@ internal fun ConfirmationSheet(
         onDismissRequest = { if (!busy) actions.cancel() },
         modifier = modifier,
         title = { Text(confirmationTitle(preview.action, title)) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                preview.browserContext?.let { Text(it.hostname) }
-                preview.affectedLabels.filterNot { it == preview.browserContext?.hostname }.forEach {
-                    Text(
-                        if (preview.action == ActionKind.CHANGE_AUDIO) {
-                            soundOutputName(it)
-                        } else if (preview.action == ActionKind.REPLACE_ACTIVITY) {
-                            mediaTitle(it)
-                        } else {
-                            it
-                        },
-                    )
+        text = { ConfirmationRows(preview) },
+        confirmButton = {
+            val destructive =
+                when (preview.action) {
+                    ActionKind.REMOVE_SOURCE,
+                    ActionKind.REVOKE_DEVICE,
+                    ActionKind.EJECT_DRIVE,
+                    ActionKind.END_SESSION,
+                    -> true
+
+                    else -> false
                 }
+            val colors = MaterialTheme.colorScheme
+            Button(
+                onClick = actions.confirm,
+                enabled = !busy,
+                colors =
+                    if (destructive) {
+                        ButtonDefaults.buttonColors(containerColor = colors.error, contentColor = colors.onError)
+                    } else {
+                        ButtonDefaults.buttonColors()
+                    },
+            ) {
+                Text("Confirm")
             }
         },
-        confirmButton = { TextButton(onClick = actions.confirm, enabled = !busy) { Text("Confirm") } },
         dismissButton = { TextButton(onClick = actions.cancel, enabled = !busy) { Text("Cancel") } },
     )
+}
+
+@Composable
+private fun ConfirmationRows(preview: ConfirmationPreview) {
+    val hostname = preview.browserContext?.hostname
+    val labels =
+        listOfNotNull(hostname) +
+            preview.affectedLabels.filterNot { it == hostname }.map { label ->
+                when (preview.action) {
+                    ActionKind.CHANGE_AUDIO -> soundOutputName(label)
+                    ActionKind.REPLACE_ACTIVITY -> mediaTitle(label)
+                    else -> label
+                }
+            }
+    ListGroup(Modifier.verticalScroll(rememberScrollState())) {
+        labels.forEachIndexed { index, label ->
+            ListRow(label, null, listRowPosition(index, labels.size), maxTitleLines = Int.MAX_VALUE)
+        }
+    }
 }
 
 private fun confirmationTitle(

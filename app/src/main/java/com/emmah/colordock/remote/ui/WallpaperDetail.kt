@@ -213,7 +213,7 @@ private fun WallpaperDeleteDialog(
             onDeleteConfirmation(false)
             onImageAction(DockMethod.Delete, detail, null)
         }) {
-            Text("Delete")
+            Text("Delete", color = MaterialTheme.colorScheme.error)
         }
     }, dismissButton = {
         TextButton({

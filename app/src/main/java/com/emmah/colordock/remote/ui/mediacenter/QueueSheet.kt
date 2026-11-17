@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -76,7 +77,7 @@ internal fun QueueSheet(
                         label = { Text("Name") },
                         singleLine = true,
                     )
-                    TextButton(
+                    Button(
                         onClick = { actions.command(RemoteCommand.PlaylistsSave(PlaylistsSaveParams.SaveQueue(name))) },
                         enabled = enabled && name.isNotBlank(),
                     ) { Text("Save") }
@@ -84,7 +85,7 @@ internal fun QueueSheet(
                 state.notice?.let { Text(it.label) }
             }
         },
-        confirmButton = { TextButton(onClick = actions.close) { Text("Close") } },
+        confirmButton = { Button(onClick = actions.close) { Text("Close") } },
     )
 }
 
@@ -94,54 +95,55 @@ private fun QueueEntries(
     enabled: Boolean,
     actions: QueueActions,
 ) {
-    Column {
-        queue?.items?.forEachIndexed { index, entry ->
+    val entries = queue?.items.orEmpty()
+    ListGroup {
+        entries.forEachIndexed { index, entry ->
             androidx.compose.runtime.key(entry.entryId) {
                 val title = mediaTitle(entry.item.name)
-                androidx.compose.foundation.layout.Row(
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                ) {
-                    TextButton(
-                        onClick = { actions.play(entry) },
-                        enabled =
-                            enabled && entry.item.availability == Availability.AVAILABLE,
-                        modifier = Modifier.weight(1f),
-                    ) { Text(title, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
-                    val options =
-                        buildList {
-                            add(
-                                MenuAction(
-                                    "Remove",
-                                    enabled,
-                                ) { actions.command(RemoteCommand.QueueRemove(QueueRemoveParams(entry.entryId))) },
-                            )
-                            if (index > 0) {
-                                add(
-                                    MenuAction("Move up", enabled) {
-                                        actions.command(
-                                            RemoteCommand.QueueMove(
-                                                QueueMoveParams(entry.entryId, queue.items[index - 1].entryId),
-                                            ),
-                                        )
-                                    },
-                                )
-                            }
-                            add(
-                                MenuAction(
-                                    "Move to end",
-                                    enabled,
-                                ) { actions.command(RemoteCommand.QueueMove(QueueMoveParams(entry.entryId))) },
-                            )
-                        }
-                    ItemActions(
-                        "Options for $title",
-                        options,
-                        modifier = Modifier.testTag("queue-options-${entry.entryId}"),
-                        enabled = enabled,
-                    )
-                }
-                if (entry.item.availability != Availability.AVAILABLE) Text("Offline")
+                val available = entry.item.availability == Availability.AVAILABLE
+                ListRow(
+                    title,
+                    if (available) null else "Offline",
+                    listRowPosition(index, entries.size),
+                    onClick = { actions.play(entry) },
+                    enabled = enabled && available,
+                    maxTitleLines = 2,
+                    trailing = {
+                        ItemActions(
+                            "Options for $title",
+                            queueOptions(entry.entryId, entries.getOrNull(index - 1)?.entryId, enabled, actions),
+                            enabled = enabled,
+                            buttonTag = "queue-options-${entry.entryId}",
+                        )
+                    },
+                )
             }
         }
     }
 }
+
+private fun queueOptions(
+    entryId: String,
+    previousEntryId: String?,
+    enabled: Boolean,
+    actions: QueueActions,
+): List<MenuAction> =
+    buildList {
+        add(
+            MenuAction("Remove", enabled, destructive = true) {
+                actions.command(RemoteCommand.QueueRemove(QueueRemoveParams(entryId)))
+            },
+        )
+        if (previousEntryId != null) {
+            add(
+                MenuAction("Move up", enabled) {
+                    actions.command(RemoteCommand.QueueMove(QueueMoveParams(entryId, previousEntryId)))
+                },
+            )
+        }
+        add(
+            MenuAction("Move to end", enabled) {
+                actions.command(RemoteCommand.QueueMove(QueueMoveParams(entryId)))
+            },
+        )
+    }
