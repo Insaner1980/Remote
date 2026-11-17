@@ -47,9 +47,9 @@ internal fun ColumnScope.TargetRemote(
         !state.busy && state.preview == null && model.sound.preview == null,
         { media.openBrowser(model.streaming, it) },
     )
-    Spacer(Modifier.weight(1f))
     val browser = controllers.browser
     if (browserActive && !state.showingMenus && browser != null) {
+        Spacer(Modifier.weight(1f))
         val enabled = state.browserInputVisible() && model.sound.preview == null
         BrowserControls(model.streaming, browser, enabled = enabled)
         RemoteModeActions(model, controllers, includeBack = false)

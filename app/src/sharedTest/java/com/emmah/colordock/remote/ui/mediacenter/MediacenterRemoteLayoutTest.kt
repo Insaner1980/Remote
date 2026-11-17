@@ -4,6 +4,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -13,12 +15,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emmah.colordock.remote.mediacenter.protocol.ActivityMode
+import com.emmah.colordock.remote.mediacenter.protocol.BrowserCapabilities
+import com.emmah.colordock.remote.mediacenter.protocol.Capabilities
 import com.emmah.colordock.remote.mediacenter.protocol.McRequest
 import com.emmah.colordock.remote.mediacenter.protocol.PlayerPhase
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteSnapshot
+import com.emmah.colordock.remote.mediacenter.protocol.ServiceCapability
+import com.emmah.colordock.remote.mediacenter.protocol.SupportedState
 import com.emmah.colordock.remote.ui.RemoteTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,6 +59,25 @@ class MediacenterRemoteLayoutTest {
         compose.onAllNodesWithText("Menu").assertCountEquals(1)
     }
 
+    @Test fun directionPadIsCenteredBetweenTheAppShortcutsAndMenu() {
+        val idle = idleSnapshot()
+        val youtube =
+            ServiceCapability(
+                "youtube",
+                SupportedState.UNSUPPORTED,
+                BrowserCapabilities(false, false, false, false, false, false),
+            )
+        show(
+            idle.copy(ui = idle.ui.copy(available = true)),
+            StreamingState(capabilities = Capabilities(emptyList(), listOf(youtube), false)),
+        )
+
+        val shortcut = compose.onNodeWithContentDescription("Open YouTube").fetchSemanticsNode().boundsInRoot
+        val pad = compose.onNodeWithTag("direction-pad").fetchSemanticsNode().boundsInRoot
+        val menu = compose.onNodeWithText("Menu").fetchSemanticsNode().boundsInRoot
+        assertEquals(shortcut.bottom + (menu.top - shortcut.bottom) / 2f, pad.center.y, 1f)
+    }
+
     @Test fun stoppedPlaybackStillOpensExistingQueueOnce() {
         val idle = idleSnapshot()
         show(idle.copy(queueSummary = idle.queueSummary.copy(count = "2")))
@@ -79,7 +106,10 @@ class MediacenterRemoteLayoutTest {
         )
     }
 
-    private fun show(snapshot: RemoteSnapshot) {
+    private fun show(
+        snapshot: RemoteSnapshot,
+        streaming: StreamingState = StreamingState(),
+    ) {
         compose.setContent {
             val scope = rememberCoroutineScope()
             val controllers =
@@ -93,12 +123,14 @@ class MediacenterRemoteLayoutTest {
                     )
                 }
             val state by controllers.media.state.collectAsState()
-            RemoteTheme {
-                MediacenterTargetContent(
-                    MediaTargetState(state, LibraryState(), AudioSettingsState()),
-                    controllers,
-                    { null },
-                )
+            DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 760.dp))) {
+                RemoteTheme {
+                    MediacenterTargetContent(
+                        MediaTargetState(state, LibraryState(), AudioSettingsState(), streaming = streaming),
+                        controllers,
+                        { null },
+                    )
+                }
             }
         }
     }

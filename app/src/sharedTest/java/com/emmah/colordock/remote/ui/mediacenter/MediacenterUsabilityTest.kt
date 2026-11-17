@@ -1,6 +1,6 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,8 +37,8 @@ class MediacenterUsabilityTest {
             val scope = rememberCoroutineScope()
             val controller = remember { RendererController(scope) { true } }
             RemoteTheme {
-                Box(Modifier.width(380.dp).testTag("available-width")) {
-                    RendererControls(phoneMediaSnapshot(), controller, Modifier.width(380.dp))
+                Column(Modifier.width(380.dp).testTag("available-width")) {
+                    RendererControls(phoneMediaSnapshot(), controller)
                 }
             }
         }
