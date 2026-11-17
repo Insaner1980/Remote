@@ -176,6 +176,18 @@ class TvAppsScreenTest {
         }
     }
 
+    @Test fun primeVideoIsOnlyAvailableInTheFullAppList() {
+        feature.value = feature.value.copy(apps = listOf(TvApp("amazon", "Prime Video", null)) + apps)
+        show()
+
+        compose.onNodeWithTag("app-shortcuts").performScrollTo()
+        compose.onNodeWithContentDescription("Open Prime Video on TV").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Open Netflix on TV").assertIsDisplayed()
+
+        picker()
+        inSheet("Prime Video").assertIsDisplayed()
+    }
+
     @Test fun phoneBackDismissesLocallyAndOpeningPickerReleasesHold() {
         show()
         val before = releases

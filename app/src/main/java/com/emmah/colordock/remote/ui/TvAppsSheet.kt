@@ -108,9 +108,10 @@ internal fun TvAppsStrip(
                 },
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(state.apps, key = {
-                it.id
-            }) { app ->
+            items(
+                state.apps.filterNot { it.id == LG_PRIME_VIDEO_APP_ID },
+                key = { it.id },
+            ) { app ->
                 AppItem(app, state, images, onLoadIcon, onOpen, Modifier.size(72.dp), iconOnly = true)
             }
         }
@@ -343,3 +344,4 @@ private fun tvAppsLoadMessage(state: TvAppsUiState): Int? =
     }
 
 private const val APP_FADE_START = .92f
+private const val LG_PRIME_VIDEO_APP_ID = "amazon"
