@@ -167,6 +167,8 @@ class RemoteScreenTest {
 
     @Test fun remoteAt320dp() = checkLayout(320, 1f)
 
+    @Test fun remoteBelow300dpAt140PercentFont() = checkLayout(288, 1.4f)
+
     @Test fun remoteAt200PercentFont() = checkLayout(400, 2f)
 
     @Test fun remoteAt320dpAnd200PercentFont() = checkLayout(320, 2f)

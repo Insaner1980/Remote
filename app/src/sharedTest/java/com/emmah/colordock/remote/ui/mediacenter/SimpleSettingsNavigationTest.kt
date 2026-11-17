@@ -12,6 +12,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -127,7 +128,7 @@ class SimpleSettingsNavigationTest {
     }
 
     @Test fun offlineOverviewAndBackRemainUsableAtDoubleTextSize() {
-        showSettings(offline = true, largeText = true)
+        showSettings(offline = true, fontScale = 2f)
         compose.onNodeWithTag("settings-section-Advanced").performScrollTo().performClick()
         compose.onNodeWithContentDescription("Back to settings").performClick()
         compose.onNodeWithTag("settings-section-VPN").performScrollTo().performClick()
@@ -139,11 +140,29 @@ class SimpleSettingsNavigationTest {
             .assertIsSelected()
     }
 
+    @Test fun sixSettingsRowsFitAt140PercentInANarrowWindow() {
+        showSettings(windowSize = DpSize(288.dp, 900.dp), fontScale = 1.4f)
+        val navigationTop =
+            compose
+                .onNodeWithTag("mediacenter-bottom-navigation")
+                .getUnclippedBoundsInRoot()
+                .top
+        listOf("Sound", "VPN", "Media", "Devices", "Appearance", "Advanced").forEach { label ->
+            val row =
+                compose
+                    .onNodeWithTag("settings-section-$label")
+                    .assertIsDisplayed()
+                    .getUnclippedBoundsInRoot()
+            assertTrue("$label should fit above navigation", row.top >= 0.dp && row.bottom <= navigationTop)
+        }
+    }
+
     private fun showSettings(
         appearance: () -> Unit = {},
         connection: () -> Unit = {},
         offline: Boolean = false,
-        largeText: Boolean = false,
+        fontScale: Float = 1f,
+        windowSize: DpSize = DpSize(360.dp, 640.dp),
     ) {
         compose.setContent {
             val scope = rememberCoroutineScope()
@@ -162,8 +181,9 @@ class SimpleSettingsNavigationTest {
                 }
             val state by controllers.media.state.collectAsState()
             DeviceConfigurationOverride(
-                DeviceConfigurationOverride.ForcedSize(DpSize(360.dp, 640.dp)) then
-                    DeviceConfigurationOverride.FontScale(if (largeText) 2f else 1f),
+                DeviceConfigurationOverride.ForcedSize(
+                    windowSize,
+                ) then DeviceConfigurationOverride.FontScale(fontScale),
             ) {
                 RemoteTheme {
                     MediacenterTargetContent(
