@@ -55,7 +55,7 @@ fun NumberPadSheet(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Channel number", style = MaterialTheme.typography.headlineSmall)
+            Text("Channel number", style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(
                 value = digits,
                 onValueChange = {},

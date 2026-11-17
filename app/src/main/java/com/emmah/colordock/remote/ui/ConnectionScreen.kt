@@ -74,7 +74,7 @@ fun ConnectionScreen(
                 Text(
                     stringResource(R.string.connect_title),
                     Modifier.weight(1f),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                 )
             }
             SettingsButton(onAppSettings)

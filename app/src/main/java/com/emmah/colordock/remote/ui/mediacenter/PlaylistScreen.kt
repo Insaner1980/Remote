@@ -1,7 +1,10 @@
 package com.emmah.colordock.remote.ui.mediacenter
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -12,11 +15,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.Availability
 import com.emmah.colordock.remote.mediacenter.protocol.MediaItem
 import com.emmah.colordock.remote.mediacenter.protocol.PlaylistsSaveParams
 import com.emmah.colordock.remote.mediacenter.protocol.RemoteCommand
+import com.emmah.colordock.remote.ui.DockIcon
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun PlaylistScreen(
@@ -27,11 +34,12 @@ internal fun PlaylistScreen(
 ) {
     val contents = state.playlist
     val enabled = state.snapshot != null && !state.busy
-    Column(modifier) {
-        TextButton(onClick = actions.back) { Text("Back") }
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(RemoteDimens.BlockGap)) {
         if (contents == null) {
+            MediacenterSubpageHeading(if (append == null) "Playlists" else "Choose playlist", actions.back) {
+                RefreshAction({ actions.list(null) }, enabled = enabled)
+            }
             PillSearchField(state.playlistQuery, actions.search, "Search")
-            Text(if (append == null) "Playlists" else "Choose playlist")
             val playlists = state.playlists?.items.orEmpty()
             ListGroup {
                 playlists.forEachIndexed { index, playlist ->
@@ -46,9 +54,12 @@ internal fun PlaylistScreen(
                 }
             }
             if (state.playlists?.items?.isEmpty() == true) Text("No playlists")
-            TextButton(onClick = { actions.list(null) }, enabled = enabled) { Text("Refresh") }
             state.playlists?.nextCursor?.let { cursor ->
-                TextButton(onClick = { actions.list(cursor) }, enabled = enabled) { Text("More") }
+                TextButton(
+                    onClick = { actions.list(cursor) },
+                    Modifier.align(Alignment.End),
+                    enabled = enabled,
+                ) { Text("More") }
             }
         } else {
             PlaylistDetails(state, append, actions)
@@ -65,8 +76,8 @@ private fun ColumnScope.PlaylistDetails(
     val contents = state.playlist ?: return
     val enabled = state.snapshot != null && !state.busy
     var editing by remember(contents.playlist.id) { mutableStateOf(false) }
-    androidx.compose.foundation.layout.Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-        Text(contents.playlist.name, Modifier.weight(1f), style = MaterialTheme.typography.titleLarge)
+    MediacenterSubpageHeading(contents.playlist.name, actions.back) {
+        RefreshAction({ actions.open(contents.playlist.id, null) }, enabled = enabled, label = "Refresh playlist")
         ItemActions("Playlist options", listOf(MenuAction("Rename", enabled) { editing = !editing }), enabled = enabled)
     }
     if (editing) {
@@ -91,11 +102,19 @@ private fun ColumnScope.PlaylistDetails(
             )
             actions.appended()
         }, enabled = enabled) { Text("Add to playlist") }
+        TextButton(onClick = actions.play, enabled = enabled) { Text("Play") }
+    } else {
+        Button(onClick = actions.play, enabled = enabled) {
+            DockIcon(R.drawable.ic_play_arrow)
+            Spacer(Modifier.width(RemoteDimens.ItemGap))
+            Text("Play")
+        }
     }
-    TextButton(onClick = actions.play, enabled = enabled) { Text("Play") }
     PlaylistEntries(contents, enabled, actions)
     contents.entries.nextCursor?.let { cursor ->
-        TextButton(onClick = { actions.open(contents.playlist.id, cursor) }, enabled = enabled) { Text("More") }
+        TextButton(onClick = {
+            actions.open(contents.playlist.id, cursor)
+        }, Modifier.align(Alignment.End), enabled = enabled) { Text("More") }
     }
     state.notice?.let { Text(it.label) }
 }
@@ -135,5 +154,4 @@ private fun PlaylistEntries(
             }
         }
     }
-    RefreshAction({ actions.open(contents.playlist.id, null) }, enabled = enabled, label = "Refresh playlist")
 }

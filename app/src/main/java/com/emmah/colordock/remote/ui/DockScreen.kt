@@ -158,14 +158,7 @@ private fun DockLocationScreen(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        TextButton({
-            onBack()
-        }) {
-            DockIcon(R.drawable.ic_undo)
-            Spacer(Modifier.width(8.dp))
-            Text("Color Dock")
-        }
-        Text("Choose location", style = MaterialTheme.typography.headlineSmall)
+        LgSubPageHeader("Choose location", onBack)
         OutlinedTextField(
             ui.query,
             {
@@ -223,7 +216,7 @@ private fun ColumnScope.DockClockSettings(
     onClock: () -> Unit,
     onPatch: (DockPatch) -> Unit,
 ) {
-    Text("Clock mode", style = MaterialTheme.typography.titleMedium)
+    DockSectionTitle("Clock mode")
     Box(Modifier.fillMaxWidth().aspectRatio(CLOCK_PREVIEW_ASPECT_RATIO).clip(RemoteShapes.Inner)) {
         Picture(
             thumbnail,
@@ -281,7 +274,7 @@ private fun DockWeatherSettings(
     onPatch: (DockPatch) -> Unit,
     onLocation: () -> Unit,
 ) {
-    Text("Weather", style = MaterialTheme.typography.titleMedium)
+    DockSectionTitle("Weather")
     OutlinedCard(shape = MaterialTheme.shapes.medium) {
         Column(Modifier.padding(horizontal = 14.dp)) {
             Row(Modifier.fillMaxWidth().heightIn(min = 60.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -346,7 +339,7 @@ private fun ColumnScope.DockAppSettings(
     ui: DockUiState,
     onShelf: () -> Unit,
 ) {
-    Text("Apps", style = MaterialTheme.typography.titleMedium)
+    DockSectionTitle("Apps")
     OutlinedCard(onClick = {
         onShelf()
     }, modifier = Modifier.fillMaxWidth().testTag("app-shelf-entry"), shape = MaterialTheme.shapes.medium) {
@@ -368,4 +361,13 @@ private fun ColumnScope.DockAppSettings(
             color = MaterialTheme.colorScheme.error,
         )
     }
+}
+
+@Composable
+private fun DockSectionTitle(title: String) {
+    Text(
+        title,
+        Modifier.padding(top = RemoteDimens.SectionGap - RemoteDimens.ItemGap),
+        style = MaterialTheme.typography.titleMedium,
+    )
 }

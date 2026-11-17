@@ -90,7 +90,7 @@ internal fun WallpaperUploadPreview(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Preview pictures", style = MaterialTheme.typography.headlineSmall)
+        LgSubPageHeader("Preview pictures", onAbandon)
 
         if (ui.preparing) LinearProgressIndicator(Modifier.fillMaxWidth())
         for (image in ui.prepared) {

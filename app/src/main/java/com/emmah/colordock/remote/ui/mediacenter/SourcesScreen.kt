@@ -25,6 +25,7 @@ import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.mediacenter.protocol.Availability
 import com.emmah.colordock.remote.mediacenter.protocol.OperationStatus
 import com.emmah.colordock.remote.mediacenter.protocol.Source
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun SourcesScreen(
@@ -35,37 +36,41 @@ internal fun SourcesScreen(
     modifier: Modifier = Modifier,
 ) {
     var browsing by remember { mutableStateOf(false) }
-    Column(modifier.testTag("sources-screen"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier.testTag("sources-screen")) {
         SectionLabel("Folders", trailing = {
             RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh folders")
         })
-        ListStatus(state.loading, state.connected, state.message, state.items.isEmpty(), "folders")
-        ListGroup {
-            ListRow(
-                "Add folder",
-                null,
-                if (state.items.isEmpty()) ListRowPosition.Single else ListRowPosition.First,
-                leadingIcon = R.drawable.ic_add,
-                onClick = {
-                    browsing = true
-                    actions.folders.browse(null)
-                },
-                enabled = state.connected,
-            )
-            state.items.forEachIndexed { index, source ->
-                androidx.compose.runtime.key(source.id) {
-                    SourceRow(
-                        source,
-                        state.connected && !busy,
-                        actions,
-                        listRowPosition(index + 1, state.items.size + 1),
-                    )
+        Column {
+            ListStatus(state.loading, state.connected, state.message, state.items.isEmpty(), "folders")
+            ListGroup {
+                ListRow(
+                    "Add folder",
+                    null,
+                    if (state.items.isEmpty()) ListRowPosition.Single else ListRowPosition.First,
+                    leadingIcon = R.drawable.ic_add,
+                    onClick = {
+                        browsing = true
+                        actions.folders.browse(null)
+                    },
+                    enabled = state.connected,
+                )
+                state.items.forEachIndexed { index, source ->
+                    androidx.compose.runtime.key(source.id) {
+                        SourceRow(
+                            source,
+                            state.connected && !busy,
+                            actions,
+                            listRowPosition(index + 1, state.items.size + 1),
+                        )
+                    }
                 }
             }
         }
-        if (state.cursor != null) MediaKey("More", null, !state.loading, actions.next, Modifier.fillMaxWidth())
-        actions.cancelScan?.let { cancel -> MediaKey("Cancel update", null, true, cancel, Modifier.fillMaxWidth()) }
-        RecoveredScanControls(state, actions.cancelRecoveredScan)
+        Column(verticalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap)) {
+            if (state.cursor != null) MediaKey("More", null, !state.loading, actions.next, Modifier.fillMaxWidth())
+            actions.cancelScan?.let { cancel -> MediaKey("Cancel update", null, true, cancel, Modifier.fillMaxWidth()) }
+            RecoveredScanControls(state, actions.cancelRecoveredScan)
+        }
         if (browsing) FolderChooser(folders, busy, actions.folders) { browsing = false }
     }
 }

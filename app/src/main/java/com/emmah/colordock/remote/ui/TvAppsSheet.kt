@@ -244,7 +244,7 @@ internal fun TvAppsSheet(
                     },
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(title, style = MaterialTheme.typography.headlineSmall)
+                Text(title, style = MaterialTheme.typography.titleLarge)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(
                         onRefresh,

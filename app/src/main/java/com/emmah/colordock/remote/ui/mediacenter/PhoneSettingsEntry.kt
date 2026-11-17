@@ -8,6 +8,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 @Composable
 internal fun PhoneSettingsEntry(
@@ -19,7 +20,7 @@ internal fun PhoneSettingsEntry(
     Column(modifier) {
         when (section) {
             SettingsSection.Devices -> {
-                ListGroup(Modifier.padding(top = 24.dp)) {
+                ListGroup(Modifier.padding(top = RemoteDimens.SectionGap - RemoteDimens.BlockGap)) {
                     ListRow(
                         "Connection",
                         null,

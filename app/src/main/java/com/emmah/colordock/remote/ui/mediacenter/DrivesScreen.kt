@@ -24,20 +24,22 @@ internal fun DrivesScreen(
     actions: DriveActions,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.testTag("drive-settings"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier.testTag("drive-settings")) {
         SectionLabel("USB drives", trailing = {
             RefreshAction(actions.refresh, enabled = state.connected && !state.loading, label = "Refresh drives")
         })
-        ListStatus(state.loading, state.connected, state.message, false, "drives")
-        RecoveredDriveRows(state, actions)
-        ListGroup {
-            val loaded = state.connected && !state.loading && state.message.isEmpty()
-            if (loaded && state.items.isEmpty()) {
-                EmptyListRow("No USB drive")
-            }
-            state.items.forEachIndexed { index, drive ->
-                androidx.compose.runtime.key(drive.id) {
-                    DriveRow(drive, state.connected && !busy, actions, listRowPosition(index, state.items.size))
+        Column {
+            ListStatus(state.loading, state.connected, state.message, false, "drives")
+            RecoveredDriveRows(state, actions)
+            ListGroup {
+                val loaded = state.connected && !state.loading && state.message.isEmpty()
+                if (loaded && state.items.isEmpty()) {
+                    EmptyListRow("No USB drive")
+                }
+                state.items.forEachIndexed { index, drive ->
+                    androidx.compose.runtime.key(drive.id) {
+                        DriveRow(drive, state.connected && !busy, actions, listRowPosition(index, state.items.size))
+                    }
                 }
             }
         }

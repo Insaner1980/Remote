@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.emmah.colordock.remote.R
 import com.emmah.colordock.remote.ui.DockIcon
 import com.emmah.colordock.remote.ui.NAV_LABEL_MAX_FONT_SCALE
+import com.emmah.colordock.remote.ui.RemoteDimens
 
 // Hoisted header slots preserve the target's navigation and recovery ownership.
 @Suppress("LongParameterList")
@@ -47,30 +49,9 @@ internal fun MediacenterPageHeading(
     val currentSelector by rememberUpdatedState(selector)
     val deviceSelector = remember { movableContentOf { currentSelector() } }
     val subpage = destination == MediaDestination.Settings && section != null
-    Row(
-        modifier
-            .testTag("mediacenter-page-heading")
-            .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+    MediacenterHeadingRow(modifier.testTag("mediacenter-page-heading")) {
         if (subpage) {
-            IconButton(onClick = onBack) { DockIcon(R.drawable.ic_keyboard_arrow_left, label = "Back to settings") }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    section.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    "Mediacenter",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            MediacenterSubpageTitle(section.name, "Back to settings", onBack)
         } else if (destination == MediaDestination.Remote) {
             Box(Modifier.weight(1f)) { deviceSelector() }
         } else {
@@ -85,6 +66,48 @@ internal fun MediacenterPageHeading(
         actions()
         attention()
         if (!subpage && destination != MediaDestination.Remote) deviceSelector()
+    }
+}
+
+@Composable
+internal fun MediacenterSubpageHeading(
+    title: String,
+    onBack: () -> Unit,
+    actions: @Composable () -> Unit = {},
+) {
+    MediacenterHeadingRow {
+        MediacenterSubpageTitle(title, "Back", onBack)
+        actions()
+    }
+}
+
+@Composable
+private fun MediacenterHeadingRow(
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
+    Row(
+        modifier.fillMaxWidth().heightIn(min = 64.dp).padding(vertical = RemoteDimens.ItemGap),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(RemoteDimens.ItemGap),
+        content = content,
+    )
+}
+
+@Composable
+private fun RowScope.MediacenterSubpageTitle(
+    title: String,
+    backLabel: String,
+    onBack: () -> Unit,
+) {
+    IconButton(onClick = onBack) { DockIcon(R.drawable.ic_keyboard_arrow_left, label = backLabel) }
+    Column(Modifier.weight(1f)) {
+        Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            "Mediacenter",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

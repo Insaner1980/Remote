@@ -97,14 +97,7 @@ internal fun WallpaperDetail(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        TextButton({
-            onDetail(null)
-        }) {
-            DockIcon(R.drawable.ic_undo)
-            Spacer(Modifier.width(8.dp))
-            Text("Wallpapers")
-        }
-        Text(detail.title, style = MaterialTheme.typography.headlineSmall)
+        LgSubPageHeader(detail.title, { onDetail(null) })
         LaunchedEffect(detail.id, detail.thumbnailHash) {
             currentOnThumbnail(detail)
         }
