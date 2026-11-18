@@ -2,19 +2,24 @@ package com.emmah.colordock.remote.mediacenter
 
 import android.graphics.BitmapFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
-/** A pairing-owned 100 MiB disk LRU with four request slots and synchronous retirement. */
+/** A pairing-owned 100 MiB disk LRU with paced preview downloads and synchronous retirement. */
 class MediacenterThumbnails(
     private val directory: File,
 ) {
     private val lock = Any()
-    private val slots = Semaphore(REQUEST_SLOTS)
+    private val download = Semaphore(1)
+    private var lastDownload: TimeMark? = null
     private var generation = 0L
     private var owner: String? = null
     private var transport: MediacenterTransport? = null
@@ -50,10 +55,8 @@ class MediacenterThumbnails(
         val request = request(id) ?: return null
         return try {
             withContext(Dispatchers.IO) {
-                slots.withPermit {
-                    val bytes = cached(request) ?: fetch(id, request)
-                    synchronized(lock) { bytes.takeIf { generation == request.generation } }
-                }
+                val bytes = cached(request) ?: download.withPermit { cached(request) ?: fetch(id, request) }
+                synchronized(lock) { bytes.takeIf { generation == request.generation } }
             }
         } catch (_: IOException) {
             null
@@ -90,6 +93,10 @@ class MediacenterThumbnails(
         id: String,
         request: Request,
     ): ByteArray? {
+        // Fast cache misses can otherwise open a burst of new TLS connections on the control link.
+        lastDownload?.let { delay(PREVIEW_INTERVAL - it.elapsedNow()) }
+        if (synchronized(lock) { generation != request.generation }) return null
+        lastDownload = TimeSource.Monotonic.markNow()
         val bytes = request.transport.thumbnail(id, request.credential)
         return synchronized(lock) {
             if (generation != request.generation || !valid(bytes)) {
@@ -132,7 +139,7 @@ class MediacenterThumbnails(
         }
 
     private companion object {
-        const val REQUEST_SLOTS = 4
+        val PREVIEW_INTERVAL = 400.milliseconds
         const val PNG_HEADER_BYTES = 24
         const val MAX_DIMENSION = 512
         const val MAX_BYTES = 512 * 1024

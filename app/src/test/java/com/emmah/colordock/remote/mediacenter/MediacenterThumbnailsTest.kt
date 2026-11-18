@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emmah.colordock.remote.mediacenter.protocol.PairedMediacenter
 import com.emmah.colordock.remote.mediacenter.protocol.Scope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withContext
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okhttp3.tls.HandshakeCertificates
@@ -30,7 +30,7 @@ import javax.net.SocketFactory
 
 @RunWith(AndroidJUnit4::class)
 class MediacenterThumbnailsTest {
-    @Test fun fourRequestsMaximumAndForgetRetiresInflightAndQueuedCacheWrites() =
+    @Test fun previewsAreFetchedOneAtATimeAndForgetRetiresQueuedWork() =
         runBlocking {
             fixture { server, cache, _ ->
                 repeat(5) {
@@ -41,16 +41,18 @@ class MediacenterThumbnailsTest {
                                 "Content-Type",
                                 "image/png",
                             ).body(Buffer().write(png()))
-                            .bodyDelay(1, TimeUnit.SECONDS)
+                            .bodyDelay(2, TimeUnit.SECONDS)
                             .build(),
                     )
                 }
                 val work = (1..5).map { n -> async { cache.load(n.toString(16).padStart(64, '0')) } }
-                withTimeout(4000) { while (server.requestCount < 4) delay(10) }
-                assertEquals(4, server.requestCount)
+                withContext(Dispatchers.IO) {
+                    assertTrue(server.takeRequest(4, TimeUnit.SECONDS) != null)
+                    assertNull(server.takeRequest(500, TimeUnit.MILLISECONDS))
+                }
                 cache.forget()
                 work.forEach { assertNull(it.await()) }
-                assertEquals(4, server.requestCount)
+                assertEquals(1, server.requestCount)
             }
         }
 
