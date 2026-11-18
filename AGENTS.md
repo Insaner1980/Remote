@@ -1,5 +1,8 @@
 # Remote project requirements
 
+## Git workflow
+- Always commit and push on a feature branch, then use a pull request for review. Never commit directly to or push directly to the default branch.
+
 ## User interface requirements
 - Never use middle-dot or bullet characters as visual separators in user-facing copy.
 - The TV/streaming app shortcut strip shows icons only. Do not add captions beneath them. Preserve meaningful accessible content descriptions.
