@@ -2,6 +2,7 @@ package com.emmah.colordock.remote.ui.mediacenter
 
 import android.app.Application
 import com.emmah.colordock.remote.mediacenter.AndroidMediacenterNetwork
+import com.emmah.colordock.remote.mediacenter.MediacenterConnectionState
 import com.emmah.colordock.remote.mediacenter.MediacenterControl
 import com.emmah.colordock.remote.mediacenter.MediacenterCredentials
 import com.emmah.colordock.remote.mediacenter.MediacenterEndpoint
@@ -9,6 +10,7 @@ import com.emmah.colordock.remote.mediacenter.MediacenterNetworks
 import com.emmah.colordock.remote.mediacenter.MediacenterNsdDiscovery
 import com.emmah.colordock.remote.mediacenter.StoredMediacenter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -29,13 +31,33 @@ internal class MediacenterConnections(
     private var selected: AndroidMediacenterNetwork? = null
     private var saved: StoredMediacenter? = null
     private var discovery: MediacenterNsdDiscovery? = null
+    private var reconnect: Job? = null
     private var loadGeneration = 0L
     private var forgetting = false
     private var reloadBlocked = false
     private var forgettingServerId: String? = null
 
-    fun open() {
+    fun open(resumeConnection: Boolean = false) {
+        fun reconnectSaved() {
+            val connection = state.value
+            val disconnected =
+                connection == MediacenterConnectionState.Disconnected ||
+                    connection == MediacenterConnectionState.NetworkUnavailable
+            if (reconnect == null || !disconnected) return
+            val record = saved?.takeUnless { reloadBlocked } ?: return
+            val currentRoute = selected?.takeIf { it.available() }
+            val route = currentRoute ?: networks.value.singleOrNull()?.takeIf { it.available() }
+            if (route != null) {
+                selected = route
+                ui.update { it.copy(networkName = route.label, status = "") }
+                control.connect(record, route)
+            }
+        }
+
         if (reloadBlocked) return
+        if (resumeConnection && reconnect == null) {
+            reconnect = scope.launch { networks.collect { reconnectSaved() } }
+        }
         val owner = ++loadGeneration
         scope.launch {
             try {
@@ -43,6 +65,7 @@ internal class MediacenterConnections(
                 if (owner == loadGeneration) {
                     saved = loaded
                     ui.update { it.copy(saved = loaded != null) }
+                    reconnectSaved()
                 }
             } catch (_: Exception) {
                 if (owner == loadGeneration) ui.update { it.copy(status = "Pair with Mediacenter again.") }
@@ -165,6 +188,9 @@ internal class MediacenterConnections(
     }
 
     fun close(disconnect: Boolean = false) {
+        reconnect?.cancel()
+        reconnect = null
+        ++loadGeneration
         stopDiscovery()
         inventory.close()
         if (disconnect) control.disconnect()

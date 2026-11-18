@@ -79,6 +79,7 @@ class MediacenterViewModel internal constructor(
     fun foreground() {
         refreshPermission()
         control.foreground()
+        if (mutable.value.lanGranted) connections.open(resumeConnection = true)
     }
 
     fun background() {
@@ -89,7 +90,7 @@ class MediacenterViewModel internal constructor(
 
     fun closeSetup() {
         pairing.cancel()
-        connections.close()
+        connections.stopDiscovery()
     }
 
     fun disconnect() {
@@ -98,6 +99,7 @@ class MediacenterViewModel internal constructor(
     }
 
     override fun onCleared() {
-        closeSetup()
+        pairing.cancel()
+        connections.close()
     }
 }

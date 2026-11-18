@@ -20,11 +20,15 @@ import com.emmah.colordock.remote.mediacenter.protocol.PairedMediacenter
 import com.emmah.colordock.remote.mediacenter.protocol.Scope
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -108,6 +112,7 @@ class MediacenterConnectionsTest {
 
     private class Fixture(
         scope: CoroutineScope,
+        pair: Boolean = true,
     ) {
         private val application =
             InstrumentationRegistry.getInstrumentation().targetContext.applicationContext as Application
@@ -126,6 +131,7 @@ class MediacenterConnectionsTest {
         val store = Credentials(record)
         val control = Control()
         val ui = MutableStateFlow(MediacenterSetupState())
+        val viewModel by lazy { MediacenterViewModel(application, control, store, emptyList()) }
         val connections = MediacenterConnections(application, store, control, scope, ui)
         val first: AndroidMediacenterNetwork
         val second: AndroidMediacenterNetwork
@@ -134,8 +140,14 @@ class MediacenterConnectionsTest {
             shadowOf(application).grantPermissions(Manifest.permission.ACCESS_LOCAL_NETWORK)
             first = route(7, "wlanA")
             second = route(8, "wlanB")
-            connections.select(first)
-            connections.paired(record, first)
+            if (pair) {
+                connections.select(first)
+                connections.paired(record, first)
+            }
+        }
+
+        fun wifiAvailable(route: AndroidMediacenterNetwork) {
+            connectivity.networkCallbacks.forEach { it.onAvailable(route.network) }
         }
 
         private fun route(
@@ -153,6 +165,45 @@ class MediacenterConnectionsTest {
 
         fun sameSecondRoute() = AndroidMediacenterNetwork(application, second.network, second.interfaceName)
     }
+
+    @Test fun foregroundRestoresTheSavedPairingWhenWifiBecomesAvailable() =
+        runTest {
+            Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
+            val fixture = Fixture(this, pair = false)
+            try {
+                fixture.viewModel.foreground()
+                runCurrent()
+                assertNull(fixture.control.active)
+                fixture.wifiAvailable(fixture.first)
+                runCurrent()
+                val routes = fixture.viewModel.networks.value
+                assertEquals(fixture.first.network, routes.single().network)
+                val active = fixture.control.active as? AndroidMediacenterNetwork
+                assertEquals(fixture.first.network, active?.network)
+            } finally {
+                fixture.viewModel.disconnect()
+                Dispatchers.resetMain()
+            }
+        }
+
+    @Test fun credentialLoadFinishingAfterBackgroundDoesNotStartAConnection() =
+        runTest {
+            Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
+            val fixture = Fixture(this, pair = false)
+            try {
+                fixture.store.suspendLoad = true
+                fixture.viewModel.foreground()
+                fixture.wifiAvailable(fixture.first)
+                assertTrue(fixture.store.loadStarted.isCompleted)
+                fixture.viewModel.background()
+                fixture.store.releaseLoad.complete(Unit)
+                runCurrent()
+                assertNull(fixture.control.active)
+            } finally {
+                fixture.viewModel.disconnect()
+                Dispatchers.resetMain()
+            }
+        }
 
     @Test fun selectingAnotherNetworkRetiresTheOldOwnerBeforeDisplayingTheNewRoute() =
         runTest {
